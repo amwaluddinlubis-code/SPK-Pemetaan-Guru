@@ -13,6 +13,12 @@ abstract class TestCase extends BaseTestCase
      * yang tidak ada di SQLite. Kredensial diambil dari .env seperti biasa;
      * hanya nama databasenya yang dialihkan.
      */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutVite(); // View HTTP tests do not need a compiled frontend manifest.
+    }
+
     public function createApplication(): Application
     {
         $app = parent::createApplication();
