@@ -54,6 +54,10 @@ class AdminSeeder extends Seeder
                 'name' => 'Kadis Pendidikan', 'email' => 'kadis@peta-asn.local',
                 'password' => 'kadis123', 'role' => 'kadis',
             ],
+            [
+                'name' => 'Pemerintah Daerah', 'email' => 'pemda@peta-asn.local',
+                'password' => 'pemda123', 'role' => 'pemda',
+            ],
         ];
 
         foreach ($akun as $a) {

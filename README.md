@@ -34,6 +34,7 @@ dengan komponen UI dari **daisyUI**.
 | **Ketua PGRI Kecamatan** | Kecamatan | Lihat saja (read-only) data se-kecamatan |
 | **Kabid PTK** | Kabupaten (semua) | Administrator: CRUD penuh guru, sekolah, dan kelola pengguna |
 | **Kadis Pendidikan** | Semua | Reviewer: lihat semua (read-only) |
+| **Pemerintah Daerah** | Semua | Eksekutif: dashboard ringkasan se-kabupaten (read-only) |
 
 Akun contoh (password = nama peran + `123`, segera ganti!):
 
@@ -45,6 +46,7 @@ Akun contoh (password = nama peran + `123`, segera ganti!):
 | `pgri@peta-asn.local` | `pgri123` | Ketua PGRI Kec. Panyabungan |
 | `kabid@peta-asn.local` | `kabid123` | Kabid PTK (administrator) |
 | `kadis@peta-asn.local` | `kadis123` | Kadis (reviewer) |
+| `pemda@peta-asn.local` | `pemda123` | Pemerintah Daerah (eksekutif) |
 
 > ⚠️ Paket ini berisi **kode sumber aplikasi** (tanpa folder `vendor/` dan `node_modules/`).
 > Ikuti langkah instalasi di bawah — total ±15 menit.

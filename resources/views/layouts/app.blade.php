@@ -27,6 +27,9 @@
                 <ul x-show="buka" @click.away="buka = false"
                     class="menu menu-sm dropdown-content mt-3 z-[50] p-2 shadow bg-base-100 text-base-content rounded-box w-52">
                     <li><a href="{{ route('dashboard') }}">🗺️ Dashboard</a></li>
+                    @if (auth()->user()->hasRole('pemda', 'kadis'))
+                        <li><a href="{{ route('pemda.dashboard') }}">🏛️ Eksekutif</a></li>
+                    @endif
                     <li><a href="{{ route('guru.index') }}">👩‍🏫 Data Guru</a></li>
                     <li><a href="{{ route('sekolah.index') }}">🏫 Data Sekolah</a></li>
                     <li><a href="{{ route('usulan.index') }}">📝 Usulan</a></li>
@@ -42,6 +45,9 @@
         <div class="navbar-center hidden lg:flex">
             <ul class="menu menu-horizontal px-1 font-semibold">
                 <li><a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a></li>
+                @if (auth()->user()->hasRole('pemda', 'kadis'))
+                    <li><a href="{{ route('pemda.dashboard') }}" class="{{ request()->routeIs('pemda.*') ? 'active' : '' }}">Eksekutif</a></li>
+                @endif
                 <li><a href="{{ route('guru.index') }}" class="{{ request()->routeIs('guru.*') ? 'active' : '' }}">Data Guru</a></li>
                 <li><a href="{{ route('sekolah.index') }}" class="{{ request()->routeIs('sekolah.*') ? 'active' : '' }}">Data Sekolah</a></li>
                 <li><a href="{{ route('usulan.index') }}" class="{{ request()->routeIs('usulan.*') ? 'active' : '' }}">Usulan</a></li>

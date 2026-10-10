@@ -5,10 +5,12 @@
 //   ketua_pgri     → view se-kecamatan (read-only)
 //   kabid_ptk      → administrator (CRUD penuh + kelola pengguna)
 //   kadis          → reviewer (read-only semua)
+//   pemda          → eksekutif daerah (dashboard ringkasan, read-only)
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GuruController;
+use App\Http\Controllers\PemdaController;
 use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\SpkController;
 use App\Http\Controllers\SwapController;
@@ -26,6 +28,11 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Dashboard + peta rekomendasi: semua peran
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // --- Modul Pemda: dashboard eksekutif (ringkasan se-kabupaten, read-only) ---
+    // Lihat: pemda, kadis
+    Route::get('/pemda', [PemdaController::class, 'index'])->name('pemda.dashboard')
+        ->middleware('role:pemda,kadis');
 
     // --- Data Guru ---
     // Lihat: semua peran (controller membatasi cakupan data)

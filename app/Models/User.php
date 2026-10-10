@@ -34,6 +34,7 @@ class User extends Authenticatable
         'ketua_pgri'     => 'Ketua PGRI Kecamatan',
         'kabid_ptk'      => 'Kabid PTK Kabupaten',
         'kadis'          => 'Kadis Pendidikan',
+        'pemda'          => 'Pemerintah Daerah',
     ];
 
     /**
