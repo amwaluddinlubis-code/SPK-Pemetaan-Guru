@@ -52,5 +52,8 @@ Ini bukan audit penetrasi dan tidak mencakup pengujian server production.
 - Belum dilakukan uji penetrasi, audit dependency, atau pengujian deployment.
 - Belum diverifikasi seluruh jalur kebocoran data pribadi/koordinat pada setiap peran.
 - Belum ada fitur reset password aman, autentikasi multifaktor, atau audit log.
-- Uji PHPUnit untuk branch ini harus menunggu hasil GitHub Actions; perubahan tidak
-  dianggap lolos hanya karena workflow telah dibuat.
+- Workflow PHPUnit sebelumnya menyalin direktori ke dalam direktori runtime yang sudah ada,
+  sehingga tes aplikasi repo tidak ikut ditemukan (hanya tes contoh Laravel yang berjalan).
+  Pada branch ini, langkah overlay diperbaiki agar isi direktori repo menimpa/menggabung
+  ke direktori runtime. Hasil tes dari run baru harus diperiksa; run lama tidak membuktikan
+  tes aplikasi lolos.
