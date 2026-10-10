@@ -619,9 +619,9 @@ INSERT INTO sekolah (npsn, nama, alamat, kecamatan, lat, lng, created_at, update
   ('69900562','SMP NEGERI 8 NATAL','Pardamean baru','Natal',0.7510817,99.5838983,NOW(),NOW()),
   ('69896957','SMP SWASTA BINA ARTHA MAHKOTA','DESA SIKARA-KARA IV','Natal',0.7687217,99.5678083,NOW(),NOW());
 
--- Kebutuhan guru CONTOH (demo) — dibuat via seeder, tidak di file ini.
--- Akun: buat via `php artisan db:seed` (lihat README).
--- Admin: admin@peta-asn.local / admin123 (segera ganti!)
+-- Kebutuhan guru dan akun pengguna tidak dimasukkan dalam dump ini.
+-- Untuk data/akun demo lokal, gunakan `php artisan migrate --seed` dengan APP_ENV=local.
+-- Jangan gunakan dump ini sebagai pengganti prosedur deployment production.
 
 CREATE TABLE IF NOT EXISTS rekomendasi_swaps (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
