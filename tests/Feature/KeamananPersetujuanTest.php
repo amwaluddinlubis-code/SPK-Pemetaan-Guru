@@ -408,4 +408,30 @@ class KeamananPersetujuanTest extends TestCase
             ->assertSee('Sisa formasi', false)
             ->assertSee('(garis lurus)', false);
     }
+
+    public function test_login_dibatasi_setelah_lima_percobaan_per_menit(): void
+    {
+        $kredensial = [
+            'email' => 'tidak-ada@example.test',
+            'password' => 'password-salah',
+        ];
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->post('/login', $kredensial)->assertRedirect();
+        }
+
+        $this->post('/login', $kredensial)->assertStatus(429);
+    }
+
+    public function test_admin_seeder_tidak_membuat_kredensial_demo_di_production(): void
+    {
+        config(['app.env' => 'production']);
+
+        $this->seed(\\Database\\Seeders\\AdminSeeder::class);
+
+        $this->assertDatabaseMissing('users', [
+            'email' => 'admin@peta-asn.local',
+        ]);
+    }
+
 }
