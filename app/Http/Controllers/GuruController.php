@@ -1,4 +1,5 @@
 <?php
+
 // Controller Guru dengan scope berbeda per peran:
 //   guru           → hanya data dirinya sendiri (boleh ubah)
 //   kepala_sekolah → CRUD guru di sekolahnya sendiri
@@ -22,17 +23,17 @@ class GuruController extends Controller
     private function aturanValidasi(): array
     {
         return [
-            'nip'                  => ['required', 'string', 'max:30'],
-            'nama'                 => ['required', 'string', 'max:100'],
-            'mapel'                => ['required', 'string', 'max:50'],
-            'jenjang'              => ['required', 'in:SD,SMP,SMA'],
-            'domisili_alamat'      => ['required', 'string', 'max:255'],
-            'kecamatan'            => ['nullable', 'string', 'max:100'],
-            'desa_kelurahan'       => ['nullable', 'string', 'max:100'],
-            'sekolah_id'           => ['nullable', 'exists:sekolah,id'],
-            'domisili_lat'         => ['required', 'numeric', 'between:-90,90'],
-            'domisili_lng'         => ['required', 'numeric', 'between:-180,180'],
-            'sekolah_saat_ini'     => ['required', 'string', 'max:100'],
+            'nip' => ['required', 'string', 'max:30'],
+            'nama' => ['required', 'string', 'max:100'],
+            'mapel' => ['required', 'string', 'max:50'],
+            'jenjang' => ['required', 'in:SD,SMP,SMA'],
+            'domisili_alamat' => ['required', 'string', 'max:255'],
+            'kecamatan' => ['nullable', 'string', 'max:100'],
+            'desa_kelurahan' => ['nullable', 'string', 'max:100'],
+            'sekolah_id' => ['nullable', 'exists:sekolah,id'],
+            'domisili_lat' => ['required', 'numeric', 'between:-90,90'],
+            'domisili_lng' => ['required', 'numeric', 'between:-180,180'],
+            'sekolah_saat_ini' => ['required', 'string', 'max:100'],
             'sekolah_saat_ini_lat' => ['nullable', 'numeric', 'between:-90,90'],
             'sekolah_saat_ini_lng' => ['nullable', 'numeric', 'between:-180,180'],
         ];
@@ -99,7 +100,7 @@ class GuruController extends Controller
     public function create()
     {
         return view('guru.form', [
-            'guru' => new Guru(),
+            'guru' => new Guru,
             'aksi' => 'Tambah',
             'daftarSekolah' => Sekolah::orderBy('nama')->get(),
             'daftarKecamatan' => $this->daftarKecamatan(),
@@ -125,6 +126,7 @@ class GuruController extends Controller
     public function edit(Guru $guru)
     {
         $this->otorisasiAkses($guru);
+
         return view('guru.form', [
             'guru' => $guru,
             'aksi' => 'Ubah',
@@ -138,7 +140,21 @@ class GuruController extends Controller
         $this->otorisasiAkses($guru);
 
         $data = $request->validate($this->aturanValidasi());
-        $request->validate(['nip' => ['unique:guru,nip,' . $guru->id]]);
+        $request->validate(['nip' => ['unique:guru,nip,'.$guru->id]]);
+
+        // SEC-002: batasi kolom yang boleh diubah per peran. Kepemilikan record
+        // bukan berarti boleh mengubah atribut administratif.
+        //   guru           → data pribadi saja (tanpa NIP, mapel, jenjang, sekolah)
+        //   kepala_sekolah → semua kecuali NIP (identitas kepegawaian milik kabid)
+        //   kabid_ptk      → semua kolom
+        $kolomBoleh = match (auth()->user()->role) {
+            'guru' => ['nama', 'domisili_alamat', 'desa_kelurahan', 'kecamatan',
+                'domisili_lat', 'domisili_lng'],
+            'kepala_sekolah' => array_diff(
+                array_keys($this->aturanValidasi()), ['nip']),
+            default => array_keys($this->aturanValidasi()),
+        };
+        $data = array_intersect_key($data, array_flip($kolomBoleh));
 
         // Kepala sekolah tidak bisa memindahkan guru ke sekolah lain
         if (auth()->user()->role === 'kepala_sekolah') {
@@ -184,23 +200,23 @@ class GuruController extends Controller
      */
     public function unduhTemplate()
     {
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $lembar = $spreadsheet->getActiveSheet();
         $lembar->fromArray([self::KOLOM_IMPORT], null, 'A1');
         $lembar->fromArray([
             ['198501012010011001', 'Siti Aminah', 'Matematika', 'SD',
-             'Jl. Merdeka No.10, Panyabungan', 'Panyabungan',
-             0.855, 99.555, 'SD NEGERI 076 PANYABUNGAN', 0.858, 99.56, '10208250'],
+                'Jl. Merdeka No.10, Panyabungan', 'Panyabungan',
+                0.855, 99.555, 'SD NEGERI 076 PANYABUNGAN', 0.858, 99.56, '10208250'],
             ['198703152012022002', 'Budi Hartono', 'IPA', 'SMP',
-             'Jl. Sudirman No.5, Panyabungan', 'Panyabungan',
-             0.87, 99.57, 'SMP NEGERI 1 PANYABUNGAN', 0.8732, 99.7175, '10208088'],
+                'Jl. Sudirman No.5, Panyabungan', 'Panyabungan',
+                0.87, 99.57, 'SMP NEGERI 1 PANYABUNGAN', 0.8732, 99.7175, '10208088'],
         ], null, 'A2');
         foreach (range('A', 'L') as $kolom) {
             $lembar->getColumnDimension($kolom)->setAutoSize(true);
         }
 
         $namaBerkas = 'template-import-guru.xlsx';
-        $berkasSementara = tempnam(sys_get_temp_dir(), 'tpl') . '.xlsx';
+        $berkasSementara = tempnam(sys_get_temp_dir(), 'tpl').'.xlsx';
         (new Xlsx($spreadsheet))->save($berkasSementara);
 
         return response()->download($berkasSementara, $namaBerkas)->deleteFileAfterSend();
@@ -224,8 +240,7 @@ class GuruController extends Controller
 
         $header = array_map(fn ($h) => strtolower(trim((string) $h)), $lembar[0] ?? []);
         if ($header !== self::KOLOM_IMPORT) {
-            return back()->withErrors(['berkas' =>
-                'Header tidak sesuai template. Unduh template dulu lewat tombol di bawah.']);
+            return back()->withErrors(['berkas' => 'Header tidak sesuai template. Unduh template dulu lewat tombol di bawah.']);
         }
 
         // Peta pembantu: NIP yang sudah ada + NPSN→sekolah_id + kecamatan valid
@@ -251,6 +266,7 @@ class GuruController extends Controller
                 $error = $this->validasiBarisImport($data, $nipAda, $nipDiBerkas, $sekolahOlehNpsn, $kecamatanValid);
                 if ($error) {
                     $gagal[] = "Baris {$noBaris}: {$error}";
+
                     continue;
                 }
 
@@ -274,12 +290,13 @@ class GuruController extends Controller
             DB::commit();
         } catch (\Throwable $e) {
             DB::rollBack();
-            return back()->withErrors(['berkas' => 'Import dibatalkan: ' . $e->getMessage()]);
+
+            return back()->withErrors(['berkas' => 'Import dibatalkan: '.$e->getMessage()]);
         }
 
         return redirect()->route('guru.index')->with([
             'sukses' => "Import selesai: {$berhasil} guru ditambahkan"
-                . (count($gagal) ? ', ' . count($gagal) . ' baris gagal.' : '.'),
+                .(count($gagal) ? ', '.count($gagal).' baris gagal.' : '.'),
             'import_gagal' => $gagal,
         ]);
     }
@@ -290,7 +307,7 @@ class GuruController extends Controller
     private function validasiBarisImport(array $d, $nipAda, array $nipDiBerkas, $sekolahOlehNpsn, $kecamatanValid): ?string
     {
         $wajib = ['nip', 'nama', 'mapel', 'jenjang', 'domisili_alamat',
-                  'domisili_lat', 'domisili_lng', 'sekolah_saat_ini'];
+            'domisili_lat', 'domisili_lng', 'sekolah_saat_ini'];
         foreach ($wajib as $k) {
             if ($d[$k] === null || $d[$k] === '') {
                 return "kolom '{$k}' wajib diisi.";
@@ -327,6 +344,7 @@ class GuruController extends Controller
         if ($d['npsn'] !== '' && ! isset($sekolahOlehNpsn[trim((string) $d['npsn'])])) {
             return "NPSN '{$d['npsn']}' tidak ditemukan di data sekolah.";
         }
+
         return null;
     }
 

@@ -36,17 +36,21 @@ dengan komponen UI dari **daisyUI**.
 | **Kadis Pendidikan** | Semua | Reviewer: lihat semua (read-only) |
 | **Pemerintah Daerah** | Semua | Eksekutif: dashboard ringkasan se-kabupaten (read-only) |
 
-Akun contoh (password = nama peran + `123`, segera ganti!):
+Akun contoh untuk pengembangan lokal (dibuat oleh seeder — **jangan dipakai di production**):
 
-| Email | Password | Peran |
-|---|---|---|
-| `admin@peta-asn.local` | `admin123` | Kadis (reviewer) |
-| `guru@peta-asn.local` | `guru123` | Guru (Siti Aminah) |
-| `kepsek@peta-asn.local` | `kepsek123` | Kepala SD Negeri 076 Panyabungan |
-| `pgri@peta-asn.local` | `pgri123` | Ketua PGRI Kec. Panyabungan |
-| `kabid@peta-asn.local` | `kabid123` | Kabid PTK (administrator) |
-| `kadis@peta-asn.local` | `kadis123` | Kadis (reviewer) |
-| `pemda@peta-asn.local` | `pemda123` | Pemerintah Daerah (eksekutif) |
+| Email | Peran |
+|---|---|
+| `admin@peta-asn.local` | Kadis (reviewer) |
+| `guru@peta-asn.local` | Guru (Siti Aminah) |
+| `kepsek@peta-asn.local` | Kepala SD Negeri 076 Panyabungan |
+| `pgri@peta-asn.local` | Ketua PGRI Kec. Panyabungan |
+| `kabid@peta-asn.local` | Kabid PTK (administrator) |
+| `kadis@peta-asn.local` | Kadis (reviewer) |
+| `pemda@peta-asn.local` | Pemerintah Daerah (eksekutif) |
+
+> 🔐 Password akun contoh mengikuti pola yang tercantum di `database/seeders/AdminSeeder.php`
+> dan hanya untuk lingkungan pengembangan lokal. Sebelum deployment publik/production:
+> ganti semua password lewat menu Profil, atau buat akun baru dan hapus akun contoh.
 
 > ⚠️ Paket ini berisi **kode sumber aplikasi** (tanpa folder `vendor/` dan `node_modules/`).
 > Ikuti langkah instalasi di bawah — total ±15 menit.
@@ -158,7 +162,7 @@ php artisan serve
 ```
 Buka **http://127.0.0.1:8000** di browser.
 
-**Login default:** lihat tabel akun di atas (mis. `kabid@peta-asn.local` / `kabid123`)
+**Login awal:** lihat tabel akun di atas (password mengikuti pola di `AdminSeeder.php`)
 ⚠️ Segera ganti password setelah masuk!
 
 ---

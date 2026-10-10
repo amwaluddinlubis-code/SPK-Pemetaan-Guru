@@ -1,4 +1,5 @@
 <?php
+
 // Controller Usulan Penempatan guru (alur persetujuan berlapis):
 //   mengajukan      → guru (diri sendiri), kepala_sekolah (guru sekolahnya), kabid_ptk
 //   verifikasi      → kabid_ptk (diajukan → diverifikasi)
@@ -13,6 +14,9 @@ use App\Models\Guru;
 use App\Models\Sekolah;
 use App\Models\UsulanPenempatan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class UsulanController extends Controller
 {
@@ -63,7 +67,7 @@ class UsulanController extends Controller
     public function create()
     {
         return view('usulan.form', [
-            'usulan' => new UsulanPenempatan(),
+            'usulan' => new UsulanPenempatan,
             'daftarGuru' => $this->guruBisaDiusulkan(),
             'daftarSekolah' => Sekolah::orderBy('nama')->get(),
         ]);
@@ -94,37 +98,46 @@ class UsulanController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'guru_id'    => ['required', 'exists:guru,id'],
+            'guru_id' => ['required', 'exists:guru,id'],
             'sekolah_id' => ['required', 'exists:sekolah,id'],
-            'alasan'     => ['required', 'string', 'min:10', 'max:1000'],
+            'alasan' => ['required', 'string', 'min:10', 'max:1000'],
         ]);
 
-        $guru = Guru::findOrFail($data['guru_id']);
-        $this->otorisasiAjukan($guru);
+        // FLOW-002: kunci baris guru selama pemeriksaan + pembuatan agar dua
+        // pengajuan bersamaan untuk guru yang sama tidak lolos bersamaan.
+        try {
+            DB::transaction(function () use ($data) {
+                $guru = Guru::whereKey($data['guru_id'])->lockForUpdate()->firstOrFail();
+                $this->otorisasiAjukan($guru);
 
-        // Sekolah tujuan harus berbeda & benar-benar butuh mapel guru ini
-        if ($guru->sekolah_id && (int) $data['sekolah_id'] === (int) $guru->sekolah_id) {
-            return back()->withErrors(['sekolah_id' => 'Sekolah tujuan sama dengan sekolah saat ini.'])
-                ->withInput();
-        }
-        $sekolah = Sekolah::with('kebutuhan')->findOrFail($data['sekolah_id']);
-        if ($sekolah->butuhMapel($guru->mapel) <= 0) {
-            return back()->withErrors(['sekolah_id' =>
-                "Sekolah ini tidak membutuhkan guru {$guru->mapel}."])->withInput();
-        }
+                // Sekolah tujuan harus berbeda & benar-benar butuh mapel guru ini
+                if ($guru->sekolah_id && (int) $data['sekolah_id'] === (int) $guru->sekolah_id) {
+                    throw ValidationException::withMessages(['sekolah_id' => 'Sekolah tujuan sama dengan sekolah saat ini.']);
+                }
+                $sekolah = Sekolah::with('kebutuhan')->findOrFail($data['sekolah_id']);
+                if ($sekolah->butuhMapel($guru->mapel) <= 0) {
+                    throw ValidationException::withMessages(['sekolah_id' => "Sekolah ini tidak membutuhkan guru {$guru->mapel}."]);
+                }
 
-        // Satu guru hanya boleh punya satu usulan aktif
-        if (UsulanPenempatan::where('guru_id', $guru->id)
-                ->whereIn('status', UsulanPenempatan::AKTIF)->exists()) {
-            return back()->withErrors(['guru_id' => 'Guru ini masih punya usulan yang berjalan.'])
-                ->withInput();
-        }
+                // Satu guru hanya boleh punya satu usulan aktif (dicek ulang di dalam lock)
+                if (UsulanPenempatan::where('guru_id', $guru->id)
+                    ->whereIn('status', UsulanPenempatan::AKTIF)->exists()) {
+                    throw ValidationException::withMessages(['guru_id' => 'Guru ini masih punya usulan yang berjalan.']);
+                }
 
-        UsulanPenempatan::create([
-            'guru_id' => $guru->id, 'sekolah_id' => $sekolah->id,
-            'alasan' => $data['alasan'], 'status' => 'diajukan',
-            'diajukan_oleh' => auth()->id(),
-        ]);
+                UsulanPenempatan::create([
+                    'guru_id' => $guru->id, 'sekolah_id' => $sekolah->id,
+                    'alasan' => $data['alasan'], 'status' => 'diajukan',
+                    'diajukan_oleh' => auth()->id(),
+                ]);
+            });
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (HttpException $e) {
+            throw $e; // 403/404 dari otorisasi tetap jadi respons HTTP semestinya
+        } catch (\Throwable $e) {
+            return back()->with('gagal', 'Pengajuan gagal: '.$e->getMessage())->withInput();
+        }
 
         return redirect()->route('usulan.index')
             ->with('sukses', 'Usulan penempatan berhasil diajukan.');
@@ -139,58 +152,97 @@ class UsulanController extends Controller
     }
 
     /**
-     * Kabid: diajukan → diverifikasi.
+     * Kabid: diajukan → diverifikasi. Dikunci dalam transaction (FLOW-001).
      */
     public function verifikasi(Request $request, UsulanPenempatan $usulan)
     {
-        abort_unless($usulan->status === 'diajukan', 422, 'Usulan sudah diproses.');
         $data = $request->validate(['catatan' => ['nullable', 'string', 'max:1000']]);
 
-        $usulan->update([
-            'status' => 'diverifikasi', 'diproses_oleh' => auth()->id(),
-            'catatan' => $data['catatan'] ?? null,
-        ]);
+        try {
+            DB::transaction(function () use ($usulan, $data) {
+                $u = UsulanPenempatan::whereKey($usulan->id)->lockForUpdate()->firstOrFail();
+                if ($u->status !== 'diajukan') {
+                    throw new \RuntimeException('Usulan sudah diproses sebelumnya.');
+                }
+                $u->update([
+                    'status' => 'diverifikasi', 'diproses_oleh' => auth()->id(),
+                    'catatan' => $data['catatan'] ?? null,
+                ]);
+            });
+        } catch (HttpException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            return back()->with('gagal', 'Verifikasi gagal: '.$e->getMessage());
+        }
 
         return back()->with('sukses', 'Usulan diverifikasi, menunggu persetujuan Kadis.');
     }
 
     /**
-     * Kadis: diverifikasi → disetujui. Data guru otomatis dimutasi ke sekolah tujuan.
+     * Kadis: diverifikasi → disetujui. Data guru otomatis dimutasi ke sekolah
+     * tujuan. Rekomendasi + guru dikunci, status divalidasi ulang (FLOW-001).
      */
     public function setujui(Request $request, UsulanPenempatan $usulan)
     {
-        abort_unless($usulan->status === 'diverifikasi', 422, 'Usulan belum diverifikasi Kabid.');
         $data = $request->validate(['catatan' => ['nullable', 'string', 'max:1000']]);
 
-        $usulan->update([
-            'status' => 'disetujui', 'diproses_oleh' => auth()->id(),
-            'catatan' => $data['catatan'] ?? null,
-        ]);
+        try {
+            DB::transaction(function () use ($usulan, $data) {
+                $u = UsulanPenempatan::whereKey($usulan->id)->lockForUpdate()->firstOrFail();
+                if ($u->status !== 'diverifikasi') {
+                    throw new \RuntimeException(
+                        'Usulan belum diverifikasi Kabid atau sudah diproses sebelumnya.');
+                }
 
-        // Mutasi: pindahkan guru ke sekolah tujuan
-        $sekolah = $usulan->sekolah;
-        $usulan->guru->update([
-            'sekolah_id' => $sekolah->id,
-            'sekolah_saat_ini' => $sekolah->nama,
-            'sekolah_saat_ini_lat' => $sekolah->lat,
-            'sekolah_saat_ini_lng' => $sekolah->lng,
-        ]);
+                $guru = Guru::whereKey($u->guru_id)->lockForUpdate()->firstOrFail();
+                $sekolah = Sekolah::findOrFail($u->sekolah_id);
+
+                $u->update([
+                    'status' => 'disetujui', 'diproses_oleh' => auth()->id(),
+                    'catatan' => $data['catatan'] ?? null,
+                ]);
+
+                // Mutasi: pindahkan guru ke sekolah tujuan (atomik dengan status)
+                $guru->update([
+                    'sekolah_id' => $sekolah->id,
+                    'sekolah_saat_ini' => $sekolah->nama,
+                    'sekolah_saat_ini_lat' => $sekolah->lat,
+                    'sekolah_saat_ini_lng' => $sekolah->lng,
+                ]);
+            });
+        } catch (HttpException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            return back()->with('gagal', 'Persetujuan gagal: '.$e->getMessage());
+        }
 
         return back()->with('sukses', 'Usulan disetujui, data guru telah dimutasi.');
     }
 
     /**
      * Kabid/Kadis: diajukan/diverifikasi → ditolak (catatan wajib).
+     * Dikunci dalam transaction (FLOW-001).
      */
     public function tolak(Request $request, UsulanPenempatan $usulan)
     {
-        abort_unless($usulan->masihAktif(), 422, 'Usulan sudah final.');
         $data = $request->validate(['catatan' => ['required', 'string', 'max:1000']]);
 
-        $usulan->update([
-            'status' => 'ditolak', 'diproses_oleh' => auth()->id(),
-            'catatan' => $data['catatan'],
-        ]);
+        try {
+            DB::transaction(function () use ($usulan, $data) {
+                $u = UsulanPenempatan::whereKey($usulan->id)->lockForUpdate()->firstOrFail();
+                if (! $u->masihAktif()) {
+                    throw new \RuntimeException('Usulan sudah final, tidak bisa ditolak.');
+                }
+                $u->update([
+                    'status' => 'ditolak', 'diproses_oleh' => auth()->id(),
+                    'catatan' => $data['catatan'],
+                ]);
+            });
+        } catch (HttpException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            return back()->with('gagal', 'Penolakan gagal: '.$e->getMessage());
+        }
 
         return back()->with('sukses', 'Usulan ditolak.');
     }
