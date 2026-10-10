@@ -39,7 +39,7 @@ jobs:
       - name: Overlay application source
         run: |
           for path in app bootstrap config database resources routes tests; do
-            if [ -d "$path" ]; then cp -a "$path" "runtime/$path"; fi
+            if [ -d "$path" ]; then mkdir -p "runtime/$path"; cp -a "$path/." "runtime/$path/"; fi
           done
           for path in artisan vite.config.js; do
             if [ -f "$path" ]; then cp -a "$path" "runtime/$path"; fi
