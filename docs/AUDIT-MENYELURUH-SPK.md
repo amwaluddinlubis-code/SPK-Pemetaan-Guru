@@ -7,6 +7,7 @@
 - **Pembaruan 11 Okt 2026:** status tiap temuan diperbarui ke progres terkini (commit `cb4aa43c`); 6 checklist tes penerimaan terverifikasi via uji HTTP.
 - **Pembaruan 11 Okt 2026 (batch 2):** temuan SEC-001, SEC-002, FLOW-001, FLOW-002, DATA-001 terverifikasi; DOC-001 diperbaiki; TEST-001 dikerjakan (commit `e63b2b7e`); 4 checklist tambahan dicentang via PHPUnit.
 - **Pembaruan 11 Okt 2026 (batch 3):** temuan SPK-003, SWAP-001, MAP-001 terverifikasi; MAP-002 diperbaiki; BUILD-001 dikerjakan (commit `6b224068`).
+- **Pembaruan 11 Okt 2026 (batch 4):** mitigasi konkurensi generate SPK/swap, penolakan swap transaksional, dan statistik jarak tanpa imputasi nol ditambahkan pada branch `fix/concurrency-statistik-jarak`. Tes regresi baru ditambahkan, tetapi belum dijalankan dari sesi ini.
 - **Bahasa:** Indonesia.
 
 > Dokumen ini adalah acuan utama audit. Perbarui ID temuan yang sama ketika memperbaiki masalah; jangan membuat temuan duplikat. Jangan tandai temuan sebagai selesai sebelum ada perubahan kode dan bukti verifikasi.
@@ -304,6 +305,18 @@ Temuan tidak dianggap selesai hanya karena kode diubah. Status **Terverifikasi**
 ## 8. Batasan audit ini
 
 - Ini merupakan baseline statis dari kode dan dokumentasi yang telah ditinjau, bukan audit keamanan formal.
-- Tidak ada klaim bahwa aplikasi, migrasi, atau suite tes telah dijalankan.
+- Tidak ada klaim bahwa aplikasi, migrasi, atau suite tes telah dijalankan pada batch 4.
 - Beberapa temuan ditandai sebagai risiko yang perlu diverifikasi; jangan memperlakukannya sebagai bug terkonfirmasi sebelum reproduksi.
 - Perubahan algoritma harus mengikuti kebijakan resmi Dinas Pendidikan, bukan asumsi teknis semata.
+
+## 9. Tindak lanjut batch 4 — konkurensi dan statistik
+
+Perubahan pada branch `fix/concurrency-statistik-jarak`:
+
+- **SPK generate:** guru dan baris kebutuhan dikunci dalam transaksi, lalu sisa formasi dihitung ulang di dalam transaksi. Ini mengurangi risiko dua proses generate mengalokasikan formasi/guru yang sama.
+- **Swap generate:** daftar guru dikunci sebelum membaca rekomendasi aktif dan membentuk pasangan.
+- **Penolakan swap:** baris rekomendasi dikunci dan status diperiksa ulang dalam transaksi yang sama dengan alur persetujuan.
+- **Dashboard:** koordinat/jarak yang tidak tersedia tidak lagi diperlakukan sebagai 0 km; rata-rata memakai hanya jarak valid dan UI menunjukkan cakupan data.
+- **Tes ditambahkan:** kuota SPK satu posisi, rata-rata dashboard dengan koordinat hilang, dan status swap final saat aksi penolakan dipanggil.
+
+**Batas verifikasi:** tes baru belum dijalankan dalam sesi ini. Penguncian transaksi membantu serialisasi tetapi belum menggantikan uji konkurensi multi-proses pada MySQL/InnoDB. Jangan menandai risiko konkurensi sebagai sepenuhnya selesai sebelum suite PHPUnit dan uji beban/konkurensi dijalankan pada checkout Laravel yang lengkap.
