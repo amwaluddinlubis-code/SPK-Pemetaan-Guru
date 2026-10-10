@@ -12,13 +12,13 @@ Teknologi: Laravel 13 + MySQL 8 + Livewire 4 + Tailwind CSS/daisyUI.
 
 - Proyek Laravel terinstal; repo GitHub `SPK-Pemetaan-Guru` (branch `main`).
 - Database: **552 sekolah asli** Kab. Mandailing Natal (dari
-  referensi.data.kemendikdasmen.go.id), 8 guru contoh, 6 akun demo.
+  referensi.data.kemendikdasmen.go.id), 8 guru contoh, 7 akun demo.
 - **6 peran pengguna** dengan middleware hak akses: guru, kepala_sekolah,
   ketua_pgri, kabid_ptk, kadis, pemda.
 - Dokumen **standar GUI** (`docs/standar-gui.md`): pola tombol, tabel,
   form, badge status, bahasa Indonesia, dan checklist halaman baru.
 - Navigasi utama berbentuk **sidebar** (desktop) / laci geser (mobile)
-  — kode selesai 11 Okt 2026, uji visual menyusul.
+  — selesai dan terverifikasi render 11 Okt 2026.
 
 ### Modul Data Guru (10 Okt 2026)
 
