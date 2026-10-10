@@ -427,7 +427,7 @@ class KeamananPersetujuanTest extends TestCase
     {
         $this->app['env'] = 'production';
 
-        $this->seed(\Database\Seeders\AdminSeeder::class);
+        app(\Database\Seeders\AdminSeeder::class)->run();
 
         $this->assertDatabaseMissing('users', [
             'email' => 'admin@peta-asn.local',
