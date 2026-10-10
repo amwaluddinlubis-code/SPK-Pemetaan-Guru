@@ -20,18 +20,29 @@ class DashboardController extends Controller
         // Hitung rata-rata jarak domisili → sekolah saat ini
         // MAP-001: lewat relasi sekolah (sumber kebenaran tunggal)
         $semuaGuru = Guru::with('sekolah')->get();
-        $rataJarak = $semuaGuru->isNotEmpty()
-            ? $semuaGuru->avg(fn ($g) => $g->jarakKeSekolahSaatIni() ?? 0)
-            : 0;
+        $jarakValid = $semuaGuru
+            ->map(fn ($guru) => $guru->jarakKeSekolahSaatIni())
+            ->filter(fn ($jarak) => $jarak !== null)
+            ->values();
 
-        // Guru yang jaraknya > 5 km (butuh perhatian)
-        $guruJauh = $semuaGuru->filter(
-            fn ($g) => ($g->jarakKeSekolahSaatIni() ?? 0) > 5
-        )->count();
+        // Jangan mengubah koordinat yang hilang menjadi 0 km: itu akan
+        // mengecilkan rata-rata dan menyembunyikan data geografis yang belum lengkap.
+        $rataJarak = $jarakValid->isNotEmpty() ? $jarakValid->avg() : null;
+        $guruDenganJarak = $jarakValid->count();
+
+        // Guru yang jaraknya > 5 km (hanya dari jarak yang valid)
+        $guruJauh = $jarakValid->filter(fn ($jarak) => $jarak > 5)->count();
 
         // Usulan yang masih menunggu diproses (untuk Kabid/Kadis)
         $usulanMenunggu = UsulanPenempatan::whereIn('status', UsulanPenempatan::AKTIF)->count();
 
-        return view('dashboard', compact('totalGuru', 'totalSekolah', 'rataJarak', 'guruJauh', 'usulanMenunggu'));
+        return view('dashboard', compact(
+            'totalGuru',
+            'totalSekolah',
+            'rataJarak',
+            'guruDenganJarak',
+            'guruJauh',
+            'usulanMenunggu'
+        ));
     }
 }
