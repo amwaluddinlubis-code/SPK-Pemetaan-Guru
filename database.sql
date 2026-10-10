@@ -622,3 +622,27 @@ INSERT INTO sekolah (npsn, nama, alamat, kecamatan, lat, lng, created_at, update
 -- Kebutuhan guru CONTOH (demo) — dibuat via seeder, tidak di file ini.
 -- Akun: buat via `php artisan db:seed` (lihat README).
 -- Admin: admin@peta-asn.local / admin123 (segera ganti!)
+
+CREATE TABLE IF NOT EXISTS rekomendasi_swaps (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  guru_a_id BIGINT UNSIGNED NOT NULL,
+  guru_b_id BIGINT UNSIGNED NOT NULL,
+  sekolah_tujuan_a_id BIGINT UNSIGNED NOT NULL,
+  sekolah_tujuan_b_id BIGINT UNSIGNED NOT NULL,
+  jarak_a_sekarang_km DECIMAL(8,2) NOT NULL,
+  jarak_b_sekarang_km DECIMAL(8,2) NOT NULL,
+  jarak_a_usulan_km DECIMAL(8,2) NOT NULL,
+  jarak_b_usulan_km DECIMAL(8,2) NOT NULL,
+  hemat_a_km DECIMAL(8,2) NOT NULL,
+  hemat_b_km DECIMAL(8,2) NOT NULL,
+  total_hemat_km DECIMAL(8,2) NOT NULL,
+  status ENUM('menunggu','disetujui','ditolak','batal_karena_konflik') NOT NULL DEFAULT 'menunggu',
+  diproses_oleh BIGINT UNSIGNED NULL,
+  catatan_admin TEXT NULL,
+  created_at TIMESTAMP NULL, updated_at TIMESTAMP NULL,
+  CONSTRAINT fk_swap_guru_a FOREIGN KEY (guru_a_id) REFERENCES guru(id) ON DELETE CASCADE,
+  CONSTRAINT fk_swap_guru_b FOREIGN KEY (guru_b_id) REFERENCES guru(id) ON DELETE CASCADE,
+  CONSTRAINT fk_swap_sek_a FOREIGN KEY (sekolah_tujuan_a_id) REFERENCES sekolah(id) ON DELETE CASCADE,
+  CONSTRAINT fk_swap_sek_b FOREIGN KEY (sekolah_tujuan_b_id) REFERENCES sekolah(id) ON DELETE CASCADE,
+  CONSTRAINT fk_swap_diproses FOREIGN KEY (diproses_oleh) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;

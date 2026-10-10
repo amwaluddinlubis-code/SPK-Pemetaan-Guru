@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SekolahController;
+use App\Http\Controllers\SwapController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UsulanController;
 use Illuminate\Support\Facades\Route;
@@ -85,6 +86,18 @@ Route::middleware('auth')->group(function () {
         ->name('usulan.setujui')->middleware('role:kadis');
     Route::post('/usulan/{usulan}/tolak', [UsulanController::class, 'tolak'])
         ->name('usulan.tolak')->middleware('role:kabid_ptk,kadis');
+
+    // --- Mutasi Silang (Swap) ---
+    // Lihat: semua peran (seperti Usulan)
+    Route::get('/swap', [SwapController::class, 'index'])->name('swap.index');
+    // Generate rekomendasi: kabid_ptk (administrator)
+    Route::post('/swap/generate', [SwapController::class, 'generate'])
+        ->name('swap.generate')->middleware('role:kabid_ptk');
+    // Setujui: kadis | Tolak: kabid_ptk, kadis
+    Route::post('/swap/{swap}/setujui', [SwapController::class, 'setujui'])
+        ->name('swap.setujui')->middleware('role:kadis');
+    Route::post('/swap/{swap}/tolak', [SwapController::class, 'tolak'])
+        ->name('swap.tolak')->middleware('role:kabid_ptk,kadis');
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

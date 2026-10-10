@@ -30,6 +30,7 @@
                     <li><a href="{{ route('guru.index') }}">👩‍🏫 Data Guru</a></li>
                     <li><a href="{{ route('sekolah.index') }}">🏫 Data Sekolah</a></li>
                     <li><a href="{{ route('usulan.index') }}">📝 Usulan</a></li>
+                    <li><a href="{{ route('swap.index') }}">🔄 Mutasi Silang</a></li>
                     @if (auth()->user()->hasRole('kabid_ptk'))
                         <li><a href="{{ route('pengguna.index') }}">👥 Kelola Pengguna</a></li>
                     @endif
@@ -43,6 +44,7 @@
                 <li><a href="{{ route('guru.index') }}" class="{{ request()->routeIs('guru.*') ? 'active' : '' }}">Data Guru</a></li>
                 <li><a href="{{ route('sekolah.index') }}" class="{{ request()->routeIs('sekolah.*') ? 'active' : '' }}">Data Sekolah</a></li>
                 <li><a href="{{ route('usulan.index') }}" class="{{ request()->routeIs('usulan.*') ? 'active' : '' }}">Usulan</a></li>
+                <li><a href="{{ route('swap.index') }}" class="{{ request()->routeIs('swap.*') ? 'active' : '' }}">Mutasi Silang</a></li>
                 @if (auth()->user()->hasRole('kabid_ptk'))
                     <li><a href="{{ route('pengguna.index') }}" class="{{ request()->routeIs('pengguna.*') ? 'active' : '' }}">Pengguna</a></li>
                 @endif

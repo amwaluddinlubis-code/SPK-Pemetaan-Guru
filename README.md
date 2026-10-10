@@ -12,6 +12,7 @@ dengan komponen UI dari **daisyUI**.
 - 👩‍🏫 CRUD Data Guru (NIP, mapel, domisili + koordinat; kecamatan berupa dropdown)
 - 📥 Import massal data guru dari Excel/CSV + unduh template (khusus administrator)
 - 📝 Alur usulan penempatan: Diajukan → Diverifikasi Kabid → Disetujui Kadis (otomatis mutasi) / Ditolak; bisa diajukan langsung dari hasil rekomendasi peta
+- 🔄 Mutasi silang (swap): rekomendasi pertukaran dua guru yang saling menguntungkan (win-win, keduanya lebih dekat ke domisili) + alur persetujuan Kadis
 - 🏫 CRUD Data Sekolah + kebutuhan guru per mapel (baris dinamis — Alpine.js)
 - 🔐 Login dengan **5 tingkatan pengguna** (hak akses & scope berbeda)
 - 👥 Kelola akun pengguna (khusus administrator)
@@ -169,6 +170,17 @@ Buka **http://127.0.0.1:8000** di browser.
    - menggambar garis putus-putus ke 3 teratas di peta (via event `rute-diperbarui`).
 3. Semua terjadi **tanpa reload halaman** (Livewire) — peta tidak di-render ulang
    berkat `wire:ignore`.
+
+### Mutasi silang (swap)
+
+1. Kabid PTK menekan **"Generate Rekomendasi"** di halaman Mutasi Silang.
+2. Sistem mencocokkan semua pasangan guru (O(N²)): syaratnya mapel sama, sekolah asal
+   berbeda, dan **keduanya** lebih dekat ke domisili setelah bertukar (dihitung dengan
+   rumus Haversine via `Guru::jarakKe()`).
+3. Pasangan diurutkan berdasarkan **total penghematan jarak** terbesar.
+4. Kadis menyetujui → kedua guru otomatis dimutasi dalam satu database transaction;
+   rekomendasi lain yang melibatkan guru tersebut otomatis dibatalkan
+   (`batal_karena_konflik`) agar tidak terjadi penempatan ganda.
 
 ---
 
