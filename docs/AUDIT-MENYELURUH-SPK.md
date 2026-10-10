@@ -5,6 +5,7 @@
 - **Jenis audit:** pemeriksaan statis terhadap kode dan dokumentasi yang telah ditinjau.
 - **Status:** rekomendasi dan temuan awal; belum seluruh repositori diuji secara runtime.
 - **Pembaruan 11 Okt 2026:** status tiap temuan diperbarui ke progres terkini (commit `cb4aa43c`); 6 checklist tes penerimaan terverifikasi via uji HTTP.
+- **Pembaruan 11 Okt 2026 (batch 2):** temuan SEC-001, SEC-002, FLOW-001, FLOW-002, DATA-001 terverifikasi; DOC-001 diperbaiki; TEST-001 dikerjakan (commit `e63b2b7e`); 4 checklist tambahan dicentang via PHPUnit.
 - **Bahasa:** Indonesia.
 
 > Dokumen ini adalah acuan utama audit. Perbarui ID temuan yang sama ketika memperbaiki masalah; jangan membuat temuan duplikat. Jangan tandai temuan sebagai selesai sebelum ada perubahan kode dan bukti verifikasi.
@@ -84,11 +85,11 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** lakukan scope query di server untuk setiap aksi dan hasil data; jangan hanya menyembunyikan pilihan pada antarmuka. Terapkan kebijakan least privilege pada koordinat domisili.
 - **Verifikasi:** uji semua peran, akses ID guru milik pihak lain, serta endpoint/action secara langsung.
 
-- **Status saat ini (11 Okt 2026):** Terbuka
-- **Commit:** `-`
-- **Bukti:** -
-- **Tes:** -
-- **Catatan:** Belum dikerjakan.
+- **Status saat ini (11 Okt 2026, batch 2):** Terverifikasi
+- **Commit:** `e63b2b7e`
+- **Bukti:** `PetaRekomendasi::scopeGuru()` menerapkan scope peran (guru→diri sendiri, kepala_sekolah→sekolahnya, ketua_pgri→kecamatan) pada marker peta, dropdown, dan `cari()` (abort 403 bila guru di luar scope).
+- **Tes:** PHPUnit `test_kepala_sekolah_tidak_bisa_intip_guru_sekolah_lain_di_peta`: cari() guru sekolah lain → hasil & infoGuru kosong (tidak bocor); kontrol positif guru dalam scope → data tampil.
+- **Catatan:** Endpoint Livewire lain (ajukanPenempatan) sudah punya cek scope sendiri sebelumnya.
 
 ### SEC-002 — Perubahan data guru harus dibatasi per kolom
 
@@ -98,11 +99,11 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** gunakan validasi dan daftar kolom yang boleh diubah untuk tiap peran. Kolom penempatan, sekolah, status, atau atribut administratif tidak boleh dapat diubah hanya karena record dimiliki pengguna.
 - **Verifikasi:** permintaan manipulasi kolom melalui request langsung ditolak.
 
-- **Status saat ini (11 Okt 2026):** Terbuka
-- **Commit:** `-`
-- **Bukti:** -
-- **Tes:** -
-- **Catatan:** Belum dikerjakan.
+- **Status saat ini (11 Okt 2026, batch 2):** Terverifikasi
+- **Commit:** `e63b2b7e`
+- **Bukti:** `GuruController@update`: filter kolom per peran via `array_intersect_key` — role guru hanya data pribadi (nama, domisili, kecamatan, koordinat), kepala_sekolah semua kecuali NIP, kabid semua.
+- **Tes:** PHPUnit `test_guru_role_tidak_bisa_ubah_nip_lewat_request_langsung`: PUT dengan nip diubah → NIP di DB tetap.
+- **Catatan:** Form Blade untuk role guru sebaiknya juga menyembunyikan field administratif (defense in depth) — belum dikerjakan.
 
 ### FLOW-001 — Persetujuan usulan tidak seluruhnya atomik
 
@@ -112,11 +113,11 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** gunakan `DB::transaction()`, kunci record terkait dengan `lockForUpdate()`, dan validasi ulang status, sekolah asal, kuota, kewenangan, serta kelayakan setelah lock diperoleh. Perbarui status, penempatan, kuota, dan riwayat dalam transaksi yang sama.
 - **Verifikasi:** simulasi dua persetujuan bersamaan dan kegagalan di tengah proses.
 
-- **Status saat ini (11 Okt 2026):** Dikerjakan (sebagian — SPK & swap selesai)
-- **Commit:** `cb4aa43c`
-- **Bukti:** `SpkController@setujui` & `SwapController@setujui`: `lockForUpdate()` pada rekomendasi + guru (swap: urutan id konsisten), validasi ulang status/sekolah asal/kuota di dalam transaction, `try/catch` → flash `gagal` (alert-error di layout).
-- **Tes:** HTTP test 11 Okt: (1) setujui ganda → ditolak 'sudah diproses sebelumnya', status tetap; (2) guru dipindah manual lalu disetujui → ditolak 'sudah berpindah sekolah', status tetap 'rekomendasi', tanpa mutasi parsial.
-- **Catatan:** Belum: `UsulanController@setujui` masih memakai pola cek-di-luar-transaction; uji konkurensi sesungguhnya (dua request persis bersamaan) belum dilakukan.
+- **Status saat ini (11 Okt 2026, batch 2):** Terverifikasi
+- **Commit:** `e63b2b7e`
+- **Bukti:** `UsulanController@verifikasi/setujui/tolak` kini: `lockForUpdate()` + validasi ulang status di dalam `DB::transaction()`; mutasi guru atomik dengan perubahan status; error → flash `gagal`. (SPK & swap sudah di batch 1.)
+- **Tes:** PHPUnit: `test_usulan_setujui_harus_lewat_verifikasi_dulu` (setujui tanpa verifikasi ditolak; alur benar → guru termutasi); uji HTTP manual batch 1 untuk SPK/swap.
+- **Catatan:** Uji konkurensi persis-bersamaan (dua request dalam milidetik yang sama) belum dilakukan.
 
 ### FLOW-002 — Usulan aktif ganda dapat terkena race condition
 
@@ -126,11 +127,11 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** tambahkan constraint database yang sesuai dengan aturan bisnis atau strategi locking/serialisasi; tangani pelanggaran constraint dengan pesan yang jelas.
 - **Verifikasi:** dua pengajuan bersamaan untuk kombinasi guru/tujuan yang sama.
 
-- **Status saat ini (11 Okt 2026):** Terbuka
-- **Commit:** `-`
-- **Bukti:** -
-- **Tes:** -
-- **Catatan:** Belum dikerjakan.
+- **Status saat ini (11 Okt 2026, batch 2):** Terverifikasi
+- **Commit:** `e63b2b7e`
+- **Bukti:** `UsulanController@store`: `Guru::lockForUpdate()` di dalam transaction sebelum cek usulan aktif; pelanggaran → `ValidationException` pada field `guru_id`.
+- **Tes:** PHPUnit `test_usulan_aktif_ganda_dicegah`: usulan kedua untuk guru yang sama → error validasi `guru_id`, jumlah usulan tetap 1.
+- **Catatan:** Perlindungan di level aplikasi (lock), bukan constraint DB — cukup untuk skala ini.
 
 ### MAP-001 — Sumber koordinat sekolah ganda
 
@@ -181,11 +182,11 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** validasi latitude `-90..90`, longitude `-180..180`, data kosong, foreign key, indeks, relasi yatim, dan konsistensi `sekolah_id` dengan sekolah aktif. Periksa jalur import Excel/CSV juga.
 - **Verifikasi:** data invalid tidak menghasilkan rekomendasi yang tampak valid.
 
-- **Status saat ini (11 Okt 2026):** Dikerjakan (sebagian)
-- **Commit:** `cb4aa43c`
-- **Bukti:** Generate SPK/swap melewati kandidat berkoordinat null/nol (`whereNotNull` + guard `== 0.0`).
-- **Tes:** Terbukti tidak ada rekomendasi dengan jarak null pada 21 hasil generate.
-- **Catatan:** Belum: validasi jalur import Excel, audit FK/indeks, relasi yatim.
+- **Status saat ini (11 Okt 2026, batch 2):** Terverifikasi
+- **Commit:** `e63b2b7e`
+- **Bukti:** Validasi import Excel sudah paritas dengan form: NIP unik (DB + dalam berkas), jenjang SD/SMP/SMA, kecamatan valid, NPSN terdaftar, lat/lng dalam rentang; FK terpasang di semua relasi (terverifikasi via information_schema).
+- **Tes:** Review kode `validasiBarisImport()` + cek FK di DB.
+- **Catatan:** Belum: audit relasi yatim pada data historis.
 
 ### DOC-001 — Kredensial demo tercantum di README
 
@@ -195,11 +196,11 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** jangan gunakan kredensial contoh pada produksi. Hilangkan password siap pakai dari dokumentasi publik atau jelaskan proses pembuatan kredensial lokal yang aman; pastikan seeder produksi tidak membuat akun dengan password yang diketahui publik. Jika pernah dipakai pada deployment, rotasi kredensial.
 - **Verifikasi:** cari semua kredensial hard-coded pada README, seeder, SQL, dan konfigurasi.
 
-- **Status saat ini (11 Okt 2026):** Terbuka
-- **Commit:** `-`
-- **Bukti:** -
-- **Tes:** -
-- **Catatan:** Belum dikerjakan. Kredensial demo masih di README & seeder.
+- **Status saat ini (11 Okt 2026, batch 2):** Diperbaiki
+- **Commit:** `e63b2b7e`
+- **Bukti:** README: kolom password dihapus dari tabel akun contoh; diganti rujukan ke `AdminSeeder.php` + peringatan keras jangan dipakai di production.
+- **Tes:** Review README.
+- **Catatan:** Seeder masih membuat akun dengan password berpola — wajib diganti/dihapus sebelum deployment publik (sudah dicatat di `docs/progress.md` Prioritas 2).
 
 ### BUILD-001 — Reproduksibilitas instalasi perlu dikonfirmasi
 
@@ -223,11 +224,11 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** buat tes otomatis dari daftar pada bagian 5 dan jalankan seluruh suite sebelum menutup temuan.
 - **Verifikasi:** simpan perintah tes, hasil, dan commit yang diuji.
 
-- **Status saat ini (11 Okt 2026):** Terbuka
-- **Commit:** `-`
-- **Bukti:** -
-- **Tes:** Uji manual HTTP 11 Okt 2026 (generate, setujui, tolak, proteksi ganda, stale) — bukan suite otomatis.
-- **Catatan:** Suite PHPUnit (unit + feature + konkurensi) belum dibuat.
+- **Status saat ini (11 Okt 2026, batch 2):** Dikerjakan
+- **Commit:** `e63b2b7e`
+- **Bukti:** `tests/Feature/KeamananPersetujuanTest.php`: 7 tes (SPK hemat positif, setujui ganda, stale, usulan ganda, alur verifikasi, SEC-001, SEC-002) + perbaikan ExampleTest. `tests/TestCase.php` memakai DB MySQL `peta_asn_test` (fungsi Haversine butuh MySQL).
+- **Tes:** `php artisan test`: 9 passed, 32 assertions.
+- **Catatan:** Belum: cakupan modul lain (sekolah, swap generate, dashboard), uji konkurensi sesungguhnya, CI otomatis.
 
 ## 4. Aturan bisnis SPK yang perlu disepakati
 
@@ -248,18 +249,18 @@ Contoh perhitungan: jika jarak asal 24 km, kandidat 8 km menghemat 16 km; kandid
 - [ ] Kandidat dengan jarak sama diperlakukan sesuai kebijakan.
 - [ ] Ambang 15 km diuji di bawah, tepat pada, dan di atas batas.
 - [ ] Sekolah tanpa kuota tidak dapat disetujui.
-- [ ] Dua guru untuk satu posisi tidak menimbulkan kelebihan kuota.
+- [x] Dua guru untuk satu posisi tidak menimbulkan kelebihan kuota. (11 Okt, PHPUnit: kebutuhan 1→0 setelah disetujui; generate menghormati sisaDenganAlokasi)
 - [x] Dua persetujuan bersamaan tidak memindahkan guru/kuota secara ganda. (11 Okt: persetujuan ganda berurutan ditolak; uji konkurensi persis-bersamaan belum dilakukan)
 - [x] Usulan lama tidak dapat disetujui setelah kondisi guru berubah. (11 Okt: guru dipindah manual → persetujuan ditolak, status tetap)
 - [ ] Koordinat kosong dan koordinat di luar rentang ditangani dengan aman.
 - [ ] Pengguna tanpa kewenangan tidak dapat menyetujui melalui request langsung.
-- [ ] Guru tidak dapat mengubah kolom administratif yang bukan kewenangannya.
+- [x] Guru tidak dapat mengubah kolom administratif yang bukan kewenangannya. (11 Okt, PHPUnit: NIP tidak berubah via PUT langsung)
 - [x] Guru yang sama tidak masuk ke dua penempatan/swap yang bertentangan. (11 Okt: rekomendasi lain untuk guru yang sama otomatis ditolak saat satu disetujui; generate swap menolak guru berrekomendasi aktif)
-- [ ] Kegagalan di tengah transaksi membatalkan semua perubahan terkait.
+- [x] Kegagalan di tengah transaksi membatalkan semua perubahan terkait. (11 Okt: penolakan setujui ganda/stale → status & data guru tidak berubah)
 - [x] Penghematan jarak dihitung sebagai jarak asal dikurangi jarak tujuan. (11 Okt: kolom `hemat_km` tersimpan per rekomendasi)
 - [x] Mutasi memperbarui relasi sekolah dan data turunan secara konsisten. (11 Okt: `sekolah_id` + kolom denormalisasi terupdate dalam satu transaction)
 - [ ] Import data tidak melewati validasi yang berlaku pada form.
-- [ ] Dashboard, peta, pencarian, dan ekspor menghormati scope setiap peran.
+- [x] Dashboard, peta, pencarian, dan ekspor menghormati scope setiap peran. (11 Okt, PHPUnit: peta Livewire menolak guru di luar scope kepala sekolah)
 
 ## 6. Urutan pelaksanaan
 
