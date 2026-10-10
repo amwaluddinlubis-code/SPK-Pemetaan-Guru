@@ -116,3 +116,9 @@ Teknologi: Laravel 13 + MySQL 8 + Livewire 4 + Tailwind CSS/daisyUI.
 - Verifikasi GitHub Actions run `38077124705` pada SHA `42b3f02a743abfd671715edc385279901c24819a`: **18 tes lulus, 59 assertions**.
 - Dokumentasi temuan: `docs/AUDIT-KEAMANAN-2026-10.md`.
 - Catatan: verifikasi otomatis bukan pengganti uji penetrasi atau pemeriksaan deployment production.
+
+### Audit keamanan lanjutan — SEC-003
+
+- Ditemukan bahwa halaman daftar SPK dan mutasi silang di branch `main` belum menerapkan pembatasan cakupan peran yang sudah dipakai pada daftar guru/usulan.
+- Query daftar SPK dan swap diperbaiki di branch PR #2 untuk membatasi hasil bagi guru, kepala sekolah, dan Ketua PGRI.
+- Tes regresi ditambahkan untuk kedua halaman dan ketiga peran tersebut. Status kelulusan menunggu hasil GitHub Actions setelah push.
