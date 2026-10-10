@@ -1,0 +1,70 @@
+# PetaPenempatan ASN — Aturan Proyek
+
+Sistem informasi pemetaan penempatan Guru ASN berbasis domisili
+(Dinas Pendidikan Kab. Mandailing Natal).
+
+## Stack
+
+- Laravel 13, Livewire v4, Tailwind CSS v3+, Alpine.js, MySQL 8, PHP 8.3
+- Selalu pakai API yang sesuai versi terinstal (cek `composer show` bila ragu).
+
+## Gaya Coding
+
+- Sintaks modern: arrow functions, PHP 8.2+ type hinting untuk semua
+  parameter dan return type, constructor property promotion.
+- Komentar kode dan dokumentasi dalam Bahasa Indonesia.
+- Sebelum membuat/mengubah file, baca file tetangga dan ikuti pola yang
+  sudah ada (struktur, penamaan, pendekatan). Jangan menciptakan pola baru
+  tanpa alasan.
+- Gunakan `php artisan make:` untuk file baru (controller, model,
+  migration, dsb.) dengan `--no-interaction`.
+- Setelah mengubah file PHP, jalankan `vendor/bin/pint` (ikuti gaya
+  yang sudah ada di repo).
+
+## Livewire v4
+
+- `wire:model` untuk pengikatan properti otomatis.
+- `#[Url]` untuk state yang perlu masuk query string.
+- `#[Validate]` untuk validasi form langsung di properti.
+- Jangan pakai vanilla JavaScript untuk manipulasi DOM mikro — pakai
+  Alpine.js di dalam komponen Blade.
+
+## Database & Eloquent
+
+- Nama tabel: singular Bahasa Indonesia (`guru`, `sekolah`,
+  `kebutuhan_guru`, `hasil_spks`, `rekomendasi_swaps`).
+- Cegah N+1: selalu eager loading dengan `with()` untuk relasi yang
+  ditampilkan di list.
+- Manfaatkan MySQL native indexing untuk kolom yang sering difilter.
+- Sebelum membuat migrasi baru, cek nomor migrasi terakhir agar tidak
+  bentrok penomoran.
+- Model `Guru` menyimpan sekolah via `sekolah_id` FK plus kolom
+  denormalisasi (`sekolah_saat_ini`, `sekolah_saat_ini_lat`,
+  `sekolah_saat_ini_lng`) — setiap mutasi wajib update keduanya dalam
+  satu transaction.
+
+## Frontend & Bahasa
+
+- Styling murni Tailwind utility classes (daisyUI tersedia).
+- Ikuti `docs/standar-gui.md`: pola tombol, tabel, form, kartu, alert,
+  warna badge status, dan checklist halaman baru.
+- Warna badge: menunggu/diajukan/rekomendasi = warning,
+  diverifikasi = info, disetujui = success, ditolak = error.
+  Definisikan via method `badgeStatus()` di Model, bukan logika warna
+  di Blade.
+- Seluruh teks antarmuka dalam Bahasa Indonesia.
+- View memakai layout `layouts.app` dengan `@section('judul')` dan
+  `@section('konten')`; judul tab mengikuti pola
+  "Nama Halaman — PetaPenempatan ASN".
+
+## Peran & Rute
+
+- 6 peran: `guru`, `kepala_sekolah`, `ketua_pgri`, `kabid_ptk`, `kadis`,
+  `pemda`. Otorisasi via middleware `role:` dan `User::hasRole()`.
+- Penamaan rute mengikuti konvensi modul yang ada
+  (`usulan.*`, `swap.*`, `spk.*`, `pemda.*`).
+
+## Batasan
+
+- Jangan membuat file dokumentasi kecuali diminta eksplisit.
+- Jangan mengubah dependencies tanpa persetujuan.
