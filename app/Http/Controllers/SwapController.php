@@ -55,13 +55,26 @@ class SwapController extends Controller
 
         $baru = 0;
 
-        DB::transaction(function () use ($gurus, &$baru) {
+        // Guru yang sudah punya rekomendasi menunggu tidak dicarikan pasangan
+        // baru — satu guru hanya boleh ada di satu rekomendasi aktif.
+        $terpakai = RekomendasiSwap::where('status', 'menunggu')
+            ->get(['guru_a_id', 'guru_b_id'])
+            ->flatMap(fn ($r) => [$r->guru_a_id, $r->guru_b_id])
+            ->flip()
+            ->toArray();
+
+        DB::transaction(function () use ($gurus, $terpakai, &$baru) {
             $n = $gurus->count();
 
             for ($i = 0; $i < $n; $i++) {
                 for ($j = $i + 1; $j < $n; $j++) {
                     $a = $gurus[$i];
                     $b = $gurus[$j];
+
+                    // Syarat 0: belum punya rekomendasi aktif
+                    if (isset($terpakai[$a->id]) || isset($terpakai[$b->id])) {
+                        continue;
+                    }
 
                     // Syarat 1: mata pelajaran sama
                     if (strtolower(trim($a->mapel)) !== strtolower(trim($b->mapel))) {
@@ -77,6 +90,15 @@ class SwapController extends Controller
                     $sekB = $b->sekolah;
                     if (!$sekA || !$sekB) {
                         continue;
+                    }
+
+                    // Syarat 2b: koordinat lengkap dan masuk akal
+                    foreach ([$a, $b, $sekA, $sekB] as $o) {
+                        $lat = (float) ($o->lat ?? $o->domisili_lat);
+                        $lng = (float) ($o->lng ?? $o->domisili_lng);
+                        if ($lat == 0.0 || $lng == 0.0) {
+                            continue 2; // lewati pasangan ini saja
+                        }
                     }
 
                     // Jarak sekarang vs jarak jika bertukar (Haversine)
@@ -104,6 +126,9 @@ class SwapController extends Controller
                     $hematA = $jarakA0 - $jarakA1;
                     $hematB = $jarakB0 - $jarakB1;
 
+                    $terpakai[$a->id] = true;
+                    $terpakai[$b->id] = true;
+
                     RekomendasiSwap::create([
                         'guru_a_id' => $a->id,
                         'guru_b_id' => $b->id,
@@ -129,54 +154,83 @@ class SwapController extends Controller
     }
 
     // Setujui swap (kadis): pindahkan kedua guru + batalkan rekomendasi berkonflik
+    //
+    // Keamanan persetujuan:
+    //   - Baris rekomendasi & kedua guru dikunci (lockForUpdate) dalam urutan
+    //     id yang konsisten (cegah deadlock & persetujuan ganda).
+    //   - Validasi ulang: kedua guru masih di sekolah asal saat rekomendasi
+    //     dibuat — jika salah satunya sudah pindah, persetujuan dibatalkan
+    //     (tidak ada mutasi parsial).
     public function setujui(Request $request, RekomendasiSwap $swap)
     {
-        if ($swap->status !== 'menunggu') {
-            return back()->with('sukses', 'Rekomendasi ini sudah diproses sebelumnya.');
-        }
+        try {
+            DB::transaction(function () use ($request, $swap) {
+                $swap = RekomendasiSwap::whereKey($swap->id)->lockForUpdate()->firstOrFail();
 
-        DB::transaction(function () use ($request, $swap) {
-            $a = $swap->guruA;
-            $b = $swap->guruB;
-            $tujuanA = $swap->sekolahTujuanA; // sekolah B semula
-            $tujuanB = $swap->sekolahTujuanB; // sekolah A semula
+                if ($swap->status !== 'menunggu') {
+                    throw new \RuntimeException('Rekomendasi ini sudah diproses sebelumnya.');
+                }
 
-            // Pindahkan guru A ke sekolah tujuan A
-            $a->update([
-                'sekolah_id' => $tujuanA->id,
-                'sekolah_saat_ini' => $tujuanA->nama,
-                'sekolah_saat_ini_lat' => $tujuanA->lat,
-                'sekolah_saat_ini_lng' => $tujuanA->lng,
-            ]);
+                // Kunci kedua guru dengan urutan id konsisten (anti-deadlock)
+                $ids = collect([$swap->guru_a_id, $swap->guru_b_id])->sort()->values();
+                $terkunci = Guru::whereIn('id', $ids)->lockForUpdate()
+                    ->get()->keyBy('id');
+                $a = $terkunci[$swap->guru_a_id] ?? null;
+                $b = $terkunci[$swap->guru_b_id] ?? null;
+                if (!$a || !$b) {
+                    throw new \RuntimeException('Gagal: data guru tidak ditemukan.');
+                }
 
-            // Pindahkan guru B ke sekolah tujuan B
-            $b->update([
-                'sekolah_id' => $tujuanB->id,
-                'sekolah_saat_ini' => $tujuanB->nama,
-                'sekolah_saat_ini_lat' => $tujuanB->lat,
-                'sekolah_saat_ini_lng' => $tujuanB->lng,
-            ]);
+                $tujuanA = $swap->sekolahTujuanA; // sekolah B semula
+                $tujuanB = $swap->sekolahTujuanB; // sekolah A semula
 
-            $swap->update([
-                'status' => 'disetujui',
-                'diproses_oleh' => auth()->id(),
-                'catatan_admin' => $request->input('catatan_admin'),
-            ]);
+                // Validasi ulang: keduanya masih di sekolah asal
+                if ((int) $a->sekolah_id !== (int) $tujuanB->id
+                    || (int) $b->sekolah_id !== (int) $tujuanA->id) {
+                    throw new \RuntimeException(
+                        'Gagal: salah satu guru sudah berpindah sekolah. Rekomendasi kedaluwarsa.'
+                    );
+                }
 
-            // Batalkan rekomendasi lain (masih menunggu) yang melibatkan A atau B,
-            // agar tidak terjadi penempatan ganda
-            RekomendasiSwap::where('status', 'menunggu')
-                ->where('id', '!=', $swap->id)
-                ->where(function ($q) use ($a, $b) {
-                    $q->whereIn('guru_a_id', [$a->id, $b->id])
-                        ->orWhereIn('guru_b_id', [$a->id, $b->id]);
-                })
-                ->update([
-                    'status' => 'batal_karena_konflik',
-                    'diproses_oleh' => auth()->id(),
-                    'catatan_admin' => 'Otomatis dibatalkan: guru sudah dimutasi melalui swap lain.',
+                // Pindahkan guru A ke sekolah tujuan A
+                $a->update([
+                    'sekolah_id' => $tujuanA->id,
+                    'sekolah_saat_ini' => $tujuanA->nama,
+                    'sekolah_saat_ini_lat' => $tujuanA->lat,
+                    'sekolah_saat_ini_lng' => $tujuanA->lng,
                 ]);
-        });
+
+                // Pindahkan guru B ke sekolah tujuan B
+                $b->update([
+                    'sekolah_id' => $tujuanB->id,
+                    'sekolah_saat_ini' => $tujuanB->nama,
+                    'sekolah_saat_ini_lat' => $tujuanB->lat,
+                    'sekolah_saat_ini_lng' => $tujuanB->lng,
+                ]);
+
+                $swap->update([
+                    'status' => 'disetujui',
+                    'diproses_oleh' => auth()->id(),
+                    'catatan_admin' => $request->input('catatan_admin'),
+                ]);
+
+                // Batalkan rekomendasi lain (masih menunggu) yang melibatkan A atau B,
+                // agar tidak terjadi penempatan ganda
+                RekomendasiSwap::where('status', 'menunggu')
+                    ->where('id', '!=', $swap->id)
+                    ->where(function ($q) use ($a, $b) {
+                        $q->whereIn('guru_a_id', [$a->id, $b->id])
+                            ->orWhereIn('guru_b_id', [$a->id, $b->id]);
+                    })
+                    ->update([
+                        'status' => 'batal_karena_konflik',
+                        'diproses_oleh' => auth()->id(),
+                        'catatan_admin' => 'Otomatis dibatalkan: guru sudah dimutasi melalui swap lain.',
+                    ]);
+            });
+        } catch (\RuntimeException $e) {
+            return back()->with('gagal', $e->getMessage());
+        }
 
         return back()->with('sukses', 'Swap disetujui — kedua guru sudah dimutasi ke sekolah barunya.');
     }

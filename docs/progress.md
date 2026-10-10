@@ -36,17 +36,27 @@ Teknologi: Laravel 13 + MySQL 8 + Livewire 4 + Tailwind CSS/daisyUI.
 - Alur: diajukan → diverifikasi Kabid → disetujui/ditolak Kadis.
 - Persetujuan otomatis memutasi guru (transaction).
 
-### Modul Mutasi Silang / Swap (10 Okt 2026)
-
-- Generate rekomendasi pasangan win-win; setujui/tolak oleh Kadis.
-- Teruji: generate, setujui, dan tolak berjalan benar.
-
-### Modul SPK Pengisian Formasi (10 Okt 2026)
+### Modul SPK Pengisian Formasi (10 Okt 2026, patch akuntabilitas 11 Okt 2026)
 
 - Generate: guru berjarak > 15 km → 3 sekolah terdekat yang kekurangan
   formasi mapelnya (Haversine di MySQL); setujui/tolak oleh Kadis.
 - Teruji end-to-end: rekomendasi dibuat dan guru termutasi dengan benar
   setelah disetujui.
+- **Patch akuntabilitas**: kandidat wajib lebih dekat dari sekolah saat
+  ini (penghematan positif), diurutkan by penghematan terbesar; sisa
+  formasi dijaga agar tidak over-booking; `sekolah_asal_id` + `hemat_km`
+  disimpan sebagai bukti; persetujuan memakai `lockForUpdate` +
+  validasi ulang (cegah persetujuan ganda & mutasi parsial); kebutuhan
+  formasi dikurangi otomatis saat disetujui.
+
+### Modul Mutasi Silang / Swap (10 Okt 2026, patch keamanan 11 Okt 2026)
+
+- Generate rekomendasi pasangan win-win; setujui/tolak oleh Kadis.
+- Teruji: generate, setujui, dan tolak berjalan benar.
+- **Patch keamanan**: satu guru hanya di satu rekomendasi aktif;
+  persetujuan mengunci rekomendasi + kedua guru (urutan id konsisten)
+  dan memvalidasi ulang posisi keduanya — gagal tanpa mutasi parsial
+  jika salah satu sudah pindah.
 
 ### Modul Eksekutif Pemda (11 Okt 2026)
 

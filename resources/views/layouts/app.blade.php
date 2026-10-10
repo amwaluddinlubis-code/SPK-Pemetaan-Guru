@@ -49,6 +49,14 @@
                     </div>
                 @endif
 
+                {{-- Pesan gagal (mis. validasi persetujuan tidak lolos) --}}
+                @if (session('gagal'))
+                    <div class="alert alert-error mb-4" x-data="{ tampil: true }" x-show="tampil">
+                        <span>{{ session('gagal') }}</span>
+                        <button class="btn btn-sm btn-ghost" @click="tampil = false">✕</button>
+                    </div>
+                @endif
+
                 @yield('konten')
             </main>
 

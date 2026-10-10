@@ -14,9 +14,11 @@ class HasilSpk extends Model
 
     protected $fillable = [
         'guru_id',
+        'sekolah_asal_id',
         'sekolah_tujuan_id',
         'jarak_km',
         'jarak_sekarang_km',
+        'hemat_km',
         'status',
         'diproses_oleh',
         'catatan_admin',
@@ -26,6 +28,7 @@ class HasilSpk extends Model
     protected $casts = [
         'jarak_km' => 'float',
         'jarak_sekarang_km' => 'float',
+        'hemat_km' => 'float',
     ];
 
     // Daftar status yang sah + label bahasa Indonesia untuk tampilan
@@ -43,6 +46,11 @@ class HasilSpk extends Model
     public function sekolahTujuan()
     {
         return $this->belongsTo(Sekolah::class, 'sekolah_tujuan_id');
+    }
+
+    public function sekolahAsal()
+    {
+        return $this->belongsTo(Sekolah::class, 'sekolah_asal_id');
     }
 
     public function diprosesOleh()
@@ -66,9 +74,10 @@ class HasilSpk extends Model
         };
     }
 
-    // Selisih penghematan jarak jika rekomendasi ini disetujui (km)
+    // Selisih penghematan jarak jika rekomendasi ini disetujui (km).
+    // Pakai nilai tersimpan bila ada; hitung manual untuk data lama.
     public function hematKm(): float
     {
-        return $this->jarak_sekarang_km - $this->jarak_km;
+        return (float) ($this->hemat_km ?? ($this->jarak_sekarang_km - $this->jarak_km));
     }
 }

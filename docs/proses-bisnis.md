@@ -61,7 +61,9 @@ Alur status:
 
 Jalur rekomendasi sistem: aplikasi mencari **pasangan dua guru** yang jika
 bertukar sekolah, **keduanya** menjadi lebih dekat ke domisilinya
-masing-masing (win-win).
+masing-masing (win-win). Satu guru hanya boleh muncul di **satu**
+rekomendasi aktif — pasangan baru tidak dibuat untuk guru yang sudah
+punya rekomendasi menunggu.
 
 Alur status:
 
@@ -73,19 +75,42 @@ Alur status:
   pasangan yang saling menguntungkan. Jika tidak ada pasangan win-win,
   hasilnya nol — itu normal, bukan error.
 - Kadis menyetujui atau menolak tiap rekomendasi.
+- **Keamanan persetujuan**: rekomendasi dan kedua guru dikunci di dalam
+  transaction (urutan id konsisten anti-deadlock); posisi kedua guru
+  divalidasi ulang — jika salah satunya sudah berpindah sekolah,
+  persetujuan digagalkan tanpa mutasi parsial.
 
 ### P4. SPK Pengisian Formasi
 
 Jalur rekomendasi pengisian kekurangan guru (top-down): untuk setiap guru
 yang jarak domisilinya ke sekolah saat ini **lebih dari 15 km**
-(AMBANG_KM), sistem mencari **3 sekolah terdekat** yang kekurangan formasi
+(AMBANG_KM), sistem mencari **3 sekolah terbaik** yang kekurangan formasi
 untuk mapel guru tersebut. Perhitungan jarak memakai rumus Haversine yang
 dijalankan langsung di MySQL.
+
+**Aturan kelayakan rekomendasi** (agar bisa dipertanggungjawabkan):
+
+1. Sekolah tujuan **harus lebih dekat** daripada sekolah saat ini —
+   penghematan S = jarak_sekarang − jarak_tujuan harus positif.
+   Kandidat yang lebih jauh otomatis gugur.
+2. Sisa formasi (kebutuhan − alokasi rekomendasi aktif) harus tersedia —
+   satu formasi tidak boleh dijanjikan ke dua guru.
+3. Rekomendasi diurutkan berdasarkan **penghematan terbesar**, bukan
+   jarak tujuan terdekat.
+4. Nilai penghematan (`hemat_km`) dan sekolah asal disimpan di tiap
+   rekomendasi sebagai bukti.
 
 Alur status:
 
     rekomendasi → disetujui (oleh Kadis) → guru otomatis dimutasi
                   ↘ ditolak
+
+**Keamanan persetujuan**: baris rekomendasi dan data guru dikunci
+(`lockForUpdate`) di dalam transaction; status, posisi sekolah asal guru,
+dan sisa formasi **divalidasi ulang** — jika guru sudah pindah atau
+formasi sudah penuh, persetujuan digagalkan (tidak ada mutasi parsial
+atau persetujuan ganda). Sisa kebutuhan formasi dikurangi setiap ada
+penempatan yang disetujui.
 
 ### P5. Dashboard Eksekutif Pemda
 
@@ -103,20 +128,28 @@ tanpa tombol ubah:
 ## 4. Aturan Bisnis Kunci
 
 1. **Jarak** dihitung dengan rumus Haversine dari koordinat domisili ke
-   koordinat sekolah.
+   koordinat sekolah (jarak garis lurus, bukan jarak jalan).
 2. **Ambang SPK 15 km**: hanya guru yang bertugas lebih dari 15 km dari
    domisilinya yang masuk rekomendasi SPK.
-3. **Batas perhatian 5 km**: guru yang berjarak lebih dari 5 km
+3. **Penghematan wajib positif**: rekomendasi SPK hanya untuk sekolah
+   tujuan yang lebih dekat daripada sekolah saat ini.
+4. **Formasi tidak over-booking**: satu slot kebutuhan tidak dijanjikan
+   ke dua guru; sisa kebutuhan dikurangi setiap penempatan disetujui.
+5. **Batas perhatian 5 km**: guru yang berjarak lebih dari 5 km
    ditandai "butuh perhatian" di dashboard.
-4. **Mutasi atomik**: setiap persetujuan yang memindahkan guru selalu
+6. **Mutasi atomik**: setiap persetujuan yang memindahkan guru selalu
    memperbarui `sekolah_id` DAN kolom denormalisasi
    (`sekolah_saat_ini`, lat, lng) dalam satu transaction.
-5. **Swap hanya win-win**: rekomendasi mutasi silang hanya dibuat jika
-   kedua guru diuntungkan.
-6. **Satu usulan aktif**: guru tidak bisa mengajukan usulan baru selama
+7. **Persetujuan terkunci**: rekomendasi dan data guru dikunci
+   (`lockForUpdate`) saat persetujuan; status, sekolah asal, dan
+   kapasitas divalidasi ulang — mencegah persetujuan ganda dan mutasi
+   parsial.
+8. **Swap hanya win-win**: rekomendasi mutasi silang hanya dibuat jika
+   kedua guru diuntungkan, dan satu guru hanya di satu rekomendasi aktif.
+9. **Satu usulan aktif**: guru tidak bisa mengajukan usulan baru selama
    masih ada usulan berstatus diajukan/diverifikasi.
-7. **Scope peran**: setiap peran hanya melihat/mengubah data sesuai
-   wilayahnya (diri sendiri / sekolah / kecamatan / kabupaten).
+10. **Scope peran**: setiap peran hanya melihat/mengubah data sesuai
+    wilayahnya (diri sendiri / sekolah / kecamatan / kabupaten).
 
 ## 5. Model Data (Ringkas)
 
