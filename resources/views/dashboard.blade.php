@@ -36,6 +36,13 @@
             <div class="stat-value text-error">{{ $guruJauh }}</div>
             <div class="stat-desc">guru berjarak &gt; 5 km</div>
         </div>
+        @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
+            <div class="stat">
+                <div class="stat-title">Usulan Menunggu 📝</div>
+                <div class="stat-value text-warning">{{ $usulanMenunggu }}</div>
+                <div class="stat-desc"><a href="{{ route('usulan.index') }}" class="link">proses sekarang</a></div>
+            </div>
+        @endif
     </div>
 
     {{-- Komponen Livewire: peta + rekomendasi (interaktif tanpa reload) --}}

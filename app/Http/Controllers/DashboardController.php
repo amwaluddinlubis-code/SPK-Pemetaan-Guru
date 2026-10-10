@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Guru;
 use App\Models\Sekolah;
+use App\Models\UsulanPenempatan;
 
 class DashboardController extends Controller
 {
@@ -30,6 +31,9 @@ class DashboardController extends Controller
             (float) $g->sekolah_saat_ini_lng
         ) > 5)->count();
 
-        return view('dashboard', compact('totalGuru', 'totalSekolah', 'rataJarak', 'guruJauh'));
+        // Usulan yang masih menunggu diproses (untuk Kabid/Kadis)
+        $usulanMenunggu = UsulanPenempatan::whereIn('status', UsulanPenempatan::AKTIF)->count();
+
+        return view('dashboard', compact('totalGuru', 'totalSekolah', 'rataJarak', 'guruJauh', 'usulanMenunggu'));
     }
 }

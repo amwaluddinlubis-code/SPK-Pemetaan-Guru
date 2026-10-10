@@ -11,6 +11,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UsulanController;
 use Illuminate\Support\Facades\Route;
 
 // --- Halaman login (hanya untuk tamu/belum login) ---
@@ -68,6 +69,22 @@ Route::middleware('auth')->group(function () {
     Route::resource('pengguna', UserController::class)
         ->except(['show'])
         ->middleware('role:kabid_ptk');
+
+    // --- Usulan Penempatan ---
+    // Lihat: semua peran (controller membatasi cakupan data)
+    Route::get('/usulan', [UsulanController::class, 'index'])->name('usulan.index');
+    Route::get('/usulan/create', [UsulanController::class, 'create'])->name('usulan.create')
+        ->middleware('role:guru,kepala_sekolah,kabid_ptk');
+    Route::post('/usulan', [UsulanController::class, 'store'])->name('usulan.store')
+        ->middleware('role:guru,kepala_sekolah,kabid_ptk');
+    Route::get('/usulan/{usulan}', [UsulanController::class, 'show'])->name('usulan.show');
+    // Proses: verifikasi (kabid), setujui (kadis), tolak (kabid/kadis)
+    Route::post('/usulan/{usulan}/verifikasi', [UsulanController::class, 'verifikasi'])
+        ->name('usulan.verifikasi')->middleware('role:kabid_ptk');
+    Route::post('/usulan/{usulan}/setujui', [UsulanController::class, 'setujui'])
+        ->name('usulan.setujui')->middleware('role:kadis');
+    Route::post('/usulan/{usulan}/tolak', [UsulanController::class, 'tolak'])
+        ->name('usulan.tolak')->middleware('role:kabid_ptk,kadis');
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

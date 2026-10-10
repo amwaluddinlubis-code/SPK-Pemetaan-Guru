@@ -7,6 +7,7 @@ namespace App\Livewire;
 
 use App\Models\Guru;
 use App\Models\Sekolah;
+use App\Models\UsulanPenempatan;
 use Livewire\Component;
 
 class PetaRekomendasi extends Component
@@ -26,6 +27,9 @@ class PetaRekomendasi extends Component
 
     // Jika true, dropdown guru dikunci (untuk role 'guru': hanya dirinya sendiri)
     public $terkunci = false;
+
+    // Pesan hasil pengajuan usulan dari panel rekomendasi ['tipe' => ..., 'teks' => ...]
+    public $pesanUsulan = null;
 
     /**
      * Dijalankan sekali saat komponen pertama dimuat.
@@ -153,5 +157,53 @@ class PetaRekomendasi extends Component
         return view('livewire.peta-rekomendasi', [
             'daftarGuru' => $queryGuru->get(['id', 'nama', 'mapel', 'jenjang']),
         ]);
+    }
+
+    /**
+     * Buat usulan penempatan langsung dari hasil rekomendasi.
+     * Boleh: guru (diri sendiri), kepala_sekolah (guru sekolahnya), kabid_ptk.
+     */
+    public function ajukanPenempatan(int $sekolahId): void
+    {
+        $this->pesanUsulan = null;
+        $user = auth()->user();
+
+        if (! $user || ! $user->hasRole('guru', 'kepala_sekolah', 'kabid_ptk')) {
+            abort(403);
+        }
+        if (empty($this->guruId)) {
+            $this->pesanUsulan = ['tipe' => 'error', 'teks' => 'Pilih dulu gurunya sebelum mengajukan.'];
+            return;
+        }
+
+        $guru = Guru::findOrFail($this->guruId);
+        // Kunci scope seperti method cari()
+        if ($user->role === 'guru') {
+            $guru = Guru::findOrFail($user->guru_id);
+        } elseif ($user->role === 'kepala_sekolah' && (int) $guru->sekolah_id !== (int) $user->sekolah_id) {
+            $this->pesanUsulan = ['tipe' => 'error', 'teks' => 'Anda hanya boleh mengajukan guru di sekolah Anda.'];
+            return;
+        }
+
+        $sekolah = Sekolah::with('kebutuhan')->findOrFail($sekolahId);
+        if ($sekolah->butuhMapel($guru->mapel) <= 0) {
+            $this->pesanUsulan = ['tipe' => 'error', 'teks' => 'Sekolah ini tidak membutuhkan mapel ' . $guru->mapel . '.'];
+            return;
+        }
+        if (UsulanPenempatan::where('guru_id', $guru->id)
+                ->whereIn('status', UsulanPenempatan::AKTIF)->exists()) {
+            $this->pesanUsulan = ['tipe' => 'error', 'teks' => 'Guru ini masih punya usulan yang berjalan.'];
+            return;
+        }
+
+        UsulanPenempatan::create([
+            'guru_id' => $guru->id, 'sekolah_id' => $sekolah->id,
+            'alasan' => "Diajukan dari rekomendasi peta: jarak {$guru->domisili_alamat} ke {$sekolah->nama} "
+                . round($guru->jarakKe((float) $sekolah->lat, (float) $sekolah->lng), 1) . ' km.',
+            'status' => 'diajukan', 'diajukan_oleh' => $user->id,
+        ]);
+
+        $this->pesanUsulan = ['tipe' => 'sukses',
+            'teks' => "Usulan {$guru->nama} → {$sekolah->nama} terkirim. Pantau di menu Usulan."];
     }
 }

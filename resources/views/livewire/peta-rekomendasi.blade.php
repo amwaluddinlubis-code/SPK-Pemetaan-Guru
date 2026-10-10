@@ -58,13 +58,18 @@
             @endif
 
             {{-- Daftar rekomendasi --}}
+            @if ($pesanUsulan)
+                <div class="alert {{ $pesanUsulan['tipe'] === 'sukses' ? 'alert-success' : 'alert-error' }} mt-4">
+                    <span class="text-sm">{{ $pesanUsulan['teks'] }}</span>
+                </div>
+            @endif
             @if (!empty($hasil))
                 <h3 class="font-bold mt-4">🏆 {{ count($hasil) }} rekomendasi terdekat:</h3>
                 <ul class="space-y-2 mt-2">
                     @foreach ($hasil as $i => $k)
                         <li>
-                            <button class="card card-compact bg-base-200 w-full text-left hover:bg-base-300"
-                                    onclick="terbangKe({{ $k['lat'] }}, {{ $k['lng'] }})">
+                            <div class="card card-compact bg-base-200 w-full text-left hover:bg-base-300 cursor-pointer"
+                                 onclick="terbangKe({{ $k['lat'] }}, {{ $k['lng'] }})">
                                 <div class="card-body">
                                     <strong>{{ $i + 1 }}. {{ $k['nama'] }}</strong>
                                     <div>
@@ -76,8 +81,14 @@
                                             🎉 Menghemat {{ $k['hemat'] }} km dibanding saat ini
                                         </span>
                                     @endif
+                                    @if (auth()->user()->hasRole('guru', 'kepala_sekolah', 'kabid_ptk'))
+                                        <button wire:click.stop="ajukanPenempatan({{ $k['id'] }})"
+                                                class="btn btn-sm btn-primary mt-1">
+                                            📝 Ajukan Penempatan
+                                        </button>
+                                    @endif
                                 </div>
-                            </button>
+                            </div>
                         </li>
                     @endforeach
                 </ul>

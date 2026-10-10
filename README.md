@@ -11,6 +11,7 @@ dengan komponen UI dari **daisyUI**.
 - 📍 Pemilih koordinat klik-peta di form guru & sekolah (klik/geser pin → lat/lng terisi otomatis)
 - 👩‍🏫 CRUD Data Guru (NIP, mapel, domisili + koordinat; kecamatan berupa dropdown)
 - 📥 Import massal data guru dari Excel/CSV + unduh template (khusus administrator)
+- 📝 Alur usulan penempatan: Diajukan → Diverifikasi Kabid → Disetujui Kadis (otomatis mutasi) / Ditolak; bisa diajukan langsung dari hasil rekomendasi peta
 - 🏫 CRUD Data Sekolah + kebutuhan guru per mapel (baris dinamis — Alpine.js)
 - 🔐 Login dengan **5 tingkatan pengguna** (hak akses & scope berbeda)
 - 👥 Kelola akun pengguna (khusus administrator)
