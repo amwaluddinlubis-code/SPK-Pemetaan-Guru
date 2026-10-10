@@ -48,9 +48,11 @@ Akun contoh untuk pengembangan lokal (dibuat oleh seeder — **jangan dipakai di
 | `kadis@peta-asn.local` | Kadis (reviewer) |
 | `pemda@peta-asn.local` | Pemerintah Daerah (eksekutif) |
 
-> 🔐 Password akun contoh mengikuti pola yang tercantum di `database/seeders/AdminSeeder.php`
-> dan hanya untuk lingkungan pengembangan lokal. Sebelum deployment publik/production:
-> ganti semua password lewat menu Profil, atau buat akun baru dan hapus akun contoh.
+> 🔐 Akun contoh dan password berpola hanya dibuat ketika `APP_ENV=local` atau `APP_ENV=testing`.
+> `DatabaseSeeder` tidak membuat guru contoh atau akun demo pada staging/production, dan
+> `AdminSeeder` juga menolak berjalan di luar lingkungan tersebut. Jangan pernah menyalin
+> kredensial demo ke server publik. Untuk production, buat akun awal secara terkontrol dengan
+> password acak yang unik, lalu simpan kredensial melalui kanal rahasia.
 
 > ⚠️ Paket ini berisi **kode sumber aplikasi** (tanpa folder `vendor/` dan `node_modules/`).
 > Ikuti langkah instalasi di bawah — total ±15 menit.
@@ -156,10 +158,15 @@ Buat database kosong bernama `peta_asn` di MySQL (via phpMyAdmin atau `CREATE DA
 > (sudah berisi tabel + data contoh + akun admin). Jika pakai cara ini,
 > lewati Langkah 6.
 
-### Langkah 6 — Migrasi + isi data contoh
+### Langkah 6 — Migrasi + isi data awal
 ```bash
 php artisan migrate --seed
 ```
+
+Pada `APP_ENV=local` atau `testing`, seeder juga menambahkan data guru dan akun demo.
+Pada `APP_ENV=production`, seeder hanya mengisi data referensi sekolah; akun demo dan guru
+fiktif sengaja tidak dibuat. Buat akun administrator awal production melalui prosedur
+operasional yang disetujui, dengan password acak yang unik (jangan gunakan password demo).
 
 ### Langkah 7 — Build aset (CSS/JS)
 ```bash
