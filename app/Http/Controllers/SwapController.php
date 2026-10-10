@@ -49,23 +49,26 @@ class SwapController extends Controller
     // Generate rekomendasi (kabid_ptk): cocokkan semua pasangan guru O(N^2)
     public function generate()
     {
-        $gurus = Guru::with('sekolah')
-            ->whereNotNull('domisili_lat')
-            ->whereNotNull('domisili_lng')
-            ->whereNotNull('sekolah_id')
-            ->get();
-
         $baru = 0;
 
-        // Guru yang sudah punya rekomendasi menunggu tidak dicarikan pasangan
-        // baru — satu guru hanya boleh ada di satu rekomendasi aktif.
-        $terpakai = RekomendasiSwap::where('status', 'menunggu')
-            ->get(['guru_a_id', 'guru_b_id'])
-            ->flatMap(fn ($r) => [$r->guru_a_id, $r->guru_b_id])
-            ->flip()
-            ->toArray();
+        DB::transaction(function () use (&$baru) {
+            // Kunci guru sebelum membaca swap aktif agar dua proses generate
+            // tidak sama-sama memilih guru yang belum tercatat sebagai terpakai.
+            $gurus = Guru::with('sekolah')
+                ->whereNotNull('domisili_lat')
+                ->whereNotNull('domisili_lng')
+                ->whereNotNull('sekolah_id')
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
 
-        DB::transaction(function () use ($gurus, $terpakai, &$baru) {
+            // Baca status aktif setelah memperoleh lock, bukan sebelum transaksi.
+            $terpakai = RekomendasiSwap::where('status', 'menunggu')
+                ->get(['guru_a_id', 'guru_b_id'])
+                ->flatMap(fn ($r) => [$r->guru_a_id, $r->guru_b_id])
+                ->flip()
+                ->toArray();
+
             $n = $gurus->count();
 
             // Guru yang punya usulan aktif tidak boleh ikut swap (konflik alur)
@@ -282,15 +285,28 @@ class SwapController extends Controller
     // Tolak swap (kabid_ptk / kadis)
     public function tolak(Request $request, RekomendasiSwap $swap)
     {
-        if ($swap->status !== 'menunggu') {
+        $sudahDiproses = false;
+
+        DB::transaction(function () use ($request, $swap, &$sudahDiproses) {
+            // Baca ulang status di bawah lock yang sama-sama dipakai persetujuan.
+            $terkunci = RekomendasiSwap::whereKey($swap->id)->lockForUpdate()->firstOrFail();
+
+            if ($terkunci->status !== 'menunggu') {
+                $sudahDiproses = true;
+
+                return;
+            }
+
+            $terkunci->update([
+                'status' => 'ditolak',
+                'diproses_oleh' => auth()->id(),
+                'catatan_admin' => $request->input('catatan_admin'),
+            ]);
+        });
+
+        if ($sudahDiproses) {
             return back()->with('sukses', 'Rekomendasi ini sudah diproses sebelumnya.');
         }
-
-        $swap->update([
-            'status' => 'ditolak',
-            'diproses_oleh' => auth()->id(),
-            'catatan_admin' => $request->input('catatan_admin'),
-        ]);
 
         return back()->with('sukses', 'Rekomendasi swap ditolak.');
     }
