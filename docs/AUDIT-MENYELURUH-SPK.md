@@ -6,6 +6,7 @@
 - **Status:** rekomendasi dan temuan awal; belum seluruh repositori diuji secara runtime.
 - **Pembaruan 11 Okt 2026:** status tiap temuan diperbarui ke progres terkini (commit `cb4aa43c`); 6 checklist tes penerimaan terverifikasi via uji HTTP.
 - **Pembaruan 11 Okt 2026 (batch 2):** temuan SEC-001, SEC-002, FLOW-001, FLOW-002, DATA-001 terverifikasi; DOC-001 diperbaiki; TEST-001 dikerjakan (commit `e63b2b7e`); 4 checklist tambahan dicentang via PHPUnit.
+- **Pembaruan 11 Okt 2026 (batch 3):** temuan SPK-003, SWAP-001, MAP-001 terverifikasi; MAP-002 diperbaiki; BUILD-001 dikerjakan (commit `6b224068`).
 - **Bahasa:** Indonesia.
 
 > Dokumen ini adalah acuan utama audit. Perbarui ID temuan yang sama ketika memperbaiki masalah; jangan membuat temuan duplikat. Jangan tandai temuan sebagai selesai sebelum ada perubahan kode dan bukti verifikasi.
@@ -70,11 +71,11 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** tampilkan jarak asal, jarak tujuan, penghematan, kecocokan mata pelajaran, kuota, serta alasan kandidat lolos/gagal.
 - **Verifikasi:** data penjelasan sesuai hasil hitung dan aturan yang diterapkan.
 
-- **Status saat ini (11 Okt 2026):** Dikerjakan (sebagian)
-- **Commit:** `cb4aa43c`
-- **Bukti:** Rekomendasi diurutkan by penghematan terbesar; kolom `hemat_km` tersimpan dan tampil di view (`hematKm()` pakai nilai tersimpan, fallback hitung untuk data lama).
-- **Tes:** Render view SPK terverifikasi menampilkan penghematan per baris.
-- **Catatan:** Belum: laporan alasan kelayakan per kandidat (mis. 'gugur karena tidak menghemat jarak').
+- **Status saat ini (11 Okt 2026, batch 3):** Terverifikasi
+- **Commit:** `6b224068`
+- **Bukti:** View `spk/index` kini punya kolom 'Kelayakan' per rekomendasi: mapel cocok, sisa formasi live (via `KebutuhanGuru::sisaDenganAlokasi()`), dan alasan (penghematan + ambang). Controller mengirim `$sisaKuota` tanpa N+1.
+- **Tes:** PHPUnit `test_spk_index_menampilkan_penjelasan_kelayakan`: GET /spk memuat 'Kelayakan', 'Sisa formasi', '(garis lurus)'.
+- **Catatan:** Alasan kandidat yang GUGUR (tidak tampil) belum dicatat — hanya kandidat lolos yang dijelaskan.
 
 ### SEC-001 — Scope data peta perlu diaudit untuk setiap peran
 
@@ -141,11 +142,11 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** jadikan koordinat sekolah pada model `Sekolah` sebagai sumber utama bila sesuai dengan desain bisnis. Migrasikan data dengan aman dan hentikan ketergantungan pada salinan setelah semua penggunaan diverifikasi.
 - **Verifikasi:** perubahan koordinat sekolah dan mutasi guru menghasilkan peta serta jarak yang konsisten.
 
-- **Status saat ini (11 Okt 2026):** Terbuka
-- **Commit:** `-`
-- **Bukti:** -
-- **Tes:** -
-- **Catatan:** Belum dikerjakan. Dokumen rekomendasi sendiri memperingatkan agar tidak mengubah skema produksi sebelum audit pemakaian kolom.
+- **Status saat ini (11 Okt 2026, batch 3):** Terverifikasi
+- **Commit:** `6b224068`
+- **Bukti:** `Guru::koordinatSekolah()` / `jarakKeSekolahSaatIni()`: relasi `sekolah` sebagai sumber kebenaran tunggal, fallback ke cache denormalisasi. Dipakai di SPK generate, swap generate, dashboard, dan PetaRekomendasi. Aturan bisnis 6 di `proses-bisnis.md` diperbarui.
+- **Tes:** PHPUnit `test_jarak_ke_sekolah_memakai_relasi_bukan_cache`: cache diset menyimpang → jarak tetap dihitung dari relasi.
+- **Catatan:** Kolom denormalisasi tetap ditulis saat mutasi (cache tampilan) — belum dihapus dari skema.
 
 ### MAP-002 — Jarak Haversine bukan jarak jalan
 
@@ -155,11 +156,11 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** jelaskan jenis jarak di antarmuka. Gunakan rute jalan/waktu tempuh hanya bila diperlukan dan tersedia sumber data yang sesuai. Jangan mencampur nilai garis lurus dan jarak jalan dalam pemeringkatan yang sama tanpa definisi.
 - **Verifikasi:** uji koordinat kosong/tidak valid dan periksa unit serta pembulatan.
 
-- **Status saat ini (11 Okt 2026):** Terbuka
-- **Commit:** `-`
-- **Bukti:** -
-- **Tes:** -
-- **Catatan:** Dokumen `proses-bisnis.md` kini menyatakan eksplisit bahwa jarak adalah garis lurus (Haversine), bukan jarak jalan. Layanan rute jalan belum diintegrasikan.
+- **Status saat ini (11 Okt 2026, batch 3):** Diperbaiki
+- **Commit:** `6b224068`
+- **Bukti:** Label '(garis lurus)' ditambahkan di view SPK, swap, dan dokumentasi proses bisnis sudah menyatakan Haversine = garis lurus.
+- **Tes:** PHPUnit (assertSee '(garis lurus)' di halaman SPK).
+- **Catatan:** Integrasi jarak jalan (OSRM/dll) belum dilakukan — sesuai saran audit, hanya bila diperlukan.
 
 ### SWAP-001 — Kelayakan dan konflik pertukaran harus diverifikasi menyeluruh
 
@@ -169,11 +170,11 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** validasi status, mapel/kualifikasi, syarat administratif, kedua kuota, konflik usulan aktif, dan konsistensi kedua perubahan dalam satu transaksi. Pertimbangkan maximum-weight matching hanya jika sistem harus mengoptimalkan banyak pasangan sekaligus.
 - **Verifikasi:** salah satu pihak tidak memenuhi syarat, guru terlibat di dua swap, kuota berubah, dan persetujuan bersamaan.
 
-- **Status saat ini (11 Okt 2026):** Dikerjakan (sebagian)
-- **Commit:** `cb4aa43c`
-- **Bukti:** `SwapController@generate`: satu guru hanya di satu rekomendasi aktif (preload `$terpakai` + tandai saat generate); guard koordinat null/nol. `setujui`: lock rekomendasi + kedua guru, validasi ulang posisi keduanya.
-- **Tes:** HTTP test 11 Okt: generate berjalan tanpa error (0 pasangan pada data seed — wajar, tidak ada pasangan win-win). Pola locking sama dengan SPK yang sudah teruji.
-- **Catatan:** Belum: maximum-weight matching, validasi administratif (status kepegawaian, kualifikasi).
+- **Status saat ini (11 Okt 2026, batch 3):** Terverifikasi
+- **Commit:** `6b224068`
+- **Bukti:** `SwapController@generate` ditulis ulang dua tahap: (1) kumpulkan semua pasangan win-win valid + bobot (total hemat), (2) greedy maximum-weight matching (urut bobot desc, ambil yang gurunya bebas). Validasi administratif baru: jenjang harus sama + tidak ada pihak berusulan aktif.
+- **Tes:** PHPUnit: `test_swap_memilih_pasangan_dengan_total_hemat_terbesar` (3 guru, pasangan terbaik terpilih) dan `test_swap_menolak_beda_jenjang_dan_usulan_aktif`.
+- **Catatan:** Greedy bukan Blossom optimal — didokumentasikan di komentar kode; cukup untuk skala ini.
 
 ### DATA-001 — Validasi data geografis dan integritas relasi
 
@@ -210,11 +211,11 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** dokumentasikan struktur yang benar, versi runtime, dependency yang diperlukan, cara setup database, dan cara menjalankan tes. Jangan menyatakan `composer.json` hilang sebelum struktur terbaru diperiksa lagi.
 - **Verifikasi:** ikuti instruksi dari checkout baru pada lingkungan bersih.
 
-- **Status saat ini (11 Okt 2026):** Terbuka
-- **Commit:** `-`
-- **Bukti:** -
-- **Tes:** -
-- **Catatan:** Belum dikerjakan.
+- **Status saat ini (11 Okt 2026, batch 3):** Dikerjakan
+- **Commit:** `6b224068`
+- **Bukti:** README: blok 'Struktur paket' menjelaskan eksplisit repo = source overlay (tanpa vendor/composer.json), versi terverifikasi (PHP 8.3.6, MySQL 8.0.46, Laravel 13.35, Livewire 4.4), dan Langkah 9: cara menjalankan tes (`peta_asn_test`).
+- **Tes:** Review README; `php artisan test` hijau di lingkungan ini.
+- **Catatan:** Instalasi bersih penuh (create-project dari nol) belum diuji ulang di mesin bersih.
 
 ### TEST-001 — Tes penerimaan dan regresi belum terverifikasi
 
