@@ -104,7 +104,8 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         // Inisialisasi peta (hanya sekali; wadahnya wire:ignore)
-        petaAsn = L.map('peta-asn').setView([-6.925, 107.625], 13);
+        // Titik awal: tengah Kab. Mandailing Natal (dari sebaran data sekolah)
+        petaAsn = L.map('peta-asn').setView([0.79, 99.41], 10);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; OpenStreetMap'

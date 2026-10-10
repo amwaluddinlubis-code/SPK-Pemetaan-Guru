@@ -7,7 +7,9 @@ dengan komponen UI dari **daisyUI**.
 **Fitur:**
 - 🗺️ Dashboard peta interaktif (Leaflet + OpenStreetMap, gratis)
 - 🎯 Rekomendasi sekolah terdekat yang membutuhkan mapel guru (otomatis, tanpa reload — Livewire)
-- 👩‍🏫 CRUD Data Guru (NIP, mapel, domisili + koordinat)
+- 🔍 Pencarian + filter kecamatan di tabel guru & sekolah, filter peran di tabel pengguna
+- 📍 Pemilih koordinat klik-peta di form guru & sekolah (klik/geser pin → lat/lng terisi otomatis)
+- 👩‍🏫 CRUD Data Guru (NIP, mapel, domisili + koordinat; kecamatan berupa dropdown)
 - 🏫 CRUD Data Sekolah + kebutuhan guru per mapel (baris dinamis — Alpine.js)
 - 🔐 Login dengan **5 tingkatan pengguna** (hak akses & scope berbeda)
 - 👥 Kelola akun pengguna (khusus administrator)
@@ -35,8 +37,8 @@ Akun contoh (password = nama peran + `123`, segera ganti!):
 |---|---|---|
 | `admin@peta-asn.local` | `admin123` | Kadis (reviewer) |
 | `guru@peta-asn.local` | `guru123` | Guru (Siti Aminah) |
-| `kepsek@peta-asn.local` | `kepsek123` | Kepala SDN 1 Sukamaju |
-| `pgri@peta-asn.local` | `pgri123` | Ketua PGRI Kec. Sukamaju |
+| `kepsek@peta-asn.local` | `kepsek123` | Kepala SD Negeri 076 Panyabungan |
+| `pgri@peta-asn.local` | `pgri123` | Ketua PGRI Kec. Panyabungan |
 | `kabid@peta-asn.local` | `kabid123` | Kabid PTK (administrator) |
 | `kadis@peta-asn.local` | `kadis123` | Kadis (reviewer) |
 

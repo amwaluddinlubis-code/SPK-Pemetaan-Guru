@@ -98,16 +98,27 @@
                     </label>
                     <label class="form-control w-full">
                         <span class="label-text font-semibold">Latitude</span>
-                        <input type="text" name="domisili_lat"
+                        <input type="text" id="domisili_lat" name="domisili_lat"
                                value="{{ old('domisili_lat', $guru->domisili_lat) }}" required
-                               class="input input-bordered w-full" placeholder="-6.9180">
+                               class="input input-bordered w-full" placeholder="0.7900">
                     </label>
                     <label class="form-control w-full">
                         <span class="label-text font-semibold">Longitude</span>
-                        <input type="text" name="domisili_lng"
+                        <input type="text" id="domisili_lng" name="domisili_lng"
                                value="{{ old('domisili_lng', $guru->domisili_lng) }}" required
-                               class="input input-bordered w-full" placeholder="107.6200">
+                               class="input input-bordered w-full" placeholder="99.4100">
                     </label>
+                </div>
+
+                {{-- Peta pemilih koordinat domisili (default: tengah Kab. Madina) --}}
+                <div class="mt-3">
+                    @include('komponen.peta-picker', [
+                        'idPeta' => 'peta-domisili',
+                        'inputLat' => 'domisili_lat',
+                        'inputLng' => 'domisili_lng',
+                        'lat' => (float) (old('domisili_lat', $guru->domisili_lat) ?: 0.79),
+                        'lng' => (float) (old('domisili_lng', $guru->domisili_lng) ?: 99.41),
+                    ])
                 </div>
                 <p class="text-xs opacity-60 mt-1">
                     💡 Tips: buka Google Maps, klik kanan lokasi rumah → salin koordinatnya.
@@ -124,16 +135,27 @@
                     </label>
                     <label class="form-control w-full">
                         <span class="label-text font-semibold">Latitude Sekolah</span>
-                        <input type="text" name="sekolah_saat_ini_lat"
+                        <input type="text" id="sekolah_saat_ini_lat" name="sekolah_saat_ini_lat"
                                value="{{ old('sekolah_saat_ini_lat', $guru->sekolah_saat_ini_lat) }}"
-                               class="input input-bordered w-full" placeholder="-6.9800">
+                               class="input input-bordered w-full" placeholder="0.7900">
                     </label>
                     <label class="form-control w-full">
                         <span class="label-text font-semibold">Longitude Sekolah</span>
-                        <input type="text" name="sekolah_saat_ini_lng"
+                        <input type="text" id="sekolah_saat_ini_lng" name="sekolah_saat_ini_lng"
                                value="{{ old('sekolah_saat_ini_lng', $guru->sekolah_saat_ini_lng) }}"
-                               class="input input-bordered w-full" placeholder="107.7000">
+                               class="input input-bordered w-full" placeholder="99.4100">
                     </label>
+                </div>
+
+                {{-- Peta pemilih koordinat sekolah tempat bertugas --}}
+                <div class="mt-3">
+                    @include('komponen.peta-picker', [
+                        'idPeta' => 'peta-sekolah-saat-ini',
+                        'inputLat' => 'sekolah_saat_ini_lat',
+                        'inputLng' => 'sekolah_saat_ini_lng',
+                        'lat' => (float) (old('sekolah_saat_ini_lat', $guru->sekolah_saat_ini_lat) ?: 0.79),
+                        'lng' => (float) (old('sekolah_saat_ini_lng', $guru->sekolah_saat_ini_lng) ?: 99.41),
+                    ])
                 </div>
 
                 <div class="flex gap-2 mt-6">

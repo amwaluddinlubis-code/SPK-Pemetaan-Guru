@@ -57,14 +57,25 @@
                     </label>
                     <label class="form-control w-full">
                         <span class="label-text font-semibold">Latitude</span>
-                        <input type="text" name="lat" value="{{ old('lat', $sekolah->lat) }}" required
-                               class="input input-bordered w-full" placeholder="-6.9175">
+                        <input type="text" id="lat" name="lat" value="{{ old('lat', $sekolah->lat) }}" required
+                               class="input input-bordered w-full" placeholder="0.7900">
                     </label>
                     <label class="form-control w-full">
                         <span class="label-text font-semibold">Longitude</span>
-                        <input type="text" name="lng" value="{{ old('lng', $sekolah->lng) }}" required
-                               class="input input-bordered w-full" placeholder="107.6191">
+                        <input type="text" id="lng" name="lng" value="{{ old('lng', $sekolah->lng) }}" required
+                               class="input input-bordered w-full" placeholder="99.4100">
                     </label>
+                </div>
+
+                {{-- Peta pemilih koordinat sekolah (default: tengah Kab. Madina) --}}
+                <div class="mt-3">
+                    @include('komponen.peta-picker', [
+                        'idPeta' => 'peta-sekolah',
+                        'inputLat' => 'lat',
+                        'inputLng' => 'lng',
+                        'lat' => (float) (old('lat', $sekolah->lat) ?: 0.79),
+                        'lng' => (float) (old('lng', $sekolah->lng) ?: 99.41),
+                    ])
                 </div>
 
                 <div class="divider">Kebutuhan Guru per Mata Pelajaran</div>
