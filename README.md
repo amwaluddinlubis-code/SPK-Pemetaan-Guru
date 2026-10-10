@@ -154,9 +154,10 @@ DB_PASSWORD=
 ```
 Buat database kosong bernama `peta_asn` di MySQL (via phpMyAdmin atau `CREATE DATABASE peta_asn;`).
 
-> **Alternatif cepat untuk demo lokal saja:** `database.sql` berisi data contoh dan akun
-> dengan kredensial demo yang diketahui publik. Jangan impor file ini ke staging atau
-> production. Untuk deployment, gunakan migrasi dan seeder yang sesuai lingkungan pada Langkah 6.
+> **Alternatif impor skema sekolah saja:** `database.sql` membuat tabel dan memasukkan data
+> referensi sekolah, tetapi tidak mengisi data guru, kebutuhan guru, atau akun pengguna.
+> Jangan gunakan dump ini sebagai setup production; dump ini tidak mencakup seluruh skema
+> terbaru. Setup yang disarankan tetap migrasi pada Langkah 6.
 
 ### Langkah 6 — Migrasi + isi data awal
 ```bash
