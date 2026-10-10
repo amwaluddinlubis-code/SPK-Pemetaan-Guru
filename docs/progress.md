@@ -112,5 +112,7 @@ Teknologi: Laravel 13 + MySQL 8 + Livewire 4 + Tailwind CSS/daisyUI.
 - Ditambahkan pembatasan login `throttle:5,1` untuk mengurangi brute-force berbasis IP.
 - Seeder guru contoh dan akun demo dibatasi ke `local`/`testing`; `AdminSeeder` juga menolak lingkungan lain.
 - Tes regresi ditambahkan untuk rate limit dan guard seeder production.
+- Workflow PHPUnit diperbaiki agar direktori tes repo benar-benar disalin ke runtime Laravel.
+- Verifikasi GitHub Actions run `38077124705` pada SHA `42b3f02a743abfd671715edc385279901c24819a`: **18 tes lulus, 59 assertions**.
 - Dokumentasi temuan: `docs/AUDIT-KEAMANAN-2026-10.md`.
-- Status: perubahan diajukan, hasil tes menunggu workflow GitHub Actions; jangan anggap terverifikasi sebelum hasil tersedia.
+- Catatan: verifikasi otomatis bukan pengganti uji penetrasi atau pemeriksaan deployment production.
