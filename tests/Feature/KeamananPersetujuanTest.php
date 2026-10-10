@@ -118,11 +118,10 @@ class KeamananPersetujuanTest extends TestCase
         $sekolahValid = $this->buatSekolah(0.0, 100.3);
         $this->buatGuru($sekolahValid);
 
-        $sekolahTanpaKoordinat = $this->buatSekolah(0.0, 100.0, [
-            'lat' => null,
-            'lng' => null,
-        ]);
-        $this->buatGuru($sekolahTanpaKoordinat, [
+        // Relasi sekolah dan cache koordinat tidak tersedia pada guru ini.
+        // Kolom lat/lng tabel sekolah sendiri memang NOT NULL.
+        $this->buatGuru($sekolahValid, [
+            'sekolah_id' => null,
             'sekolah_saat_ini_lat' => null,
             'sekolah_saat_ini_lng' => null,
         ]);
