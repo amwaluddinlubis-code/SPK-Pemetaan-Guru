@@ -32,6 +32,13 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:kabid_ptk,kepala_sekolah');
     Route::post('/guru', [GuruController::class, 'store'])->name('guru.store')
         ->middleware('role:kabid_ptk,kepala_sekolah');
+    // Import Excel: khusus kabid_ptk (administrator)
+    Route::get('/guru/import', [GuruController::class, 'importForm'])->name('guru.import')
+        ->middleware('role:kabid_ptk');
+    Route::post('/guru/import', [GuruController::class, 'import'])->name('guru.import.proses')
+        ->middleware('role:kabid_ptk');
+    Route::get('/guru/contoh-template', [GuruController::class, 'unduhTemplate'])->name('guru.template')
+        ->middleware('role:kabid_ptk');
     // Ubah: guru (milik sendiri), kepala_sekolah (di sekolahnya), kabid_ptk
     Route::get('/guru/{guru}/edit', [GuruController::class, 'edit'])->name('guru.edit')
         ->middleware('role:guru,kepala_sekolah,kabid_ptk');

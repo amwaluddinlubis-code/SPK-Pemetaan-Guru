@@ -10,6 +10,7 @@ dengan komponen UI dari **daisyUI**.
 - 🔍 Pencarian + filter kecamatan di tabel guru & sekolah, filter peran di tabel pengguna
 - 📍 Pemilih koordinat klik-peta di form guru & sekolah (klik/geser pin → lat/lng terisi otomatis)
 - 👩‍🏫 CRUD Data Guru (NIP, mapel, domisili + koordinat; kecamatan berupa dropdown)
+- 📥 Import massal data guru dari Excel/CSV + unduh template (khusus administrator)
 - 🏫 CRUD Data Sekolah + kebutuhan guru per mapel (baris dinamis — Alpine.js)
 - 🔐 Login dengan **5 tingkatan pengguna** (hak akses & scope berbeda)
 - 👥 Kelola akun pengguna (khusus administrator)
@@ -106,7 +107,7 @@ peta-asn/
 
 ### Langkah 3 — Instal dependency PHP (termasuk Livewire)
 ```bash
-composer require livewire/livewire
+composer require livewire/livewire phpoffice/phpspreadsheet
 ```
 
 ### Langkah 4 — Instal dependency JS (Tailwind + daisyUI)

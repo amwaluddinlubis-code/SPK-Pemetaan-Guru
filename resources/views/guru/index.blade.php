@@ -6,9 +6,28 @@
     <div class="flex justify-between items-center mb-4">
         <h1 class="text-2xl font-bold">👩‍🏫 Data Guru</h1>
         @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah'))
-            <a href="{{ route('guru.create') }}" class="btn btn-primary">+ Tambah Guru</a>
+            <div class="flex gap-2">
+                @if (auth()->user()->hasRole('kabid_ptk'))
+                    <a href="{{ route('guru.import') }}" class="btn btn-secondary">📥 Import Excel</a>
+                @endif
+                <a href="{{ route('guru.create') }}" class="btn btn-primary">+ Tambah Guru</a>
+            </div>
         @endif
     </div>
+
+    {{-- Rincian baris yang gagal saat import terakhir --}}
+    @if (session('import_gagal'))
+        <div class="alert alert-warning mb-4">
+            <div class="text-sm">
+                <strong>⚠️ Baris yang gagal diimpor:</strong>
+                <ul class="list-disc list-inside mt-1">
+                    @foreach (session('import_gagal') as $pesan)
+                        <li>{{ $pesan }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
 
     <div class="card bg-base-100 shadow-xl mb-4">
         <div class="card-body py-3">
