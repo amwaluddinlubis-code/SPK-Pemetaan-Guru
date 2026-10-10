@@ -154,9 +154,9 @@ DB_PASSWORD=
 ```
 Buat database kosong bernama `peta_asn` di MySQL (via phpMyAdmin atau `CREATE DATABASE peta_asn;`).
 
-> **Alternatif cepat:** impor langsung `database.sql` dari paket ini ke MySQL
-> (sudah berisi tabel + data contoh + akun admin). Jika pakai cara ini,
-> lewati Langkah 6.
+> **Alternatif cepat untuk demo lokal saja:** `database.sql` berisi data contoh dan akun
+> dengan kredensial demo yang diketahui publik. Jangan impor file ini ke staging atau
+> production. Untuk deployment, gunakan migrasi dan seeder yang sesuai lingkungan pada Langkah 6.
 
 ### Langkah 6 — Migrasi + isi data awal
 ```bash
@@ -179,8 +179,8 @@ php artisan serve
 ```
 Buka **http://127.0.0.1:8000** di browser.
 
-**Login awal:** lihat tabel akun di atas (password mengikuti pola di `AdminSeeder.php`)
-⚠️ Segera ganti password setelah masuk!
+**Login demo lokal:** lihat tabel akun di atas (password mengikuti pola di `AdminSeeder.php`).
+Akun tersebut hanya dibuat pada `APP_ENV=local`/`testing` dan tidak tersedia pada production.
 
 ### Langkah 9 — Jalankan tes otomatis (opsional)
 ```bash
