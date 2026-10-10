@@ -433,4 +433,104 @@ class KeamananPersetujuanTest extends TestCase
         ]);
     }
 
+    public function test_daftar_spk_dan_swap_dibatasi_berdasarkan_cakupan_peran(): void
+    {
+        $sekolahA = $this->buatSekolah(1.0, 100.1, ['kecamatan' => 'Panyabungan']);
+        $sekolahB = $this->buatSekolah(1.0, 100.2, ['kecamatan' => 'Kotanopan']);
+        $sekolahC = $this->buatSekolah(1.0, 100.3, ['kecamatan' => 'Kotanopan']);
+        $sekolahD = $this->buatSekolah(1.0, 100.4, ['kecamatan' => 'Natal']);
+
+        $guruA = $this->buatGuru($sekolahA, [
+            'nama' => 'Guru Dalam Cakupan',
+            'kecamatan' => 'Panyabungan',
+        ]);
+        $guruB = $this->buatGuru($sekolahB, [
+            'nama' => 'Guru Pasangan Swap',
+            'kecamatan' => 'Kotanopan',
+        ]);
+        $guruC = $this->buatGuru($sekolahC, [
+            'nama' => 'Guru Di Luar Cakupan',
+            'kecamatan' => 'Kotanopan',
+        ]);
+        $guruD = $this->buatGuru($sekolahD, [
+            'nama' => 'Guru Luar Lainnya',
+            'kecamatan' => 'Natal',
+        ]);
+
+        HasilSpk::create([
+            'guru_id' => $guruA->id,
+            'sekolah_asal_id' => $sekolahA->id,
+            'sekolah_tujuan_id' => $sekolahB->id,
+            'jarak_km' => 10,
+            'jarak_sekarang_km' => 20,
+            'hemat_km' => 10,
+            'status' => 'rekomendasi',
+        ]);
+        HasilSpk::create([
+            'guru_id' => $guruC->id,
+            'sekolah_asal_id' => $sekolahC->id,
+            'sekolah_tujuan_id' => $sekolahD->id,
+            'jarak_km' => 10,
+            'jarak_sekarang_km' => 20,
+            'hemat_km' => 10,
+            'status' => 'rekomendasi',
+        ]);
+
+        RekomendasiSwap::create([
+            'guru_a_id' => $guruA->id,
+            'guru_b_id' => $guruB->id,
+            'sekolah_tujuan_a_id' => $sekolahB->id,
+            'sekolah_tujuan_b_id' => $sekolahA->id,
+            'jarak_a_sekarang_km' => 20,
+            'jarak_b_sekarang_km' => 20,
+            'jarak_a_usulan_km' => 10,
+            'jarak_b_usulan_km' => 10,
+            'hemat_a_km' => 10,
+            'hemat_b_km' => 10,
+            'total_hemat_km' => 20,
+            'status' => 'menunggu',
+        ]);
+        RekomendasiSwap::create([
+            'guru_a_id' => $guruC->id,
+            'guru_b_id' => $guruD->id,
+            'sekolah_tujuan_a_id' => $sekolahD->id,
+            'sekolah_tujuan_b_id' => $sekolahC->id,
+            'jarak_a_sekarang_km' => 20,
+            'jarak_b_sekarang_km' => 20,
+            'jarak_a_usulan_km' => 10,
+            'jarak_b_usulan_km' => 10,
+            'hemat_a_km' => 10,
+            'hemat_b_km' => 10,
+            'total_hemat_km' => 20,
+            'status' => 'menunggu',
+        ]);
+
+        // Guru hanya dapat melihat rekomendasi SPK miliknya dan swap yang melibatkannya.
+        $akunGuru = $this->buatUser('guru', ['guru_id' => $guruA->id]);
+        $this->actingAs($akunGuru)->get('/spk')->assertOk()
+            ->assertSee('Guru Dalam Cakupan')
+            ->assertDontSee('Guru Di Luar Cakupan');
+        $this->actingAs($akunGuru)->get('/swap')->assertOk()
+            ->assertSee('Guru Dalam Cakupan')
+            ->assertDontSee('Guru Di Luar Cakupan');
+
+        // Kepala sekolah hanya melihat SPK guru di sekolahnya dan swap yang melibatkan guru sekolahnya.
+        $akunKepsek = $this->buatUser('kepala_sekolah', ['sekolah_id' => $sekolahA->id]);
+        $this->actingAs($akunKepsek)->get('/spk')->assertOk()
+            ->assertSee('Guru Dalam Cakupan')
+            ->assertDontSee('Guru Di Luar Cakupan');
+        $this->actingAs($akunKepsek)->get('/swap')->assertOk()
+            ->assertSee('Guru Dalam Cakupan')
+            ->assertDontSee('Guru Di Luar Cakupan');
+
+        // Ketua PGRI hanya melihat SPK/swap yang melibatkan guru di kecamatannya.
+        $akunPgri = $this->buatUser('ketua_pgri', ['kecamatan' => 'Panyabungan']);
+        $this->actingAs($akunPgri)->get('/spk')->assertOk()
+            ->assertSee('Guru Dalam Cakupan')
+            ->assertDontSee('Guru Di Luar Cakupan');
+        $this->actingAs($akunPgri)->get('/swap')->assertOk()
+            ->assertSee('Guru Dalam Cakupan')
+            ->assertDontSee('Guru Di Luar Cakupan');
+    }
+
 }
