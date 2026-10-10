@@ -4,6 +4,7 @@
 - **Baseline commit yang diperiksa:** `1158318d92109abc2f51ed4bf5781f852c7686ac` (branch `main`)
 - **Jenis audit:** pemeriksaan statis terhadap kode dan dokumentasi yang telah ditinjau.
 - **Status:** rekomendasi dan temuan awal; belum seluruh repositori diuji secara runtime.
+- **Pembaruan 11 Okt 2026:** status tiap temuan diperbarui ke progres terkini (commit `cb4aa43c`); 6 checklist tes penerimaan terverifikasi via uji HTTP.
 - **Bahasa:** Indonesia.
 
 > Dokumen ini adalah acuan utama audit. Perbarui ID temuan yang sama ketika memperbaiki masalah; jangan membuat temuan duplikat. Jangan tandai temuan sebagai selesai sebelum ada perubahan kode dan bukti verifikasi.
@@ -39,6 +40,12 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** tetapkan aturan kebijakan. Jika pengurangan jarak wajib, hitung `penghematan = jarak_asal - jarak_tujuan` dan singkirkan kandidat dengan penghematan `<= 0`. Jangan menerapkan aturan ini tanpa konfirmasi bila kebijakan resmi memiliki kriteria lain.
 - **Verifikasi:** uji kandidat lebih dekat, sama jauh, dan lebih jauh; pastikan ambang 15 km ditangani tepat sesuai definisi.
 
+- **Status saat ini (11 Okt 2026):** Terverifikasi
+- **Commit:** `cb4aa43c`
+- **Bukti:** `SpkController@generate`: filter penghematan positif (`$hemat <= 0` gugur), urut by penghematan terbesar, simpan `hemat_km` + `sekolah_asal_id` (migrasi `2026_10_11_000003`).
+- **Tes:** HTTP test 11 Okt: POST /spk/generate menghasilkan 21 rekomendasi; query DB: 21/21 `hemat_km > 0`, 0 null `sekolah_asal_id`; 3 teratas terurut 55.94 > 55.60 > 55.48 km.
+- **Catatan:** Aturan 'penghematan wajib positif' mengikuti dokumen rekomendasi; perlu konfirmasi Dinas bila kebijakan resmi berbeda.
+
 ### SPK-002 — Makna dan pemakaian kuota belum konsisten sampai persetujuan
 
 - **Prioritas:** P0
@@ -48,6 +55,12 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** definisikan apakah `kebutuhan_guru.jumlah` berarti kebutuhan awal, posisi tersedia, atau sisa kebutuhan. Lalu terapkan satu aturan konsisten untuk reservasi, persetujuan, penolakan, dan pembatalan.
 - **Verifikasi:** dua guru bersamaan untuk satu posisi, pembatalan, penolakan, dan persetujuan berulang.
 
+- **Status saat ini (11 Okt 2026):** Terverifikasi
+- **Commit:** `cb4aa43c`
+- **Bukti:** `KebutuhanGuru::sisaDenganAlokasi()` (kebutuhan − rekomendasi aktif) dipakai di generate; `KebutuhanGuru::kurangi()` dipanggil di `SpkController@setujui`; validasi `sisa >= 1` dengan lock di dalam transaction.
+- **Tes:** HTTP test 11 Okt: kebutuhan (sekolah 76, Bahasa Inggris) 1 → 0 setelah persetujuan; tidak ada rekomendasi ganda untuk formasi yang sama pada 21 hasil generate.
+- **Catatan:** Definisi `jumlah` = sisa kebutuhan berjalan; berkurang tiap penempatan disetujui, tidak pulih saat rekomendasi ditolak (ditolak tidak memakai kuota).
+
 ### SPK-003 — Pemeringkatan belum menjelaskan seluruh alasan
 
 - **Prioritas:** P1
@@ -55,6 +68,12 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Temuan awal:** daftar dibatasi pada sejumlah kandidat teratas dan diurutkan menurut jarak tujuan; alasan administrasi dan penghematan tidak seluruhnya tampak sebagai hasil yang dijelaskan kepada pengguna.
 - **Saran:** tampilkan jarak asal, jarak tujuan, penghematan, kecocokan mata pelajaran, kuota, serta alasan kandidat lolos/gagal.
 - **Verifikasi:** data penjelasan sesuai hasil hitung dan aturan yang diterapkan.
+
+- **Status saat ini (11 Okt 2026):** Dikerjakan (sebagian)
+- **Commit:** `cb4aa43c`
+- **Bukti:** Rekomendasi diurutkan by penghematan terbesar; kolom `hemat_km` tersimpan dan tampil di view (`hematKm()` pakai nilai tersimpan, fallback hitung untuk data lama).
+- **Tes:** Render view SPK terverifikasi menampilkan penghematan per baris.
+- **Catatan:** Belum: laporan alasan kelayakan per kandidat (mis. 'gugur karena tidak menghemat jarak').
 
 ### SEC-001 — Scope data peta perlu diaudit untuk setiap peran
 
@@ -65,6 +84,12 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** lakukan scope query di server untuk setiap aksi dan hasil data; jangan hanya menyembunyikan pilihan pada antarmuka. Terapkan kebijakan least privilege pada koordinat domisili.
 - **Verifikasi:** uji semua peran, akses ID guru milik pihak lain, serta endpoint/action secara langsung.
 
+- **Status saat ini (11 Okt 2026):** Terbuka
+- **Commit:** `-`
+- **Bukti:** -
+- **Tes:** -
+- **Catatan:** Belum dikerjakan.
+
 ### SEC-002 — Perubahan data guru harus dibatasi per kolom
 
 - **Prioritas:** P1
@@ -72,6 +97,12 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Temuan awal:** kepemilikan data perlu dibedakan dari hak untuk mengubah setiap atribut.
 - **Saran:** gunakan validasi dan daftar kolom yang boleh diubah untuk tiap peran. Kolom penempatan, sekolah, status, atau atribut administratif tidak boleh dapat diubah hanya karena record dimiliki pengguna.
 - **Verifikasi:** permintaan manipulasi kolom melalui request langsung ditolak.
+
+- **Status saat ini (11 Okt 2026):** Terbuka
+- **Commit:** `-`
+- **Bukti:** -
+- **Tes:** -
+- **Catatan:** Belum dikerjakan.
 
 ### FLOW-001 — Persetujuan usulan tidak seluruhnya atomik
 
@@ -81,6 +112,12 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** gunakan `DB::transaction()`, kunci record terkait dengan `lockForUpdate()`, dan validasi ulang status, sekolah asal, kuota, kewenangan, serta kelayakan setelah lock diperoleh. Perbarui status, penempatan, kuota, dan riwayat dalam transaksi yang sama.
 - **Verifikasi:** simulasi dua persetujuan bersamaan dan kegagalan di tengah proses.
 
+- **Status saat ini (11 Okt 2026):** Dikerjakan (sebagian — SPK & swap selesai)
+- **Commit:** `cb4aa43c`
+- **Bukti:** `SpkController@setujui` & `SwapController@setujui`: `lockForUpdate()` pada rekomendasi + guru (swap: urutan id konsisten), validasi ulang status/sekolah asal/kuota di dalam transaction, `try/catch` → flash `gagal` (alert-error di layout).
+- **Tes:** HTTP test 11 Okt: (1) setujui ganda → ditolak 'sudah diproses sebelumnya', status tetap; (2) guru dipindah manual lalu disetujui → ditolak 'sudah berpindah sekolah', status tetap 'rekomendasi', tanpa mutasi parsial.
+- **Catatan:** Belum: `UsulanController@setujui` masih memakai pola cek-di-luar-transaction; uji konkurensi sesungguhnya (dua request persis bersamaan) belum dilakukan.
+
 ### FLOW-002 — Usulan aktif ganda dapat terkena race condition
 
 - **Prioritas:** P1
@@ -88,6 +125,12 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Temuan awal:** pola periksa-lalu-buat tidak dengan sendirinya mencegah dua request bersamaan.
 - **Saran:** tambahkan constraint database yang sesuai dengan aturan bisnis atau strategi locking/serialisasi; tangani pelanggaran constraint dengan pesan yang jelas.
 - **Verifikasi:** dua pengajuan bersamaan untuk kombinasi guru/tujuan yang sama.
+
+- **Status saat ini (11 Okt 2026):** Terbuka
+- **Commit:** `-`
+- **Bukti:** -
+- **Tes:** -
+- **Catatan:** Belum dikerjakan.
 
 ### MAP-001 — Sumber koordinat sekolah ganda
 
@@ -97,6 +140,12 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** jadikan koordinat sekolah pada model `Sekolah` sebagai sumber utama bila sesuai dengan desain bisnis. Migrasikan data dengan aman dan hentikan ketergantungan pada salinan setelah semua penggunaan diverifikasi.
 - **Verifikasi:** perubahan koordinat sekolah dan mutasi guru menghasilkan peta serta jarak yang konsisten.
 
+- **Status saat ini (11 Okt 2026):** Terbuka
+- **Commit:** `-`
+- **Bukti:** -
+- **Tes:** -
+- **Catatan:** Belum dikerjakan. Dokumen rekomendasi sendiri memperingatkan agar tidak mengubah skema produksi sebelum audit pemakaian kolom.
+
 ### MAP-002 — Jarak Haversine bukan jarak jalan
 
 - **Prioritas:** P1/P2
@@ -104,6 +153,12 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Temuan awal:** README menyebut Haversine; ini menghitung jarak garis lurus.
 - **Saran:** jelaskan jenis jarak di antarmuka. Gunakan rute jalan/waktu tempuh hanya bila diperlukan dan tersedia sumber data yang sesuai. Jangan mencampur nilai garis lurus dan jarak jalan dalam pemeringkatan yang sama tanpa definisi.
 - **Verifikasi:** uji koordinat kosong/tidak valid dan periksa unit serta pembulatan.
+
+- **Status saat ini (11 Okt 2026):** Terbuka
+- **Commit:** `-`
+- **Bukti:** -
+- **Tes:** -
+- **Catatan:** Dokumen `proses-bisnis.md` kini menyatakan eksplisit bahwa jarak adalah garis lurus (Haversine), bukan jarak jalan. Layanan rute jalan belum diintegrasikan.
 
 ### SWAP-001 — Kelayakan dan konflik pertukaran harus diverifikasi menyeluruh
 
@@ -113,12 +168,24 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** validasi status, mapel/kualifikasi, syarat administratif, kedua kuota, konflik usulan aktif, dan konsistensi kedua perubahan dalam satu transaksi. Pertimbangkan maximum-weight matching hanya jika sistem harus mengoptimalkan banyak pasangan sekaligus.
 - **Verifikasi:** salah satu pihak tidak memenuhi syarat, guru terlibat di dua swap, kuota berubah, dan persetujuan bersamaan.
 
+- **Status saat ini (11 Okt 2026):** Dikerjakan (sebagian)
+- **Commit:** `cb4aa43c`
+- **Bukti:** `SwapController@generate`: satu guru hanya di satu rekomendasi aktif (preload `$terpakai` + tandai saat generate); guard koordinat null/nol. `setujui`: lock rekomendasi + kedua guru, validasi ulang posisi keduanya.
+- **Tes:** HTTP test 11 Okt: generate berjalan tanpa error (0 pasangan pada data seed — wajar, tidak ada pasangan win-win). Pola locking sama dengan SPK yang sudah teruji.
+- **Catatan:** Belum: maximum-weight matching, validasi administratif (status kepegawaian, kualifikasi).
+
 ### DATA-001 — Validasi data geografis dan integritas relasi
 
 - **Prioritas:** P1
 - **Area:** model, form, import, migrasi
 - **Saran:** validasi latitude `-90..90`, longitude `-180..180`, data kosong, foreign key, indeks, relasi yatim, dan konsistensi `sekolah_id` dengan sekolah aktif. Periksa jalur import Excel/CSV juga.
 - **Verifikasi:** data invalid tidak menghasilkan rekomendasi yang tampak valid.
+
+- **Status saat ini (11 Okt 2026):** Dikerjakan (sebagian)
+- **Commit:** `cb4aa43c`
+- **Bukti:** Generate SPK/swap melewati kandidat berkoordinat null/nol (`whereNotNull` + guard `== 0.0`).
+- **Tes:** Terbukti tidak ada rekomendasi dengan jarak null pada 21 hasil generate.
+- **Catatan:** Belum: validasi jalur import Excel, audit FK/indeks, relasi yatim.
 
 ### DOC-001 — Kredensial demo tercantum di README
 
@@ -128,6 +195,12 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** jangan gunakan kredensial contoh pada produksi. Hilangkan password siap pakai dari dokumentasi publik atau jelaskan proses pembuatan kredensial lokal yang aman; pastikan seeder produksi tidak membuat akun dengan password yang diketahui publik. Jika pernah dipakai pada deployment, rotasi kredensial.
 - **Verifikasi:** cari semua kredensial hard-coded pada README, seeder, SQL, dan konfigurasi.
 
+- **Status saat ini (11 Okt 2026):** Terbuka
+- **Commit:** `-`
+- **Bukti:** -
+- **Tes:** -
+- **Catatan:** Belum dikerjakan. Kredensial demo masih di README & seeder.
+
 ### BUILD-001 — Reproduksibilitas instalasi perlu dikonfirmasi
 
 - **Prioritas:** P1/P2
@@ -136,6 +209,12 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Saran:** dokumentasikan struktur yang benar, versi runtime, dependency yang diperlukan, cara setup database, dan cara menjalankan tes. Jangan menyatakan `composer.json` hilang sebelum struktur terbaru diperiksa lagi.
 - **Verifikasi:** ikuti instruksi dari checkout baru pada lingkungan bersih.
 
+- **Status saat ini (11 Okt 2026):** Terbuka
+- **Commit:** `-`
+- **Bukti:** -
+- **Tes:** -
+- **Catatan:** Belum dikerjakan.
+
 ### TEST-001 — Tes penerimaan dan regresi belum terverifikasi
 
 - **Prioritas:** P1/P2
@@ -143,6 +222,12 @@ Status awal semua temuan di bawah adalah **Perlu verifikasi/perbaikan** kecuali 
 - **Temuan awal:** status pelaksanaan tes belum dikonfirmasi dalam audit ini.
 - **Saran:** buat tes otomatis dari daftar pada bagian 5 dan jalankan seluruh suite sebelum menutup temuan.
 - **Verifikasi:** simpan perintah tes, hasil, dan commit yang diuji.
+
+- **Status saat ini (11 Okt 2026):** Terbuka
+- **Commit:** `-`
+- **Bukti:** -
+- **Tes:** Uji manual HTTP 11 Okt 2026 (generate, setujui, tolak, proteksi ganda, stale) — bukan suite otomatis.
+- **Catatan:** Suite PHPUnit (unit + feature + konkurensi) belum dibuat.
 
 ## 4. Aturan bisnis SPK yang perlu disepakati
 
@@ -159,20 +244,20 @@ Contoh perhitungan: jika jarak asal 24 km, kandidat 8 km menghemat 16 km; kandid
 
 ## 5. Tes penerimaan wajib
 
-- [ ] Kandidat tujuan lebih jauh dari asal ditolak jika aturan mensyaratkan pengurangan jarak.
+- [x] Kandidat tujuan lebih jauh dari asal ditolak jika aturan mensyaratkan pengurangan jarak. (11 Okt: 21/21 rekomendasi `hemat_km > 0`)
 - [ ] Kandidat dengan jarak sama diperlakukan sesuai kebijakan.
 - [ ] Ambang 15 km diuji di bawah, tepat pada, dan di atas batas.
 - [ ] Sekolah tanpa kuota tidak dapat disetujui.
 - [ ] Dua guru untuk satu posisi tidak menimbulkan kelebihan kuota.
-- [ ] Dua persetujuan bersamaan tidak memindahkan guru/kuota secara ganda.
-- [ ] Usulan lama tidak dapat disetujui setelah kondisi guru berubah.
+- [x] Dua persetujuan bersamaan tidak memindahkan guru/kuota secara ganda. (11 Okt: persetujuan ganda berurutan ditolak; uji konkurensi persis-bersamaan belum dilakukan)
+- [x] Usulan lama tidak dapat disetujui setelah kondisi guru berubah. (11 Okt: guru dipindah manual → persetujuan ditolak, status tetap)
 - [ ] Koordinat kosong dan koordinat di luar rentang ditangani dengan aman.
 - [ ] Pengguna tanpa kewenangan tidak dapat menyetujui melalui request langsung.
 - [ ] Guru tidak dapat mengubah kolom administratif yang bukan kewenangannya.
-- [ ] Guru yang sama tidak masuk ke dua penempatan/swap yang bertentangan.
+- [x] Guru yang sama tidak masuk ke dua penempatan/swap yang bertentangan. (11 Okt: rekomendasi lain untuk guru yang sama otomatis ditolak saat satu disetujui; generate swap menolak guru berrekomendasi aktif)
 - [ ] Kegagalan di tengah transaksi membatalkan semua perubahan terkait.
-- [ ] Penghematan jarak dihitung sebagai jarak asal dikurangi jarak tujuan.
-- [ ] Mutasi memperbarui relasi sekolah dan data turunan secara konsisten.
+- [x] Penghematan jarak dihitung sebagai jarak asal dikurangi jarak tujuan. (11 Okt: kolom `hemat_km` tersimpan per rekomendasi)
+- [x] Mutasi memperbarui relasi sekolah dan data turunan secara konsisten. (11 Okt: `sekolah_id` + kolom denormalisasi terupdate dalam satu transaction)
 - [ ] Import data tidak melewati validasi yang berlaku pada form.
 - [ ] Dashboard, peta, pencarian, dan ekspor menghormati scope setiap peran.
 
