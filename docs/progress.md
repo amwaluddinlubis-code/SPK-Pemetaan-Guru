@@ -105,3 +105,12 @@ Teknologi: Laravel 13 + MySQL 8 + Livewire 4 + Tailwind CSS/daisyUI.
    `usulan_penempatan` dan kolom-kolom terbaru. Cara instal yang
    disarankan: `php artisan migrate --seed`.
 4. Peta Leaflet membutuhkan koneksi internet untuk memuat tile peta.
+
+
+## 4. Audit keamanan lanjutan (branch `security/login-throttle-demo-seeder`)
+
+- Ditambahkan pembatasan login `throttle:5,1` untuk mengurangi brute-force berbasis IP.
+- Seeder guru contoh dan akun demo dibatasi ke `local`/`testing`; `AdminSeeder` juga menolak lingkungan lain.
+- Tes regresi ditambahkan untuk rate limit dan guard seeder production.
+- Dokumentasi temuan: `docs/AUDIT-KEAMANAN-2026-10.md`.
+- Status: perubahan diajukan, hasil tes menunggu workflow GitHub Actions; jangan anggap terverifikasi sebelum hasil tersedia.
