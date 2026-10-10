@@ -20,6 +20,12 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
+        // Kredensial yang diketahui publik hanya boleh dibuat untuk lokal/tes.
+        // Pertahanan berlapis: DatabaseSeeder juga membatasi pemanggilan ini.
+        if (! app()->environment(['local', 'testing'])) {
+            return;
+        }
+
         // Urutan penting: DataContohSeeder harus jalan dulu (dipanggil
         // setelahnya di DatabaseSeeder) agar guru/sekolah sudah ada.
         // Karena itu relasi dicari ulang di sini dengan aman (nullable).
