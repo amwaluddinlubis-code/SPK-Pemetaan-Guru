@@ -35,15 +35,40 @@ class SekolahController extends Controller
         return $query->orderBy('nama');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $daftarSekolah = $this->queryScope()->paginate(15);
-        return view('sekolah.index', compact('daftarSekolah'));
+        $query = $this->queryScope();
+
+        // Pencarian teks: nama, NPSN, alamat
+        $kataKunci = trim($request->get('q', ''));
+        if ($kataKunci !== '') {
+            $query->where(function ($w) use ($kataKunci) {
+                $w->where('nama', 'like', "%{$kataKunci}%")
+                    ->orWhere('npsn', 'like', "%{$kataKunci}%")
+                    ->orWhere('alamat', 'like', "%{$kataKunci}%");
+            });
+        }
+
+        // Filter kecamatan (disembunyikan di view jika scope peran sudah tetap)
+        $filterKecamatan = $request->get('kecamatan', '');
+        if ($filterKecamatan !== '') {
+            $query->where('kecamatan', $filterKecamatan);
+        }
+
+        $daftarSekolah = $query->paginate(15)->withQueryString();
+        $daftarKecamatan = Sekolah::whereNotNull('kecamatan')
+            ->distinct()->orderBy('kecamatan')->pluck('kecamatan');
+
+        return view('sekolah.index', compact('daftarSekolah', 'daftarKecamatan'));
     }
 
     public function create()
     {
-        return view('sekolah.form', ['sekolah' => new Sekolah(), 'aksi' => 'Tambah']);
+        return view('sekolah.form', [
+            'sekolah' => new Sekolah(),
+            'aksi' => 'Tambah',
+            'daftarKecamatan' => $this->daftarKecamatanForm(),
+        ]);
     }
 
     public function store(Request $request)
@@ -67,7 +92,11 @@ class SekolahController extends Controller
     {
         $this->otorisasiUbah($sekolah);
         $sekolah->load('kebutuhan');
-        return view('sekolah.form', ['sekolah' => $sekolah, 'aksi' => 'Ubah']);
+        return view('sekolah.form', [
+            'sekolah' => $sekolah,
+            'aksi' => 'Ubah',
+            'daftarKecamatan' => $this->daftarKecamatanForm(),
+        ]);
     }
 
     public function update(Request $request, Sekolah $sekolah)
@@ -96,6 +125,15 @@ class SekolahController extends Controller
 
         return redirect()->route('sekolah.index')
             ->with('sukses', 'Data sekolah berhasil dihapus.');
+    }
+
+    /**
+     * Daftar kecamatan unik dari data sekolah (untuk dropdown form).
+     */
+    private function daftarKecamatanForm()
+    {
+        return Sekolah::whereNotNull('kecamatan')
+            ->distinct()->orderBy('kecamatan')->pluck('kecamatan');
     }
 
     /**

@@ -40,8 +40,20 @@
                     </label>
                     <label class="form-control w-full sm:col-span-2">
                         <span class="label-text font-semibold">Kecamatan</span>
-                        <input type="text" name="kecamatan" value="{{ old('kecamatan', $sekolah->kecamatan) }}"
-                               class="input input-bordered w-full" placeholder="mis. Sukamaju">
+                        @php
+                            $kecAktif = old('kecamatan', $sekolah->kecamatan);
+                            $opsiKec = $daftarKecamatan->contains($kecAktif) || empty($kecAktif)
+                                ? $daftarKecamatan
+                                : $daftarKecamatan->concat([$kecAktif])->sort()->values();
+                        @endphp
+                        <select name="kecamatan" class="select select-bordered w-full">
+                            <option value="">— Pilih Kecamatan —</option>
+                            @foreach ($opsiKec as $kec)
+                                <option value="{{ $kec }}" {{ $kecAktif == $kec ? 'selected' : '' }}>
+                                    {{ $kec }}
+                                </option>
+                            @endforeach
+                        </select>
                     </label>
                     <label class="form-control w-full">
                         <span class="label-text font-semibold">Latitude</span>

@@ -14,9 +14,27 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $daftarUser = User::with(['guru', 'sekolah'])->orderBy('name')->paginate(15);
+        $query = User::with(['guru', 'sekolah']);
+
+        // Pencarian teks: nama, email
+        $kataKunci = trim($request->get('q', ''));
+        if ($kataKunci !== '') {
+            $query->where(function ($w) use ($kataKunci) {
+                $w->where('name', 'like', "%{$kataKunci}%")
+                    ->orWhere('email', 'like', "%{$kataKunci}%");
+            });
+        }
+
+        // Filter peran
+        $filterRole = $request->get('role', '');
+        if ($filterRole !== '' && array_key_exists($filterRole, User::ROLES)) {
+            $query->where('role', $filterRole);
+        }
+
+        $daftarUser = $query->orderBy('name')->paginate(15)->withQueryString();
+
         return view('pengguna.index', compact('daftarUser'));
     }
 
@@ -27,6 +45,7 @@ class UserController extends Controller
             'aksi' => 'Tambah',
             'daftarGuru' => Guru::orderBy('nama')->get(),
             'daftarSekolah' => Sekolah::orderBy('nama')->get(),
+            'daftarKecamatan' => $this->daftarKecamatan(),
         ]);
     }
 
@@ -49,6 +68,7 @@ class UserController extends Controller
             'aksi' => 'Ubah',
             'daftarGuru' => Guru::orderBy('nama')->get(),
             'daftarSekolah' => Sekolah::orderBy('nama')->get(),
+            'daftarKecamatan' => $this->daftarKecamatan(),
         ]);
     }
 
@@ -80,6 +100,15 @@ class UserController extends Controller
 
         return redirect()->route('pengguna.index')
             ->with('sukses', 'Akun pengguna berhasil dihapus.');
+    }
+
+    /**
+     * Daftar kecamatan unik dari data sekolah (untuk dropdown form Ketua PGRI).
+     */
+    private function daftarKecamatan()
+    {
+        return Sekolah::whereNotNull('kecamatan')
+            ->distinct()->orderBy('kecamatan')->pluck('kecamatan');
     }
 
     private function validasi(Request $request, ?int $kecualiId = null): array

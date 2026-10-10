@@ -54,10 +54,41 @@ class GuruController extends Controller
         return $query->orderBy('nama');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $daftarGuru = $this->queryScope()->paginate(15);
-        return view('guru.index', compact('daftarGuru'));
+        $query = $this->queryScope();
+
+        // Pencarian teks: nama, NIP, mapel, alamat domisili, sekolah saat ini
+        $kataKunci = trim($request->get('q', ''));
+        if ($kataKunci !== '') {
+            $query->where(function ($w) use ($kataKunci) {
+                $w->where('nama', 'like', "%{$kataKunci}%")
+                    ->orWhere('nip', 'like', "%{$kataKunci}%")
+                    ->orWhere('mapel', 'like', "%{$kataKunci}%")
+                    ->orWhere('domisili_alamat', 'like', "%{$kataKunci}%")
+                    ->orWhere('sekolah_saat_ini', 'like', "%{$kataKunci}%");
+            });
+        }
+
+        // Filter kecamatan (disembunyikan di view jika scope peran sudah tetap)
+        $filterKecamatan = $request->get('kecamatan', '');
+        if ($filterKecamatan !== '') {
+            $query->where('kecamatan', $filterKecamatan);
+        }
+
+        $daftarGuru = $query->paginate(15)->withQueryString();
+        $daftarKecamatan = $this->daftarKecamatan();
+
+        return view('guru.index', compact('daftarGuru', 'daftarKecamatan'));
+    }
+
+    /**
+     * Daftar kecamatan unik dari data sekolah (untuk filter & dropdown form).
+     */
+    private function daftarKecamatan()
+    {
+        return Sekolah::whereNotNull('kecamatan')
+            ->distinct()->orderBy('kecamatan')->pluck('kecamatan');
     }
 
     public function create()
@@ -66,6 +97,7 @@ class GuruController extends Controller
             'guru' => new Guru(),
             'aksi' => 'Tambah',
             'daftarSekolah' => Sekolah::orderBy('nama')->get(),
+            'daftarKecamatan' => $this->daftarKecamatan(),
         ]);
     }
 
@@ -92,6 +124,7 @@ class GuruController extends Controller
             'guru' => $guru,
             'aksi' => 'Ubah',
             'daftarSekolah' => Sekolah::orderBy('nama')->get(),
+            'daftarKecamatan' => $this->daftarKecamatan(),
         ]);
     }
 

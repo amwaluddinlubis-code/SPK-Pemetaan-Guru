@@ -51,8 +51,21 @@
                     </label>
                     <label class="form-control w-full">
                         <span class="label-text font-semibold">Kecamatan Domisili</span>
-                        <input type="text" name="kecamatan" value="{{ old('kecamatan', $guru->kecamatan) }}"
-                               class="input input-bordered w-full" placeholder="mis. Sukamaju">
+                        @php
+                            // Nilai kecamatan saat ini (tetap ditampilkan walau tak ada di daftar)
+                            $kecAktif = old('kecamatan', $guru->kecamatan);
+                            $opsiKec = $daftarKecamatan->contains($kecAktif) || empty($kecAktif)
+                                ? $daftarKecamatan
+                                : $daftarKecamatan->concat([$kecAktif])->sort()->values();
+                        @endphp
+                        <select name="kecamatan" class="select select-bordered w-full">
+                            <option value="">— Pilih Kecamatan —</option>
+                            @foreach ($opsiKec as $kec)
+                                <option value="{{ $kec }}" {{ $kecAktif == $kec ? 'selected' : '' }}>
+                                    {{ $kec }}
+                                </option>
+                            @endforeach
+                        </select>
                     </label>
                     {{-- Sekolah tempat bertugas (administratif) --}}
                     @if (auth()->user()->hasRole('kabid_ptk'))

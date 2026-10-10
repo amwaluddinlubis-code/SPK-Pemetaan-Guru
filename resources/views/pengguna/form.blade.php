@@ -90,8 +90,18 @@
                     {{-- Hanya relevan jika peran = ketua_pgri --}}
                     <label class="form-control w-full sm:col-span-2" id="field-kecamatan">
                         <span class="label-text font-semibold">Kecamatan (untuk Ketua PGRI)</span>
-                        <input type="text" name="kecamatan" value="{{ old('kecamatan', $user->kecamatan) }}"
-                               class="input input-bordered w-full" placeholder="mis. Sukamaju">
+                        @php $kecAktif = old('kecamatan', $user->kecamatan); @endphp
+                        <select name="kecamatan" class="select select-bordered w-full">
+                            <option value="">— Pilih Kecamatan —</option>
+                            @foreach ($daftarKecamatan as $kec)
+                                <option value="{{ $kec }}" {{ $kecAktif == $kec ? 'selected' : '' }}>
+                                    {{ $kec }}
+                                </option>
+                            @endforeach
+                            @if ($kecAktif && ! $daftarKecamatan->contains($kecAktif))
+                                <option value="{{ $kecAktif }}" selected>{{ $kecAktif }}</option>
+                            @endif
+                        </select>
                     </label>
                 </div>
 

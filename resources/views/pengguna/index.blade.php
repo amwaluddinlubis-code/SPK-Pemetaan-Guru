@@ -18,6 +18,32 @@
         </div>
     @endif
 
+    <div class="card bg-base-100 shadow-xl mb-4">
+        <div class="card-body py-3">
+            {{-- Pencarian + filter peran (GET, dibawa saat pindah halaman) --}}
+            <form method="GET" action="{{ route('pengguna.index') }}" class="flex flex-wrap gap-2">
+                <input type="text" name="q" value="{{ request('q') }}"
+                       placeholder="Cari nama atau email…"
+                       class="input input-bordered flex-1 min-w-52">
+                <select name="role" class="select select-bordered max-w-xs">
+                    <option value="">— Semua Peran —</option>
+                    @foreach (\App\Models\User::ROLES as $nilai => $label)
+                        <option value="{{ $nilai }}" {{ request('role') == $nilai ? 'selected' : '' }}>
+                            {{ $label }}
+                        </option>
+                    @endforeach
+                </select>
+                <button type="submit" class="btn btn-primary">🔍 Cari</button>
+                @if (request('q') || request('role'))
+                    <a href="{{ route('pengguna.index') }}" class="btn btn-ghost">Reset</a>
+                @endif
+            </form>
+            @if (request('q') || request('role'))
+                <p class="text-sm opacity-60 mt-2">Menampilkan {{ $daftarUser->total() }} hasil.</p>
+            @endif
+        </div>
+    </div>
+
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body p-0 overflow-x-auto">
             <table class="table table-zebra">
@@ -58,7 +84,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="text-center opacity-60 py-8">Belum ada pengguna.</td></tr>
+                        <tr><td colspan="4" class="text-center opacity-60 py-8">Tidak ada pengguna yang cocok.</td></tr>
                     @endforelse
                 </tbody>
             </table>
