@@ -425,9 +425,9 @@ class KeamananPersetujuanTest extends TestCase
 
     public function test_admin_seeder_tidak_membuat_kredensial_demo_di_production(): void
     {
-        config(['app.env' => 'production']);
+        $this->app['env'] = 'production';
 
-        $this->seed(\\Database\\Seeders\\AdminSeeder::class);
+        $this->seed(\Database\Seeders\AdminSeeder::class);
 
         $this->assertDatabaseMissing('users', [
             'email' => 'admin@peta-asn.local',
