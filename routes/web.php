@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SekolahController;
+use App\Http\Controllers\SpkController;
 use App\Http\Controllers\SwapController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UsulanController;
@@ -98,6 +99,18 @@ Route::middleware('auth')->group(function () {
         ->name('swap.setujui')->middleware('role:kadis');
     Route::post('/swap/{swap}/tolak', [SwapController::class, 'tolak'])
         ->name('swap.tolak')->middleware('role:kabid_ptk,kadis');
+
+    // --- SPK Penempatan (Skenario 1: Pengisian Formasi) ---
+    // Lihat: semua peran (seperti Usulan & Swap)
+    Route::get('/spk', [SpkController::class, 'index'])->name('spk.index');
+    // Generate rekomendasi: kabid_ptk (administrator)
+    Route::post('/spk/generate', [SpkController::class, 'generate'])
+        ->name('spk.generate')->middleware('role:kabid_ptk');
+    // Setujui: kadis | Tolak: kabid_ptk, kadis
+    Route::post('/spk/{spk}/setujui', [SpkController::class, 'setujui'])
+        ->name('spk.setujui')->middleware('role:kadis');
+    Route::post('/spk/{spk}/tolak', [SpkController::class, 'tolak'])
+        ->name('spk.tolak')->middleware('role:kabid_ptk,kadis');
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

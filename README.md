@@ -13,6 +13,7 @@ dengan komponen UI dari **daisyUI**.
 - 📥 Import massal data guru dari Excel/CSV + unduh template (khusus administrator)
 - 📝 Alur usulan penempatan: Diajukan → Diverifikasi Kabid → Disetujui Kadis (otomatis mutasi) / Ditolak; bisa diajukan langsung dari hasil rekomendasi peta
 - 🔄 Mutasi silang (swap): rekomendasi pertukaran dua guru yang saling menguntungkan (win-win, keduanya lebih dekat ke domisili) + alur persetujuan Kadis
+- 🎯 SPK penempatan (pengisian formasi): rekomendasi guru yang jarak tugasnya > 15 km ke sekolah terdekat yang kekurangan formasi mapelnya (Haversine di MySQL) + alur persetujuan Kadis
 - 🏫 CRUD Data Sekolah + kebutuhan guru per mapel (baris dinamis — Alpine.js)
 - 🔐 Login dengan **5 tingkatan pengguna** (hak akses & scope berbeda)
 - 👥 Kelola akun pengguna (khusus administrator)
@@ -95,11 +96,11 @@ Struktur akhirnya:
 ```
 peta-asn/
 ├── app/
-│   ├── Http/Controllers/   ← Auth, Dashboard, Guru, Sekolah
+│   ├── Http/Controllers/   ← Auth, Dashboard, Guru, Sekolah, Spk, Swap, Usulan, User
 │   ├── Livewire/           ← PetaRekomendasi.php
-│   └── Models/             ← Guru, Sekolah, KebutuhanGuru
+│   └── Models/             ← Guru, Sekolah, KebutuhanGuru, HasilSpk, RekomendasiSwap
 ├── database/
-│   ├── migrations/         ← tabel guru, sekolah, kebutuhan_guru
+│   ├── migrations/         ← guru, sekolah, kebutuhan_guru, hasil_spks, rekomendasi_swaps, ...
 │   └── seeders/            ← admin + data contoh
 ├── resources/views/        ← Blade + daisyUI
 ├── routes/web.php
@@ -160,18 +161,23 @@ Buka **http://127.0.0.1:8000** di browser.
 
 ---
 
-## 3. Cara kerja rekomendasi
+## 3. Cara kerja SPK & rekomendasi
 
-1. Setiap guru punya **koordinat domisili**; setiap sekolah punya **koordinat** + **kebutuhan mapel**.
-2. Saat tombol *"Cari Sekolah Terdekat"* diklik, komponen Livewire `PetaRekomendasi`:
-   - mengambil semua sekolah yang `kebutuhan.mapel == guru.mapel`,
-   - menghitung jarak domisili → sekolah dengan **rumus Haversine** (`Guru::jarakKe()`),
-   - mengurutkan dari terdekat dan menampilkan 5 teratas,
-   - menggambar garis putus-putus ke 3 teratas di peta (via event `rute-diperbarui`).
-3. Semua terjadi **tanpa reload halaman** (Livewire) — peta tidak di-render ulang
-   berkat `wire:ignore`.
+Sistem memiliki dua skenario SPK formal, plus rekomendasi interaktif di dashboard.
 
-### Mutasi silang (swap)
+### Skenario 1 — Pengisian formasi (SPK)
+
+1. Kabid PTK menekan **"Generate SPK"** di halaman SPK Penempatan.
+2. Sistem menyeleksi guru yang jarak domisili → sekolah saat ini **melebihi ambang
+   batas 15 km** (konstanta `SpkController::AMBANG_KM`).
+3. Untuk tiap guru, sistem mencari sekolah yang kekurangan formasi (`jumlah > 0`)
+   untuk mapel yang sama — jarak dihitung **langsung di query MySQL** dengan rumus
+   Haversine, diurutkan dari terdekat, diambil 3 teratas (`MAKS_REKOMENDASI`).
+4. Kadis menyetujui → guru otomatis dimutasi dalam satu database transaction;
+   rekomendasi lain untuk guru yang sama otomatis ditolak agar tidak terjadi
+   penempatan ganda.
+
+### Skenario 2 — Mutasi silang (swap)
 
 1. Kabid PTK menekan **"Generate Rekomendasi"** di halaman Mutasi Silang.
 2. Sistem mencocokkan semua pasangan guru (O(N²)): syaratnya mapel sama, sekolah asal
@@ -181,6 +187,17 @@ Buka **http://127.0.0.1:8000** di browser.
 4. Kadis menyetujui → kedua guru otomatis dimutasi dalam satu database transaction;
    rekomendasi lain yang melibatkan guru tersebut otomatis dibatalkan
    (`batal_karena_konflik`) agar tidak terjadi penempatan ganda.
+
+### Rekomendasi interaktif (dashboard)
+
+1. Setiap guru punya **koordinat domisili**; setiap sekolah punya **koordinat** + **kebutuhan mapel**.
+2. Saat tombol *"Cari Sekolah Terdekat"* diklik, komponen Livewire `PetaRekomendasi`:
+   - mengambil semua sekolah yang `kebutuhan.mapel == guru.mapel`,
+   - menghitung jarak domisili → sekolah dengan **rumus Haversine** (`Guru::jarakKe()`),
+   - mengurutkan dari terdekat dan menampilkan 5 teratas,
+   - menggambar garis putus-putus ke 3 teratas di peta (via event `rute-diperbarui`).
+3. Semua terjadi **tanpa reload halaman** (Livewire) — peta tidak di-render ulang
+   berkat `wire:ignore`.
 
 ---
 
@@ -195,6 +212,8 @@ Urutan baca yang disarankan untuk memahami aplikasi:
 5. `app/Livewire/PetaRekomendasi.php` — komponen interaktif
 6. `resources/views/livewire/peta-rekomendasi.blade.php` — peta + Alpine.js + event
 7. `resources/views/layouts/app.blade.php` — layout daisyUI + navbar
+8. `app/Http/Controllers/SpkController.php` — SPK pengisian formasi (Haversine di MySQL)
+9. `app/Http/Controllers/SwapController.php` — mutasi silang + resolusi konflik
 
 ---
 
@@ -207,6 +226,7 @@ Urutan baca yang disarankan untuk memahami aplikasi:
 | Class `Livewire\...` not found | Jalankan `composer require livewire/livewire` lalu `composer dump-autoload` |
 | Peta tidak muncul | Butuh internet (tile OpenStreetMap + CDN Leaflet) |
 | Port 8000 dipakai | `php artisan serve --port=8001` |
+| Generate SPK/swap tidak menemukan apa-apa | Pastikan guru punya koordinat domisili + `sekolah_id`, dan ada kebutuhan formasi (`jumlah > 0`) untuk mapelnya |
 
 ---
 

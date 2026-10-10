@@ -646,3 +646,18 @@ CREATE TABLE IF NOT EXISTS rekomendasi_swaps (
   CONSTRAINT fk_swap_sek_b FOREIGN KEY (sekolah_tujuan_b_id) REFERENCES sekolah(id) ON DELETE CASCADE,
   CONSTRAINT fk_swap_diproses FOREIGN KEY (diproses_oleh) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS hasil_spks (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  guru_id BIGINT UNSIGNED NOT NULL,
+  sekolah_tujuan_id BIGINT UNSIGNED NOT NULL,
+  jarak_km DECIMAL(8,2) NOT NULL,
+  jarak_sekarang_km DECIMAL(8,2) NOT NULL,
+  status ENUM('rekomendasi','disetujui','ditolak') NOT NULL DEFAULT 'rekomendasi',
+  diproses_oleh BIGINT UNSIGNED NULL,
+  catatan_admin TEXT NULL,
+  created_at TIMESTAMP NULL, updated_at TIMESTAMP NULL,
+  CONSTRAINT fk_hasilspk_guru FOREIGN KEY (guru_id) REFERENCES guru(id) ON DELETE CASCADE,
+  CONSTRAINT fk_hasilspk_sek FOREIGN KEY (sekolah_tujuan_id) REFERENCES sekolah(id) ON DELETE CASCADE,
+  CONSTRAINT fk_hasilspk_diproses FOREIGN KEY (diproses_oleh) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
