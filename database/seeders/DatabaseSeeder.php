@@ -1,6 +1,6 @@
 <?php
-// Seeder utama: memanggil semua seeder lain.
-// Dijalankan dengan: php artisan db:seed
+// Seeder utama. Data sekolah referensi dapat diisi di semua lingkungan;
+// data guru dan akun demo hanya untuk pengembangan/pengujian lokal.
 
 namespace Database\Seeders;
 
@@ -11,9 +11,16 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            SekolahMadinaSeeder::class, // 553 sekolah asli Madina (dulu)
-            DataContohSeeder::class,    // 8 guru contoh (d-relokasi ke Madina)
-            AdminSeeder::class,         // akun 5 peran (butuh data guru/sekolah)
+            SekolahMadinaSeeder::class,
         ]);
+
+        // Jangan memasukkan identitas guru fiktif atau kredensial demo
+        // saat seeding database staging/production.
+        if (app()->environment(['local', 'testing'])) {
+            $this->call([
+                DataContohSeeder::class,
+                AdminSeeder::class,
+            ]);
+        }
     }
 }
