@@ -1,4 +1,5 @@
 <?php
+
 // Controller Dashboard: hanya menampilkan halaman utama.
 // Peta & rekomendasi ditangani komponen Livewire PetaRekomendasi.
 
@@ -13,23 +14,20 @@ class DashboardController extends Controller
     public function index()
     {
         // Angka ringkasan untuk kartu statistik
-        $totalGuru    = Guru::count();
+        $totalGuru = Guru::count();
         $totalSekolah = Sekolah::count();
 
         // Hitung rata-rata jarak domisili → sekolah saat ini
-        $semuaGuru = Guru::all();
+        // MAP-001: lewat relasi sekolah (sumber kebenaran tunggal)
+        $semuaGuru = Guru::with('sekolah')->get();
         $rataJarak = $semuaGuru->isNotEmpty()
-            ? $semuaGuru->avg(fn ($g) => $g->jarakKe(
-                (float) $g->sekolah_saat_ini_lat,
-                (float) $g->sekolah_saat_ini_lng
-              ))
+            ? $semuaGuru->avg(fn ($g) => $g->jarakKeSekolahSaatIni() ?? 0)
             : 0;
 
         // Guru yang jaraknya > 5 km (butuh perhatian)
-        $guruJauh = $semuaGuru->filter(fn ($g) => $g->jarakKe(
-            (float) $g->sekolah_saat_ini_lat,
-            (float) $g->sekolah_saat_ini_lng
-        ) > 5)->count();
+        $guruJauh = $semuaGuru->filter(
+            fn ($g) => ($g->jarakKeSekolahSaatIni() ?? 0) > 5
+        )->count();
 
         // Usulan yang masih menunggu diproses (untuk Kabid/Kadis)
         $usulanMenunggu = UsulanPenempatan::whereIn('status', UsulanPenempatan::AKTIF)->count();

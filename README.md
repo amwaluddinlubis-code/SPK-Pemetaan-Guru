@@ -79,6 +79,16 @@ node -v
 
 ## 2. Instalasi
 
+> **Struktur paket (BUILD-001):** repositori ini adalah **paket source overlay** —
+> berisi kode aplikasi (`app/`, `resources/`, `routes/`, `database/`, `docs/`)
+> **tanpa** `vendor/`, `node_modules/`, `composer.json`, dan `package.json`.
+> File-file tersebut berasal dari `composer create-project laravel/laravel`
+> (Langkah 1) + `composer require`/`npm install` (Langkah 3–4).
+> Alur instal = buat proyek Laravel baru, lalu timpa dengan isi paket ini.
+>
+> Terakhir diverifikasi: 11 Okt 2026 — PHP 8.3.6, Composer 2.10, MySQL 8.0.46,
+> Laravel 13.35, Livewire 4.4.
+
 ### Langkah 1 — Buat proyek Laravel baru
 ```bash
 composer create-project laravel/laravel peta-asn
@@ -164,6 +174,15 @@ Buka **http://127.0.0.1:8000** di browser.
 
 **Login awal:** lihat tabel akun di atas (password mengikuti pola di `AdminSeeder.php`)
 ⚠️ Segera ganti password setelah masuk!
+
+### Langkah 9 — Jalankan tes otomatis (opsional)
+```bash
+# Buat database khusus tes, lalu jalankan suite PHPUnit
+mysql -u root -e "CREATE DATABASE peta_asn_test; GRANT ALL ON peta_asn_test.* TO 'peta_asn'@'localhost';"
+php artisan test
+```
+Tes memakai database MySQL `peta_asn_test` (bukan SQLite) karena query
+Haversine SPK memakai fungsi MySQL (`RADIANS`, `ACOS`).
 
 ---
 

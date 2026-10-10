@@ -123,11 +123,9 @@ class PetaRekomendasi extends Component
 
         $guru = Guru::findOrFail($this->guruId);
 
-        // Jarak domisili → sekolah tempat bertugas SAAT INI (ini masalahnya)
-        $jarakSaatIni = $guru->jarakKe(
-            (float) $guru->sekolah_saat_ini_lat,
-            (float) $guru->sekolah_saat_ini_lng
-        );
+        // Jarak domisili → sekolah tempat bertugas SAAT INI.
+        // MAP-001: lewat relasi sekolah (sumber kebenaran tunggal).
+        $jarakSaatIni = $guru->jarakKeSekolahSaatIni() ?? 0.0;
 
         $this->infoGuru = [
             'nama' => $guru->nama,

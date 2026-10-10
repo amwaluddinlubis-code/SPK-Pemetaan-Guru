@@ -64,6 +64,7 @@
                             {{ number_format($s->jarak_a_sekarang_km, 1, ',', '.') }} km
                             →
                             {{ number_format($s->jarak_a_usulan_km, 1, ',', '.') }} km
+                            <span class="opacity-60">(garis lurus)</span>
                         </div>
                     </td>
 
@@ -80,6 +81,7 @@
                             {{ number_format($s->jarak_b_sekarang_km, 1, ',', '.') }} km
                             →
                             {{ number_format($s->jarak_b_usulan_km, 1, ',', '.') }} km
+                            <span class="opacity-60">(garis lurus)</span>
                         </div>
                     </td>
 

@@ -9,6 +9,7 @@ use App\Livewire\PetaRekomendasi;
 use App\Models\Guru;
 use App\Models\HasilSpk;
 use App\Models\KebutuhanGuru;
+use App\Models\RekomendasiSwap;
 use App\Models\Sekolah;
 use App\Models\User;
 use App\Models\UsulanPenempatan;
@@ -238,5 +239,103 @@ class KeamananPersetujuanTest extends TestCase
             ->set('guruId', (string) $guruA->id)
             ->call('cari');
         $this->assertNotNull($komponen2->get('infoGuru'));
+    }
+
+    // ============ MAP-001: sumber koordinat tunggal ============
+
+    public function test_jarak_ke_sekolah_memakai_relasi_bukan_cache(): void
+    {
+        // Sekolah di (0, 100.3) ≈ 33,4 km dari domisili (0,100),
+        // tapi cache denormalisasi diset menyimpang (0, 999).
+        $sekolah = $this->buatSekolah(0.0, 100.3);
+        $guru = $this->buatGuru($sekolah, [
+            'sekolah_saat_ini_lat' => 0.0,
+            'sekolah_saat_ini_lng' => 999.0,
+        ]);
+
+        $koor = $guru->koordinatSekolah();
+        $this->assertEqualsWithDelta(0.0, $koor['lat'], 0.001);
+        $this->assertEqualsWithDelta(100.3, $koor['lng'], 0.001);
+
+        $jarak = $guru->jarakKeSekolahSaatIni();
+        $this->assertEqualsWithDelta(33.4, $jarak, 0.5);
+    }
+
+    // ============ SWAP-001: greedy max-weight + validasi administratif ============
+
+    public function test_swap_memilih_pasangan_dengan_total_hemat_terbesar(): void
+    {
+        $kabid = $this->buatUser('kabid_ptk');
+
+        // A: domisili (1,100), SA (1,100.8) → 89 km
+        $sa = $this->buatSekolah(1.0, 100.8);
+        $a = $this->buatGuru($sa, ['domisili_lat' => 1.0]);
+        // C dibuat DULU (urutan iterasi lama akan memilih A-C):
+        // C: domisili (1,100.85), SC (1,100.15) → 77,9 km
+        // A↔C win-win total hemat ≈ 144,6 km
+        $sc = $this->buatSekolah(1.0, 100.15);
+        $c = $this->buatGuru($sc, ['domisili_lat' => 1.0, 'domisili_lng' => 100.85]);
+        // B: domisili (1,100.9), SB (1,100.1) → 89 km
+        // A↔B win-win total hemat ≈ 156 km (terbesar)
+        $sb = $this->buatSekolah(1.0, 100.1);
+        $b = $this->buatGuru($sb, ['domisili_lat' => 1.0, 'domisili_lng' => 100.9]);
+
+        $this->actingAs($kabid)->post('/swap/generate')->assertRedirect();
+
+        $swaps = RekomendasiSwap::all();
+        $this->assertCount(1, $swaps);
+        $pasangan = [$swaps->first()->guru_a_id, $swaps->first()->guru_b_id];
+        sort($pasangan);
+        $ab = [$a->id, $b->id];
+        sort($ab);
+        $this->assertEquals($ab, $pasangan); // bukan (A,C)
+    }
+
+    public function test_swap_menolak_beda_jenjang_dan_usulan_aktif(): void
+    {
+        $kabid = $this->buatUser('kabid_ptk');
+
+        // Pasangan win-win geometris tapi beda jenjang → ditolak
+        $sa = $this->buatSekolah(1.0, 100.8);
+        $a = $this->buatGuru($sa, ['domisili_lat' => 1.0]);
+        $sb = $this->buatSekolah(1.0, 100.1);
+        $b = $this->buatGuru($sb, [
+            'domisili_lat' => 1.0, 'domisili_lng' => 100.9, 'jenjang' => 'SMP',
+        ]);
+
+        $this->actingAs($kabid)->post('/swap/generate');
+        $this->assertCount(0, RekomendasiSwap::all());
+
+        // Jenjang disamakan → win-win, tapi B punya usulan aktif → tetap ditolak
+        $b->update(['jenjang' => 'SD']);
+        $tujuan = $this->buatSekolah(0.0, 100.05);
+        $this->butuh($tujuan, 'Matematika', 1);
+        UsulanPenempatan::create([
+            'guru_id' => $b->id, 'sekolah_id' => $tujuan->id,
+            'alasan' => 'Alasan pindah yang cukup panjang.',
+            'status' => 'diajukan', 'diajukan_oleh' => $kabid->id,
+        ]);
+
+        $this->actingAs($kabid)->post('/swap/generate');
+        $this->assertCount(0, RekomendasiSwap::all());
+    }
+
+    // ============ SPK-003: kolom penjelasan kelayakan ============
+
+    public function test_spk_index_menampilkan_penjelasan_kelayakan(): void
+    {
+        $kabid = $this->buatUser('kabid_ptk');
+        $asal = $this->buatSekolah(0.0, 100.3);
+        $guru = $this->buatGuru($asal);
+        $dekat = $this->buatSekolah(0.0, 100.05);
+        $this->butuh($dekat, 'Matematika', 2);
+
+        $this->actingAs($kabid)->post('/spk/generate');
+
+        $this->actingAs($kabid)->get('/spk')
+            ->assertOk()
+            ->assertSee('Kelayakan', false)
+            ->assertSee('Sisa formasi', false)
+            ->assertSee('(garis lurus)', false);
     }
 }

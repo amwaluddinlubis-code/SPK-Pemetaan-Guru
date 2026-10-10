@@ -45,6 +45,7 @@
                 <th>Guru</th>
                 <th>Sekolah Tujuan</th>
                 <th>Jarak</th>
+                <th>Kelayakan</th>
                 <th>Status</th>
                 <th>Aksi</th>
             </tr>
@@ -60,7 +61,7 @@
                             Asal: {{ $s->guru->sekolah->nama ?? '-' }}
                         </div>
                         <div class="text-xs opacity-70">
-                            Jarak sekarang: {{ number_format($s->jarak_sekarang_km, 1, ',', '.') }} km
+                            Jarak sekarang: {{ number_format($s->jarak_sekarang_km, 1, ',', '.') }} km (garis lurus)
                         </div>
                     </td>
 
@@ -69,7 +70,7 @@
                         <div class="font-semibold text-primary">{{ $s->sekolahTujuan->nama }}</div>
                         <div class="text-xs opacity-70">{{ $s->sekolahTujuan->kecamatan }}</div>
                         <div class="text-xs mt-1">
-                            Jarak usulan: {{ number_format($s->jarak_km, 1, ',', '.') }} km
+                            Jarak usulan: {{ number_format($s->jarak_km, 1, ',', '.') }} km (garis lurus)
                         </div>
                     </td>
 
@@ -79,6 +80,30 @@
                             −{{ number_format($s->hematKm(), 1, ',', '.') }} km
                         </div>
                         <div class="text-xs opacity-70">lebih dekat</div>
+                        <div class="text-xs opacity-50">(garis lurus)</div>
+                    </td>
+
+                    {{-- Kelayakan: penjelasan mengapa kandidat ini lolos (SPK-003) --}}
+                    <td>
+                        @php
+                            $kunciKuota = $s->sekolah_tujuan_id . '|' . strtolower(trim($s->guru->mapel));
+                            $sisa = $sisaKuota[$kunciKuota] ?? 0;
+                        @endphp
+                        <ul class="text-xs space-y-1 list-none p-0 m-0">
+                            <li>✅ Mapel <strong>{{ $s->guru->mapel }}</strong> dibutuhkan sekolah tujuan</li>
+                            <li>
+                                @if ($sisa > 0)
+                                    ✅ Sisa formasi: <strong>{{ $sisa }}</strong>
+                                @else
+                                    ⚠️ Sisa formasi: <strong>0</strong> (penuh)
+                                @endif
+                            </li>
+                            <li>
+                                ✅ Menghemat {{ number_format($s->hematKm(), 1, ',', '.') }} km
+                                ({{ number_format($s->jarak_sekarang_km, 1, ',', '.') }} → {{ number_format($s->jarak_km, 1, ',', '.') }} km),
+                                di atas ambang {{ $ambangKm }} km
+                            </li>
+                        </ul>
                     </td>
 
                     {{-- Status --}}

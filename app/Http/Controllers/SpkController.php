@@ -1,4 +1,5 @@
 <?php
+
 // Controller SPK Penempatan (Skenario 1): merekomendasikan guru yang jarak
 // tugasnya melebihi ambang batas ke sekolah terdekat yang kekurangan
 // formasi untuk mata pelajarannya. Jarak dihitung langsung di MySQL
@@ -49,6 +50,8 @@ class SpkController extends Controller
             'spks' => $spks,
             'statusAktif' => $request->status,
             'ambangKm' => self::AMBANG_KM,
+            // SPK-003: sisa formasi per (sekolah, mapel) untuk kolom penjelasan
+            'sisaKuota' => KebutuhanGuru::sisaDenganAlokasi(),
         ]);
     }
 
@@ -76,13 +79,13 @@ class SpkController extends Controller
 
         DB::transaction(function () use ($gurus, $sisaKebutuhan, &$baru) {
             foreach ($gurus as $guru) {
-                $sekSekarang = $guru->sekolah;
-                if (!$sekSekarang) {
+                // MAP-001: jarak ke sekolah saat ini lewat relasi (sumber tunggal)
+                $jarakSekarang = $guru->jarakKeSekolahSaatIni();
+                if ($jarakSekarang === null) {
                     continue;
                 }
 
                 // Skenario 1: hanya proses guru yang jaraknya melebihi ambang batas
-                $jarakSekarang = $guru->jarakKe((float) $sekSekarang->lat, (float) $sekSekarang->lng);
                 if ($jarakSekarang <= self::AMBANG_KM) {
                     continue;
                 }
@@ -93,9 +96,9 @@ class SpkController extends Controller
                 // Ambil lebih banyak dulu; filter hemat & kapasitas di bawah.
                 $kandidat = Sekolah::select('sekolah.*')
                     ->selectRaw(
-                        '6371 * acos(LEAST(1, GREATEST(-1, ' .
-                        'cos(radians(?)) * cos(radians(sekolah.lat)) * cos(radians(sekolah.lng) - radians(?)) + ' .
-                        'sin(radians(?)) * sin(radians(sekolah.lat))' .
+                        '6371 * acos(LEAST(1, GREATEST(-1, '.
+                        'cos(radians(?)) * cos(radians(sekolah.lat)) * cos(radians(sekolah.lng) - radians(?)) + '.
+                        'sin(radians(?)) * sin(radians(sekolah.lat))'.
                         '))) AS jarak_km',
                         [$guru->domisili_lat, $guru->domisili_lng, $guru->domisili_lat]
                     )
@@ -146,7 +149,7 @@ class SpkController extends Controller
                     if ($terpilih >= self::MAKS_REKOMENDASI) {
                         break;
                     }
-                    $kunci = $item['sekolah']->id . '|' . strtolower(trim($guru->mapel));
+                    $kunci = $item['sekolah']->id.'|'.strtolower(trim($guru->mapel));
                     if (($sisaKebutuhan[$kunci] ?? 0) <= 0) {
                         continue;
                     }
@@ -168,8 +171,8 @@ class SpkController extends Controller
 
         return back()->with(
             'sukses',
-            "Generate SPK selesai — ditemukan {$baru} rekomendasi penempatan baru " .
-            "(ambang jarak > " . self::AMBANG_KM . " km, hanya yang menghemat jarak)."
+            "Generate SPK selesai — ditemukan {$baru} rekomendasi penempatan baru ".
+            '(ambang jarak > '.self::AMBANG_KM.' km, hanya yang menghemat jarak).'
         );
     }
 

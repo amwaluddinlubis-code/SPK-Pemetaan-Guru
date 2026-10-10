@@ -74,6 +74,12 @@ Alur status:
 - Tombol "Generate" memindai seluruh data guru dan hanya menampilkan
   pasangan yang saling menguntungkan. Jika tidak ada pasangan win-win,
   hasilnya nol — itu normal, bukan error.
+- **Pemilihan pasangan**: semua pasangan win-win yang valid dikumpulkan,
+  lalu dipilih secara greedy berdasarkan **total penghematan terbesar**
+  (maximum-weight matching sederhana) — satu guru hanya di satu rekomendasi.
+- **Syarat administratif**: mapel harus sama, **jenjang harus sama**
+  (mutasi lintas jenjang butuh persetujuan kepegawaian khusus), dan tidak
+  ada pihak yang sedang punya usulan aktif.
 - Kadis menyetujui atau menolak tiap rekomendasi.
 - **Keamanan persetujuan**: rekomendasi dan kedua guru dikunci di dalam
   transaction (urutan id konsisten anti-deadlock); posisi kedua guru
@@ -137,9 +143,13 @@ tanpa tombol ubah:
    ke dua guru; sisa kebutuhan dikurangi setiap penempatan disetujui.
 5. **Batas perhatian 5 km**: guru yang berjarak lebih dari 5 km
    ditandai "butuh perhatian" di dashboard.
-6. **Mutasi atomik**: setiap persetujuan yang memindahkan guru selalu
-   memperbarui `sekolah_id` DAN kolom denormalisasi
-   (`sekolah_saat_ini`, lat, lng) dalam satu transaction.
+6. **Mutasi atomik & sumber koordinat tunggal**: setiap persetujuan yang
+   memindahkan guru selalu memperbarui `sekolah_id` DAN kolom denormalisasi
+   (`sekolah_saat_ini`, lat, lng) dalam satu transaction. Namun **sumber
+   kebenaran tunggal** untuk koordinat sekolah adalah relasi `sekolah`
+   (tabel `sekolah`) — semua perhitungan jarak lewat
+   `Guru::koordinatSekolah()` / `jarakKeSekolahSaatIni()`; kolom
+   denormalisasi hanya cache tampilan.
 7. **Persetujuan terkunci**: rekomendasi dan data guru dikunci
    (`lockForUpdate`) saat persetujuan; status, sekolah asal, dan
    kapasitas divalidasi ulang — mencegah persetujuan ganda dan mutasi

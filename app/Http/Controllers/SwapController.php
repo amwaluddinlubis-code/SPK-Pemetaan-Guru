@@ -1,4 +1,5 @@
 <?php
+
 // Controller Mutasi Silang (swap): mencari pasangan dua guru yang bisa
 // bertukar sekolah sehingga KEDUANYA lebih dekat ke domisili (win-win),
 // lalu memproses persetujuan perpindahan dengan database transaction.
@@ -13,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Guru;
 use App\Models\RekomendasiSwap;
+use App\Models\UsulanPenempatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -66,18 +68,34 @@ class SwapController extends Controller
         DB::transaction(function () use ($gurus, $terpakai, &$baru) {
             $n = $gurus->count();
 
+            // Guru yang punya usulan aktif tidak boleh ikut swap (konflik alur)
+            $usulanAktif = UsulanPenempatan::whereIn('status', UsulanPenempatan::AKTIF)
+                ->pluck('guru_id')->flip()->toArray();
+
+            // Tahap 1: kumpulkan SEMUA pasangan win-win yang valid beserta bobotnya
+            // (bobot = total penghematan kedua guru).
+            $kandidat = [];
             for ($i = 0; $i < $n; $i++) {
                 for ($j = $i + 1; $j < $n; $j++) {
                     $a = $gurus[$i];
                     $b = $gurus[$j];
 
-                    // Syarat 0: belum punya rekomendasi aktif
+                    // Syarat 0: belum punya rekomendasi aktif & tanpa usulan aktif
                     if (isset($terpakai[$a->id]) || isset($terpakai[$b->id])) {
+                        continue;
+                    }
+                    if (isset($usulanAktif[$a->id]) || isset($usulanAktif[$b->id])) {
                         continue;
                     }
 
                     // Syarat 1: mata pelajaran sama
                     if (strtolower(trim($a->mapel)) !== strtolower(trim($b->mapel))) {
+                        continue;
+                    }
+
+                    // Syarat 1b (administratif): jenjang sama — mutasi lintas
+                    // jenjang (mis. SD↔SMP) butuh persetujuan kepegawaian khusus
+                    if (strtoupper(trim($a->jenjang)) !== strtoupper(trim($b->jenjang))) {
                         continue;
                     }
 
@@ -88,7 +106,7 @@ class SwapController extends Controller
 
                     $sekA = $a->sekolah;
                     $sekB = $b->sekolah;
-                    if (!$sekA || !$sekB) {
+                    if (! $sekA || ! $sekB) {
                         continue;
                     }
 
@@ -101,14 +119,18 @@ class SwapController extends Controller
                         }
                     }
 
-                    // Jarak sekarang vs jarak jika bertukar (Haversine)
-                    $jarakA0 = $a->jarakKe((float) $sekA->lat, (float) $sekA->lng);
-                    $jarakB0 = $b->jarakKe((float) $sekB->lat, (float) $sekB->lng);
+                    // Jarak sekarang vs jarak jika bertukar (Haversine).
+                    // MAP-001: jarak ke sekolah saat ini lewat relasi (sumber tunggal).
+                    $jarakA0 = $a->jarakKeSekolahSaatIni();
+                    $jarakB0 = $b->jarakKeSekolahSaatIni();
+                    if ($jarakA0 === null || $jarakB0 === null) {
+                        continue;
+                    }
                     $jarakA1 = $a->jarakKe((float) $sekB->lat, (float) $sekB->lng);
                     $jarakB1 = $b->jarakKe((float) $sekA->lat, (float) $sekA->lng);
 
                     // Syarat 3 (win-win): keduanya harus lebih dekat setelah tukar
-                    if (!($jarakA1 < $jarakA0 && $jarakB1 < $jarakB0)) {
+                    if (! ($jarakA1 < $jarakA0 && $jarakB1 < $jarakB0)) {
                         continue;
                     }
 
@@ -126,24 +148,46 @@ class SwapController extends Controller
                     $hematA = $jarakA0 - $jarakA1;
                     $hematB = $jarakB0 - $jarakB1;
 
-                    $terpakai[$a->id] = true;
-                    $terpakai[$b->id] = true;
-
-                    RekomendasiSwap::create([
-                        'guru_a_id' => $a->id,
-                        'guru_b_id' => $b->id,
-                        'sekolah_tujuan_a_id' => $sekB->id,
-                        'sekolah_tujuan_b_id' => $sekA->id,
-                        'jarak_a_sekarang_km' => round($jarakA0, 2),
-                        'jarak_b_sekarang_km' => round($jarakB0, 2),
-                        'jarak_a_usulan_km' => round($jarakA1, 2),
-                        'jarak_b_usulan_km' => round($jarakB1, 2),
-                        'hemat_a_km' => round($hematA, 2),
-                        'hemat_b_km' => round($hematB, 2),
-                        'total_hemat_km' => round($hematA + $hematB, 2),
-                    ]);
-                    $baru++;
+                    $kandidat[] = [
+                        'a' => $a, 'b' => $b,
+                        'sekA' => $sekA, 'sekB' => $sekB,
+                        'jarakA0' => $jarakA0, 'jarakB0' => $jarakB0,
+                        'jarakA1' => $jarakA1, 'jarakB1' => $jarakB1,
+                        'hematA' => $hematA, 'hematB' => $hematB,
+                        'bobot' => $hematA + $hematB,
+                    ];
                 }
+            }
+
+            // Tahap 2: greedy maximum-weight matching — ambil pasangan dengan
+            // total penghematan terbesar dulu, lewati yang gurunya sudah terpakai.
+            // (Optimal untuk matching umum butuh algoritma Blossom; greedy cukup
+            // untuk skala ini dan mudah dijelaskan.)
+            usort($kandidat, fn ($x, $y) => $y['bobot'] <=> $x['bobot']);
+
+            foreach ($kandidat as $k) {
+                $a = $k['a'];
+                $b = $k['b'];
+                if (isset($terpakai[$a->id]) || isset($terpakai[$b->id])) {
+                    continue;
+                }
+                $terpakai[$a->id] = true;
+                $terpakai[$b->id] = true;
+
+                RekomendasiSwap::create([
+                    'guru_a_id' => $a->id,
+                    'guru_b_id' => $b->id,
+                    'sekolah_tujuan_a_id' => $k['sekB']->id,
+                    'sekolah_tujuan_b_id' => $k['sekA']->id,
+                    'jarak_a_sekarang_km' => round($k['jarakA0'], 2),
+                    'jarak_b_sekarang_km' => round($k['jarakB0'], 2),
+                    'jarak_a_usulan_km' => round($k['jarakA1'], 2),
+                    'jarak_b_usulan_km' => round($k['jarakB1'], 2),
+                    'hemat_a_km' => round($k['hematA'], 2),
+                    'hemat_b_km' => round($k['hematB'], 2),
+                    'total_hemat_km' => round($k['bobot'], 2),
+                ]);
+                $baru++;
             }
         });
 
@@ -177,7 +221,7 @@ class SwapController extends Controller
                     ->get()->keyBy('id');
                 $a = $terkunci[$swap->guru_a_id] ?? null;
                 $b = $terkunci[$swap->guru_b_id] ?? null;
-                if (!$a || !$b) {
+                if (! $a || ! $b) {
                     throw new \RuntimeException('Gagal: data guru tidak ditemukan.');
                 }
 
