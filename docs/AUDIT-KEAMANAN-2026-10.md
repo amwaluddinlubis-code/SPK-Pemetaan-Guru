@@ -54,6 +54,8 @@ Ini bukan audit penetrasi dan tidak mencakup pengujian server production.
 - Belum ada fitur reset password aman, autentikasi multifaktor, atau audit log.
 - Workflow PHPUnit sebelumnya menyalin direktori ke dalam direktori runtime yang sudah ada,
   sehingga tes aplikasi repo tidak ikut ditemukan (hanya tes contoh Laravel yang berjalan).
-  Pada branch ini, langkah overlay diperbaiki agar isi direktori repo menimpa/menggabung
-  ke direktori runtime. Hasil tes dari run baru harus diperiksa; run lama tidak membuktikan
-  tes aplikasi lolos.
+  Langkah overlay telah diperbaiki agar isi direktori repo digabungkan ke runtime.
+- **Hasil terverifikasi:** GitHub Actions run `38077124705` pada SHA
+  `42b3f02a743abfd671715edc385279901c24819a` sukses: **18 tes lulus, 59 assertions**.
+  Rangkaian ini mencakup tes login throttle dan guard AdminSeeder. Run yang lebih lama
+  tidak dianggap sebagai bukti untuk seluruh tes aplikasi.
