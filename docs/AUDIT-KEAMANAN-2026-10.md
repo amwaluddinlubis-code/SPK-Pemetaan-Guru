@@ -36,6 +36,9 @@ Ini bukan audit penetrasi dan tidak mencakup pengujian server production.
   `AdminSeeder`, lalu memastikan akun demo administrator tidak dibuat.
 - **Catatan operasional:** Produksi tetap memerlukan prosedur provisioning akun awal
   yang aman. Jangan menyelesaikannya dengan mengaktifkan akun demo.
+- **Risiko residual terkait:** `database.sql` juga merupakan dump demo yang berisi akun
+  contoh/kredensial yang diketahui. README kini melarang impor dump tersebut ke staging/
+  production; untuk production gunakan migrasi dan prosedur provisioning akun terpisah.
 
 ## Perubahan yang diajukan
 
