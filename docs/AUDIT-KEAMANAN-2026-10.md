@@ -59,3 +59,11 @@ Ini bukan audit penetrasi dan tidak mencakup pengujian server production.
   `42b3f02a743abfd671715edc385279901c24819a` sukses: **18 tes lulus, 59 assertions**.
   Rangkaian ini mencakup tes login throttle dan guard AdminSeeder. Run yang lebih lama
   tidak dianggap sebagai bukti untuk seluruh tes aplikasi.
+
+## Temuan lanjutan: SEC-003 — cakupan daftar SPK dan mutasi silang
+
+- **Temuan terkonfirmasi di `main`:** `SpkController::index()` dan `SwapController::index()` mengambil semua rekomendasi tanpa menerapkan cakupan peran, padahal daftar guru dan usulan sudah membatasi data untuk peran guru, kepala sekolah, dan Ketua PGRI.
+- **Dampak:** pengguna yang hanya berwenang melihat data diri/sekolah/kecamatan dapat membaca rekomendasi lintas cakupan, termasuk nama guru, sekolah asal/tujuan, dan metrik jarak.
+- **Perbaikan pada branch PR #2:** SPK difilter berdasarkan guru milik akun, sekolah kepala sekolah, atau kecamatan Ketua PGRI. Swap dibatasi pada rekomendasi yang melibatkan guru dalam cakupan tersebut. Peran administrator/reviewer/eksekutif tetap mengikuti perilaku global yang sudah ada.
+- **Tes regresi:** ditambahkan satu tes fitur untuk memeriksa kedua halaman bagi peran guru, kepala sekolah, dan Ketua PGRI. Hasil CI untuk perubahan ini harus diperiksa sebelum menyatakan tes lulus.
+- **Batasan:** daftar swap yang relevan bagi suatu cakupan masih menampilkan pasangan swap lengkap, termasuk identitas guru pasangan dari luar cakupan, karena pasangan tersebut merupakan bagian dari rekomendasi yang ditampilkan. Jika kebijakan mengharuskan kerahasiaan identitas pasangan, tampilan perlu menyamarkan data pihak lain bagi peran non-pejabat.
