@@ -70,6 +70,7 @@
                         <th>Mapel</th>
                         <th>Domisili</th>
                         <th>Kecamatan</th>
+                        <th>Desa/Kelurahan</th>
                         <th>Sekolah Saat Ini</th>
                         <th class="text-right">Aksi</th>
                     </tr>
@@ -87,6 +88,7 @@
                             </td>
                             <td class="text-sm">{{ $g->domisili_alamat }}</td>
                             <td class="text-sm">{{ $g->kecamatan ?? '—' }}</td>
+                            <td class="text-sm">{{ $g->desa_kelurahan ?? '—' }}</td>
                             <td class="text-sm">{{ $g->sekolah_saat_ini }}</td>
                             <td class="text-right whitespace-nowrap">
                                 @if (auth()->user()->hasRole('guru', 'kabid_ptk', 'kepala_sekolah'))

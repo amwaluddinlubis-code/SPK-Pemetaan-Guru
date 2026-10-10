@@ -50,6 +50,7 @@
                         <th>Nama / NPSN</th>
                         <th>Alamat</th>
                         <th>Kecamatan</th>
+                        <th>Desa/Kelurahan</th>
                         <th>Kebutuhan Guru</th>
                         <th class="text-right">Aksi</th>
                     </tr>
@@ -63,6 +64,7 @@
                             </td>
                             <td class="text-sm">{{ $s->alamat }}</td>
                             <td class="text-sm">{{ $s->kecamatan ?? '—' }}</td>
+                            <td class="text-sm">{{ $s->desa_kelurahan ?? '—' }}</td>
                             <td>
                                 @forelse ($s->kebutuhan as $k)
                                     <span class="badge badge-outline mr-1 mb-1">{{ $k->mapel }} ({{ $k->jumlah }})</span>

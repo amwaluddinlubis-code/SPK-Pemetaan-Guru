@@ -28,6 +28,7 @@ class GuruController extends Controller
             'jenjang'              => ['required', 'in:SD,SMP,SMA'],
             'domisili_alamat'      => ['required', 'string', 'max:255'],
             'kecamatan'            => ['nullable', 'string', 'max:100'],
+            'desa_kelurahan'       => ['nullable', 'string', 'max:100'],
             'sekolah_id'           => ['nullable', 'exists:sekolah,id'],
             'domisili_lat'         => ['required', 'numeric', 'between:-90,90'],
             'domisili_lng'         => ['required', 'numeric', 'between:-180,180'],

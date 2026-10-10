@@ -15,6 +15,7 @@ class Sekolah extends Model
         'nama',
         'alamat',
         'kecamatan',
+        'desa_kelurahan',
         'lat',
         'lng',
     ];

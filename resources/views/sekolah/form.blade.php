@@ -56,6 +56,12 @@
                         </select>
                     </label>
                     <label class="form-control w-full">
+                        <span class="label-text font-semibold">Desa / Kelurahan</span>
+                        <input type="text" name="desa_kelurahan"
+                               value="{{ old('desa_kelurahan', $sekolah->desa_kelurahan) }}"
+                               class="input input-bordered w-full" placeholder="cth: Panyabungan Jae" maxlength="100">
+                    </label>
+                    <label class="form-control w-full">
                         <span class="label-text font-semibold">Latitude</span>
                         <input type="text" id="lat" name="lat" value="{{ old('lat', $sekolah->lat) }}" required
                                class="input input-bordered w-full" placeholder="0.7900">

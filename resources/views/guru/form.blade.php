@@ -67,6 +67,12 @@
                             @endforeach
                         </select>
                     </label>
+                    <label class="form-control w-full">
+                        <span class="label-text font-semibold">Desa / Kelurahan Domisili</span>
+                        <input type="text" name="desa_kelurahan"
+                               value="{{ old('desa_kelurahan', $guru->desa_kelurahan) }}"
+                               class="input input-bordered w-full" placeholder="cth: Panyabungan Jae" maxlength="100">
+                    </label>
                     {{-- Sekolah tempat bertugas (administratif) --}}
                     @if (auth()->user()->hasRole('kabid_ptk'))
                         <label class="form-control w-full">

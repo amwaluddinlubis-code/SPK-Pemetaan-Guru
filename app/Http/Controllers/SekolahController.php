@@ -79,6 +79,7 @@ class SekolahController extends Controller
             $sekolah = Sekolah::create([
                 'npsn' => $data['npsn'], 'nama' => $data['nama'],
                 'alamat' => $data['alamat'], 'kecamatan' => $data['kecamatan'] ?? null,
+                'desa_kelurahan' => $data['desa_kelurahan'] ?? null,
                 'lat' => $data['lat'], 'lng' => $data['lng'],
             ]);
             $this->simpanKebutuhan($sekolah, $data['kebutuhan'] ?? []);
@@ -108,6 +109,7 @@ class SekolahController extends Controller
             $sekolah->update([
                 'npsn' => $data['npsn'], 'nama' => $data['nama'],
                 'alamat' => $data['alamat'], 'kecamatan' => $data['kecamatan'] ?? null,
+                'desa_kelurahan' => $data['desa_kelurahan'] ?? null,
                 'lat' => $data['lat'], 'lng' => $data['lng'],
             ]);
             // Hapus kebutuhan lama, simpan yang baru (cara paling sederhana & aman)
@@ -154,6 +156,7 @@ class SekolahController extends Controller
             'nama'   => ['required', 'string', 'max:100'],
             'alamat' => ['required', 'string', 'max:255'],
             'kecamatan' => ['nullable', 'string', 'max:100'],
+            'desa_kelurahan' => ['nullable', 'string', 'max:100'],
             'lat'    => ['required', 'numeric', 'between:-90,90'],
             'lng'    => ['required', 'numeric', 'between:-180,180'],
             'kebutuhan'        => ['nullable', 'array'],

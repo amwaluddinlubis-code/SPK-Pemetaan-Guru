@@ -18,6 +18,7 @@ class Guru extends Model
         'jenjang',
         'domisili_alamat',
         'kecamatan',
+        'desa_kelurahan',
         'sekolah_id',
         'domisili_lat',
         'domisili_lng',
