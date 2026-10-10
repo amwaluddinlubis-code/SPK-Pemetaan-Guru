@@ -34,6 +34,18 @@ class SpkController extends Controller
     {
         $query = HasilSpk::with(['guru.sekolah', 'sekolahTujuan', 'diprosesOleh']);
 
+        // SEC-003: daftar rekomendasi mengikuti cakupan data peran.
+        // Tanpa filter ini, pengguna non-administrator dapat melihat seluruh
+        // identitas guru dan riwayat rekomendasi lintas sekolah/kecamatan.
+        $user = auth()->user();
+        if ($user->role === 'guru') {
+            $query->where('guru_id', $user->guru_id);
+        } elseif ($user->role === 'kepala_sekolah') {
+            $query->whereHas('guru', fn ($q) => $q->where('sekolah_id', $user->sekolah_id));
+        } elseif ($user->role === 'ketua_pgri') {
+            $query->whereHas('guru', fn ($q) => $q->where('kecamatan', $user->kecamatan));
+        }
+
         // Filter status via ?status=rekomendasi
         if ($request->filled('status') && array_key_exists($request->status, HasilSpk::STATUS)) {
             $query->where('status', $request->status);
