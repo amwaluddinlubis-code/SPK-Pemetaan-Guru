@@ -66,18 +66,25 @@ class SpkController extends Controller
     //   4. Urutkan berdasarkan penghematan terbesar, bukan jarak tujuan.
     public function generate()
     {
-        $gurus = Guru::with('sekolah')
-            ->whereNotNull('domisili_lat')
-            ->whereNotNull('domisili_lng')
-            ->whereNotNull('sekolah_id')
-            ->get();
-
-        // Sisa kebutuhan per (sekolah, mapel), sudah dikurangi alokasi aktif
-        $sisaKebutuhan = KebutuhanGuru::sisaDenganAlokasi();
-
         $baru = 0;
 
-        DB::transaction(function () use ($gurus, $sisaKebutuhan, &$baru) {
+        DB::transaction(function () use (&$baru) {
+            // Serialisasi proses generate dan persetujuan yang memakai baris guru.
+            // Kunci dalam urutan tetap untuk mengurangi risiko benturan/deadlock.
+            $gurus = Guru::with('sekolah')
+                ->whereNotNull('domisili_lat')
+                ->whereNotNull('domisili_lng')
+                ->whereNotNull('sekolah_id')
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            // Kunci kuota sebelum menghitung ulang alokasi aktif di transaksi ini.
+            // Proses generate berikutnya akan membaca sisa kuota setelah transaksi
+            // sebelumnya commit, bukan memakai snapshot yang dihitung di luar transaksi.
+            KebutuhanGuru::query()->orderBy('id')->lockForUpdate()->get(['id']);
+            $sisaKebutuhan = KebutuhanGuru::sisaDenganAlokasi();
+
             foreach ($gurus as $guru) {
                 // MAP-001: jarak ke sekolah saat ini lewat relasi (sumber tunggal)
                 $jarakSekarang = $guru->jarakKeSekolahSaatIni();

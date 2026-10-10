@@ -28,8 +28,14 @@
         </div>
         <div class="stat">
             <div class="stat-title">Rata-rata Jarak</div>
-            <div class="stat-value">{{ number_format($rataJarak, 1) }} km</div>
-            <div class="stat-desc">rumah → sekolah saat ini</div>
+            <div class="stat-value">
+                @if ($rataJarak !== null)
+                    {{ number_format($rataJarak, 1) }} km
+                @else
+                    —
+                @endif
+            </div>
+            <div class="stat-desc">{{ $guruDenganJarak }} dari {{ $totalGuru }} guru memiliki koordinat valid</div>
         </div>
         <div class="stat">
             <div class="stat-title">Butuh Perhatian ⚠️</div>

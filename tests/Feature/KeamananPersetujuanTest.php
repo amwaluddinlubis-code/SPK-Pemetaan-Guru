@@ -95,6 +95,76 @@ class KeamananPersetujuanTest extends TestCase
         $this->assertEquals($asal->id, $recs->first()->sekolah_asal_id);
     }
 
+    public function test_spk_generate_tidak_melebihi_sisa_satu_formasi(): void
+    {
+        $kabid = $this->buatUser('kabid_ptk');
+        $asalA = $this->buatSekolah(0.0, 100.3);
+        $asalB = $this->buatSekolah(0.0, 100.4);
+        $this->buatGuru($asalA);
+        $this->buatGuru($asalB);
+        $tujuan = $this->buatSekolah(0.0, 100.05);
+        $this->butuh($tujuan, 'Matematika', 1);
+
+        $this->actingAs($kabid)->post('/spk/generate')->assertRedirect();
+        $this->actingAs($kabid)->post('/spk/generate')->assertRedirect();
+
+        $this->assertSame(1, HasilSpk::where('sekolah_tujuan_id', $tujuan->id)
+            ->where('status', 'rekomendasi')->count());
+    }
+
+    public function test_dashboard_tidak_menghitung_koordinat_hilang_sebagai_nol_km(): void
+    {
+        $kabid = $this->buatUser('kabid_ptk');
+        $sekolahValid = $this->buatSekolah(0.0, 100.3);
+        $this->buatGuru($sekolahValid);
+
+        $sekolahTanpaKoordinat = $this->buatSekolah(0.0, 100.0, [
+            'lat' => null,
+            'lng' => null,
+        ]);
+        $this->buatGuru($sekolahTanpaKoordinat, [
+            'sekolah_saat_ini_lat' => null,
+            'sekolah_saat_ini_lng' => null,
+        ]);
+
+        $this->actingAs($kabid)->get('/')
+            ->assertOk()
+            ->assertSee('33.4 km')
+            ->assertSee('1 dari 2 guru memiliki koordinat valid');
+    }
+
+    public function test_swap_tolak_mengunci_dan_memeriksa_ulang_status(): void
+    {
+        $kabid = $this->buatUser('kabid_ptk');
+        $asalA = $this->buatSekolah(1.0, 100.8);
+        $asalB = $this->buatSekolah(1.0, 100.1);
+        $a = $this->buatGuru($asalA, ['domisili_lat' => 1.0]);
+        $b = $this->buatGuru($asalB, [
+            'domisili_lat' => 1.0,
+            'domisili_lng' => 100.9,
+        ]);
+
+        $swap = RekomendasiSwap::create([
+            'guru_a_id' => $a->id,
+            'guru_b_id' => $b->id,
+            'sekolah_tujuan_a_id' => $asalB->id,
+            'sekolah_tujuan_b_id' => $asalA->id,
+            'jarak_a_sekarang_km' => 20,
+            'jarak_b_sekarang_km' => 20,
+            'jarak_a_usulan_km' => 10,
+            'jarak_b_usulan_km' => 10,
+            'hemat_a_km' => 10,
+            'hemat_b_km' => 10,
+            'total_hemat_km' => 20,
+            'status' => 'disetujui',
+        ]);
+
+        $this->actingAs($kabid)->post("/swap/{$swap->id}/tolak")
+            ->assertRedirect();
+
+        $this->assertSame('disetujui', $swap->fresh()->status);
+    }
+
     public function test_spk_setujui_ganda_ditolak_tanpa_efek_ganda(): void
     {
         $kabid = $this->buatUser('kabid_ptk');
