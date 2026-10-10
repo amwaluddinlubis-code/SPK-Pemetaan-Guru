@@ -121,4 +121,4 @@ Teknologi: Laravel 13 + MySQL 8 + Livewire 4 + Tailwind CSS/daisyUI.
 
 - Ditemukan bahwa halaman daftar SPK dan mutasi silang di branch `main` belum menerapkan pembatasan cakupan peran yang sudah dipakai pada daftar guru/usulan.
 - Query daftar SPK dan swap diperbaiki di branch PR #2 untuk membatasi hasil bagi guru, kepala sekolah, dan Ketua PGRI.
-- Tes regresi ditambahkan untuk kedua halaman dan ketiga peran tersebut. Status kelulusan menunggu hasil GitHub Actions setelah push.
+- Tes regresi ditambahkan untuk kedua halaman dan ketiga peran tersebut. GitHub Actions run `38077548880` pada commit `c55ce398c670a107b92ecb4cc19518e81dcce2cf` berhasil: **19 tes lulus, 77 assertions**. Pembaruan dokumentasi setelah run ini menghasilkan commit baru, jadi status CI commit terbaru perlu diverifikasi.
