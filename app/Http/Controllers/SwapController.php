@@ -28,6 +28,27 @@ class SwapController extends Controller
             'sekolahTujuanA', 'sekolahTujuanB', 'diprosesOleh',
         ]);
 
+        // SEC-003: batasi daftar swap ke guru/sekolah/kecamatan pengguna.
+        // Guru hanya melihat swap yang melibatkan dirinya; pimpinan sekolah
+        // dan Ketua PGRI hanya melihat swap yang melibatkan cakupannya.
+        $user = auth()->user();
+        if ($user->role === 'guru') {
+            $query->where(function ($q) use ($user) {
+                $q->where('guru_a_id', $user->guru_id)
+                    ->orWhere('guru_b_id', $user->guru_id);
+            });
+        } elseif ($user->role === 'kepala_sekolah') {
+            $query->where(function ($q) use ($user) {
+                $q->whereHas('guruA', fn ($guru) => $guru->where('sekolah_id', $user->sekolah_id))
+                    ->orWhereHas('guruB', fn ($guru) => $guru->where('sekolah_id', $user->sekolah_id));
+            });
+        } elseif ($user->role === 'ketua_pgri') {
+            $query->where(function ($q) use ($user) {
+                $q->whereHas('guruA', fn ($guru) => $guru->where('kecamatan', $user->kecamatan))
+                    ->orWhereHas('guruB', fn ($guru) => $guru->where('kecamatan', $user->kecamatan));
+            });
+        }
+
         // Filter status via ?status=menunggu
         if ($request->filled('status') && array_key_exists($request->status, RekomendasiSwap::STATUS)) {
             $query->where('status', $request->status);
