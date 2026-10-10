@@ -1,4 +1,5 @@
 <?php
+
 // Model RekomendasiSwap: satu baris = satu usulan pertukaran (swap) dua guru
 // yang saling menguntungkan — keduanya menjadi lebih dekat ke domisili
 // masing-masing setelah bertukar sekolah.
@@ -75,5 +76,17 @@ class RekomendasiSwap extends Model
     public function labelStatus(): string
     {
         return self::STATUS[$this->status] ?? $this->status;
+    }
+
+    // Warna badge daisyUI per status (lihat docs/standar-gui.md bagian 9)
+    public function badgeStatus(): string
+    {
+        return match ($this->status) {
+            'menunggu' => 'badge-warning',
+            'disetujui' => 'badge-success',
+            'ditolak' => 'badge-error',
+            'batal_karena_konflik' => 'badge-ghost',
+            default => 'badge-ghost',
+        };
     }
 }

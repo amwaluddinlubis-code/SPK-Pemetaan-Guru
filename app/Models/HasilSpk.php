@@ -1,4 +1,5 @@
 <?php
+
 // Model HasilSpk: satu baris = satu rekomendasi penempatan (Skenario 1 SPK) —
 // usulan memindahkan satu guru ke sekolah terdekat yang kekurangan
 // formasi untuk mata pelajarannya.
@@ -52,6 +53,17 @@ class HasilSpk extends Model
     public function labelStatus(): string
     {
         return self::STATUS[$this->status] ?? $this->status;
+    }
+
+    // Warna badge daisyUI per status (lihat docs/standar-gui.md bagian 9)
+    public function badgeStatus(): string
+    {
+        return match ($this->status) {
+            'rekomendasi' => 'badge-warning',
+            'disetujui' => 'badge-success',
+            'ditolak' => 'badge-error',
+            default => 'badge-ghost',
+        };
     }
 
     // Selisih penghematan jarak jika rekomendasi ini disetujui (km)

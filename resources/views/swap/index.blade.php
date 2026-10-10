@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('judul', 'Mutasi Silang (Swap)')
+@section('judul', 'Mutasi Silang — PetaPenempatan ASN')
 
 @section('konten')
 {{-- Halaman Mutasi Silang: daftar pasangan guru yang direkomendasikan untuk
@@ -96,15 +96,7 @@
 
                     {{-- Status --}}
                     <td>
-                        @php
-                            $warna = [
-                                'menunggu' => 'badge-warning',
-                                'disetujui' => 'badge-success',
-                                'ditolak' => 'badge-error',
-                                'batal_karena_konflik' => 'badge-ghost',
-                            ][$s->status] ?? 'badge-ghost';
-                        @endphp
-                        <span class="badge {{ $warna }}">{{ $s->labelStatus() }}</span>
+                        <span class="badge {{ $s->badgeStatus() }}">{{ $s->labelStatus() }}</span>
                         @if ($s->diprosesOleh)
                             <div class="text-xs opacity-70 mt-1">oleh {{ $s->diprosesOleh->name }}</div>
                         @endif

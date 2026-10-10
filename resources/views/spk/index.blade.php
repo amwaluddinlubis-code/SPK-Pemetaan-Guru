@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('judul', 'SPK Penempatan')
+@section('judul', 'SPK Penempatan — PetaPenempatan ASN')
 
 @section('konten')
 {{-- Halaman SPK Penempatan (Skenario 1): rekomendasi pemindahan guru yang jarak
@@ -83,14 +83,7 @@
 
                     {{-- Status --}}
                     <td>
-                        @php
-                            $warna = [
-                                'rekomendasi' => 'badge-warning',
-                                'disetujui' => 'badge-success',
-                                'ditolak' => 'badge-error',
-                            ][$s->status] ?? 'badge-ghost';
-                        @endphp
-                        <span class="badge {{ $warna }}">{{ $s->labelStatus() }}</span>
+                        <span class="badge {{ $s->badgeStatus() }}">{{ $s->labelStatus() }}</span>
                         @if ($s->diprosesOleh)
                             <div class="text-xs opacity-70 mt-1">oleh {{ $s->diprosesOleh->name }}</div>
                         @endif
