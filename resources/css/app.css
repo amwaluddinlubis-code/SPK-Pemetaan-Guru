@@ -1,0 +1,16 @@
+/* CSS utama: Tailwind v4 + daisyUI.
+   daisyUI menyediakan komponen siap pakai (btn, card, table, dll.)
+   sehingga kita tidak perlu menulis CSS manual. */
+
+/* 1. Muat Tailwind */
+@import "tailwindcss";
+
+/* 2. Muat daisyUI sebagai plugin.
+      Tema default: light. Ganti data-theme="dark" di <html>
+      untuk mode gelap. */
+@plugin "daisyui";
+
+/* 3. Kustomisasi kecil di bawah ini (opsional) */
+html {
+    scroll-behavior: smooth;
+}
