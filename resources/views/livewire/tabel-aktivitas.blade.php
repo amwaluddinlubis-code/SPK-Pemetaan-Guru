@@ -4,7 +4,7 @@
         <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
             <div>
                 <label class="label"><span class="label-text">Aksi</span></label>
-                <select wire:model.live="aksi" class="select select-bordered select-sm w-full">
+                <select wire:model.live="aksi" class="select select-sm w-full">
                     <option value="">Semua</option>
                     @foreach ($daftarAksi as $a)
                         <option value="{{ $a }}">{{ $a }}</option>
@@ -13,7 +13,7 @@
             </div>
             <div>
                 <label class="label"><span class="label-text">Aktor</span></label>
-                <select wire:model.live="user_id" class="select select-bordered select-sm w-full">
+                <select wire:model.live="user_id" class="select select-sm w-full">
                     <option value="">Semua</option>
                     @foreach ($daftarUser as $u)
                         <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->role }})</option>
@@ -22,7 +22,7 @@
             </div>
             <div>
                 <label class="label"><span class="label-text">Hasil</span></label>
-                <select wire:model.live="hasil" class="select select-bordered select-sm w-full">
+                <select wire:model.live="hasil" class="select select-sm w-full">
                     <option value="">Semua</option>
                     <option value="sukses">Sukses</option>
                     <option value="gagal">Gagal</option>
@@ -30,11 +30,11 @@
             </div>
             <div>
                 <label class="label"><span class="label-text">Dari</span></label>
-                <input type="date" wire:model.live="dari" class="input input-bordered input-sm w-full">
+                <input type="date" wire:model.live="dari" class="input input-sm w-full">
             </div>
             <div>
                 <label class="label"><span class="label-text">Sampai</span></label>
-                <input type="date" wire:model.live="sampai" class="input input-bordered input-sm w-full">
+                <input type="date" wire:model.live="sampai" class="input input-sm w-full">
             </div>
         </div>
         @if ($aksi !== '' || $user_id !== '' || $hasil !== '' || $dari !== '' || $sampai !== '')
