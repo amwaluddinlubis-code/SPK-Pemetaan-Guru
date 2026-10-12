@@ -95,15 +95,15 @@ class NavbarTemaTest extends TestCase
         $res->assertSee('border-error', false);
     }
 
-    public function test_form_guru_berseksi(): void
+    public function test_form_guru_tab(): void
     {
         $this->loginKabid();
 
         $res = $this->get('/guru/create');
         $res->assertOk();
-        $res->assertSee('data-testid="form-guru-berseksi"', false);
-        foreach (['Data Pribadi', 'Kepegawaian', 'Domisili'] as $seksi) {
-            $res->assertSee($seksi);
+        $res->assertSee('data-testid="form-guru-tab"', false);
+        foreach (['1. Data Pribadi', '2. Kepegawaian', '3. Domisili'] as $tab) {
+            $res->assertSee($tab);
         }
     }
 
