@@ -89,8 +89,8 @@
    production.** Seeder membatasi pembuatan akun demo ke lingkungan
    `local`/`testing`; verifikasi konfigurasi dan akun yang sudah ada
    tetap wajib saat deployment.
-3. File `database.sql` di repo **tidak mencakup** tabel/kolom terbaru.
-   Cara instal yang disarankan: `php artisan migrate --seed`.
+3. File `database.sql` yang usang telah **dihapus** dari repo.
+   Satu-satunya cara instal yang didukung: `php artisan migrate --seed`.
 4. Tile peta Leaflet membutuhkan koneksi internet (dari server
    OpenStreetMap). Library Leaflet sendiri sudah dibundle via Vite
    (tidak tergantung CDN lagi sejak 11 Okt 2026).

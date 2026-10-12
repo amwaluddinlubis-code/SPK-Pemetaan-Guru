@@ -108,10 +108,6 @@ DB_PASSWORD=
 ```
 Buat database kosong bernama `peta_asn` di MySQL (via phpMyAdmin atau `CREATE DATABASE peta_asn;`).
 
-> **Alternatif cepat:** impor langsung `database.sql` dari paket ini ke MySQL
-> (sudah berisi tabel + data contoh + akun admin). Jika pakai cara ini,
-> lewati Langkah 5.
-
 ### Langkah 5 — Migrasi + isi data contoh
 ```bash
 php artisan migrate --seed
