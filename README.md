@@ -55,7 +55,7 @@ Instal dulu di komputermu:
 
 | Kebutuhan | Versi minimal | Cara instal (Windows) |
 |---|---|---|
-| PHP | 8.2+ | [Laragon](https://laragon.org) (disarankan — sudah termasuk MySQL) atau XAMPP |
+| PHP | 8.3+ | [Laragon](https://laragon.org) (disarankan — sudah termasuk MySQL) atau XAMPP |
 | Composer | terbaru | [getcomposer.org](https://getcomposer.org/download/) |
 | MySQL / MariaDB | 8 / 10.4+ | ikut Laragon/XAMPP, atau [mysql.com](https://www.mysql.com/downloads/) |
 | Node.js | 18+ | [nodejs.org](https://nodejs.org) (untuk Tailwind/daisyUI) |
