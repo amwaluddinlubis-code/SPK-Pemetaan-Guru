@@ -23,26 +23,26 @@
                 @if ($user->exists) @method('PUT') @endif
 
                 <div class="grid gap-4 sm:grid-cols-2">
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Nama</span>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Nama</legend>
                         <input type="text" name="name" value="{{ old('name', $user->name) }}" required
-                               class="input input-bordered w-full" placeholder="Nama lengkap">
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Email</span>
+                               class="input w-full" placeholder="Nama lengkap">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Email</legend>
                         <input type="email" name="email" value="{{ old('email', $user->email) }}" required
-                               class="input input-bordered w-full" placeholder="nama@contoh.id">
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">
+                               class="input w-full" placeholder="nama@contoh.id">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">
                             Password {{ $user->exists ? '(kosongkan jika tidak diganti)' : '' }}
-                        </span>
+                        </legend>
                         <input type="password" name="password" {{ $user->exists ? '' : 'required' }}
-                               class="input input-bordered w-full" placeholder="Minimal 6 karakter">
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Peran</span>
-                        <select name="role" id="pilih-role" class="select select-bordered w-full" required>
+                               class="input w-full" placeholder="Minimal 6 karakter">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Peran</legend>
+                        <select name="role" id="pilih-role" class="select w-full" required>
                             @foreach (\App\Models\User::ROLES as $nilai => $label)
                                 <option value="{{ $nilai }}"
                                     {{ old('role', $user->role) == $nilai ? 'selected' : '' }}>
@@ -50,7 +50,7 @@
                                 </option>
                             @endforeach
                         </select>
-                    </label>
+                    </fieldset>
                 </div>
 
                 <div class="divider">Scope (sesuai peran)</div>
@@ -60,9 +60,9 @@
 
                 <div class="grid gap-4 sm:grid-cols-2">
                     {{-- Hanya relevan jika peran = guru --}}
-                    <label class="form-control w-full" id="field-guru">
-                        <span class="label-text font-semibold">Terhubung ke Guru</span>
-                        <select name="guru_id" class="select select-bordered w-full">
+                    <fieldset class="fieldset w-full" id="field-guru">
+                        <legend class="fieldset-legend font-semibold">Terhubung ke Guru</legend>
+                        <select name="guru_id" class="select w-full">
                             <option value="">— Tidak ada —</option>
                             @foreach ($daftarGuru as $g)
                                 <option value="{{ $g->id }}"
@@ -71,12 +71,12 @@
                                 </option>
                             @endforeach
                         </select>
-                    </label>
+                    </fieldset>
 
                     {{-- Hanya relevan jika peran = kepala_sekolah --}}
-                    <label class="form-control w-full" id="field-sekolah">
-                        <span class="label-text font-semibold">Terhubung ke Sekolah</span>
-                        <select name="sekolah_id" class="select select-bordered w-full">
+                    <fieldset class="fieldset w-full" id="field-sekolah">
+                        <legend class="fieldset-legend font-semibold">Terhubung ke Sekolah</legend>
+                        <select name="sekolah_id" class="select w-full">
                             <option value="">— Tidak ada —</option>
                             @foreach ($daftarSekolah as $s)
                                 <option value="{{ $s->id }}"
@@ -85,13 +85,13 @@
                                 </option>
                             @endforeach
                         </select>
-                    </label>
+                    </fieldset>
 
                     {{-- Hanya relevan jika peran = ketua_pgri --}}
-                    <label class="form-control w-full sm:col-span-2" id="field-kecamatan">
-                        <span class="label-text font-semibold">Kecamatan (untuk Ketua PGRI)</span>
+                    <fieldset class="fieldset w-full sm:col-span-2" id="field-kecamatan">
+                        <legend class="fieldset-legend font-semibold">Kecamatan (untuk Ketua PGRI)</legend>
                         @php $kecAktif = old('kecamatan', $user->kecamatan); @endphp
-                        <select name="kecamatan" class="select select-bordered w-full">
+                        <select name="kecamatan" class="select w-full">
                             <option value="">— Pilih Kecamatan —</option>
                             @foreach ($daftarKecamatan as $kec)
                                 <option value="{{ $kec }}" {{ $kecAktif == $kec ? 'selected' : '' }}>
@@ -102,7 +102,7 @@
                                 <option value="{{ $kecAktif }}" selected>{{ $kecAktif }}</option>
                             @endif
                         </select>
-                    </label>
+                    </fieldset>
                 </div>
 
                 <div class="flex gap-2 mt-6">
