@@ -19,19 +19,19 @@
             <form method="POST" action="{{ route('password.update') }}" class="space-y-4 mt-2">
                 @csrf
                 <input type="hidden" name="token" value="{{ $token }}">
-                <label class="form-control w-full">
-                    <span class="label-text font-semibold">Email</span>
+                <fieldset class="fieldset w-full">
+                    <legend class="fieldset-legend font-semibold">Email</legend>
                     <input type="email" name="email" required value="{{ old('email', $email) }}"
-                           class="input input-bordered w-full" readonly>
-                </label>
-                <label class="form-control w-full">
-                    <span class="label-text font-semibold">Password Baru</span>
-                    <input type="password" name="password" required class="input input-bordered w-full" autofocus>
-                </label>
-                <label class="form-control w-full">
-                    <span class="label-text font-semibold">Ulangi Password Baru</span>
-                    <input type="password" name="password_confirmation" required class="input input-bordered w-full">
-                </label>
+                           class="input w-full" readonly>
+                </fieldset>
+                <fieldset class="fieldset w-full">
+                    <legend class="fieldset-legend font-semibold">Password Baru</legend>
+                    <input type="password" name="password" required class="input w-full" autofocus>
+                </fieldset>
+                <fieldset class="fieldset w-full">
+                    <legend class="fieldset-legend font-semibold">Ulangi Password Baru</legend>
+                    <input type="password" name="password_confirmation" required class="input w-full">
+                </fieldset>
                 <button type="submit" class="btn btn-primary w-full">Reset Password</button>
             </form>
         </div>
