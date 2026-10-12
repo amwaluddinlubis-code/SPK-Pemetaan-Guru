@@ -44,7 +44,7 @@ Akun contoh (password = nama peran + `123`, segera ganti!):
 | `kabid@peta-asn.local` | `kabid123` | Kabid PTK (administrator) |
 | `kadis@peta-asn.local` | `kadis123` | Kadis (reviewer) |
 
-> ⚠️ Paket ini berisi **kode sumber aplikasi** (tanpa folder `vendor/` dan `node_modules/`).
+> ⚠️ Folder `vendor/` dan `node_modules/` tidak ikut ter-commit.
 > Ikuti langkah instalasi di bawah — total ±15 menit.
 
 ---
@@ -71,53 +71,27 @@ node -v
 
 ## 2. Instalasi
 
-### Langkah 1 — Buat proyek Laravel baru
+Repo ini adalah **aplikasi Laravel lengkap** — cukup clone lalu instal dependency.
+
+### Langkah 1 — Clone repo
 ```bash
-composer create-project laravel/laravel peta-asn
-cd peta-asn
+git clone https://github.com/amwaluddinlubis-code/SPK-Pemetaan-Guru.git
+cd SPK-Pemetaan-Guru
 ```
 
-### Langkah 2 — Salin file dari paket ini
-Salin **seluruh isi** folder `peta-asn-source/` ke dalam folder `peta-asn/`,
-timpa file yang sama namanya (`routes/web.php`, `vite.config.js`, dll).
-
-> **Penting:** daftarkan middleware `role` di `bootstrap/app.php`:
-> ```php
-> ->withMiddleware(function (Middleware $middleware): void {
->     $middleware->alias([
->         'role' => \App\Http\Middleware\RoleMiddleware::class,
->     ]);
-> })
-> ```
-
-Struktur akhirnya:
-```
-peta-asn/
-├── app/
-│   ├── Http/Controllers/   ← Auth, Dashboard, Guru, Sekolah
-│   ├── Livewire/           ← PetaRekomendasi.php
-│   └── Models/             ← Guru, Sekolah, KebutuhanGuru
-├── database/
-│   ├── migrations/         ← tabel guru, sekolah, kebutuhan_guru
-│   └── seeders/            ← admin + data contoh
-├── resources/views/        ← Blade + daisyUI
-├── routes/web.php
-├── vite.config.js
-└── ...
-```
-
-### Langkah 3 — Instal dependency PHP (termasuk Livewire)
+### Langkah 2 — Instal dependency PHP
 ```bash
-composer require livewire/livewire phpoffice/phpspreadsheet
+composer install
 ```
+(Sudah termasuk Livewire + PhpSpreadsheet untuk import Excel.)
 
-### Langkah 4 — Instal dependency JS (Tailwind + daisyUI)
+### Langkah 3 — Instal dependency JS (Tailwind + daisyUI)
 ```bash
 npm install
 npm install -D tailwindcss @tailwindcss/vite daisyui
 ```
 
-### Langkah 5 — Konfigurasi database
+### Langkah 4 — Konfigurasi database
 Salin `.env.example` menjadi `.env`, lalu sesuaikan:
 ```bash
 cp .env.example .env
@@ -136,19 +110,19 @@ Buat database kosong bernama `peta_asn` di MySQL (via phpMyAdmin atau `CREATE DA
 
 > **Alternatif cepat:** impor langsung `database.sql` dari paket ini ke MySQL
 > (sudah berisi tabel + data contoh + akun admin). Jika pakai cara ini,
-> lewati Langkah 6.
+> lewati Langkah 5.
 
-### Langkah 6 — Migrasi + isi data contoh
+### Langkah 5 — Migrasi + isi data contoh
 ```bash
 php artisan migrate --seed
 ```
 
-### Langkah 7 — Build aset (CSS/JS)
+### Langkah 6 — Build aset (CSS/JS)
 ```bash
 npm run build
 ```
 
-### Langkah 8 — Jalankan! 🚀
+### Langkah 7 — Jalankan! 🚀
 ```bash
 php artisan serve
 ```
@@ -213,7 +187,7 @@ Urutan baca yang disarankan untuk memahami aplikasi:
 | Masalah | Solusi |
 |---|---|
 | `php artisan migrate` → Access denied | Cek DB_USERNAME/DB_PASSWORD di `.env` |
-| Halaman putih / `Vite manifest not found` | Jalankan `npm run build` (Langkah 7) |
+| Halaman putih / `Vite manifest not found` | Jalankan `npm run build` (Langkah 6) |
 | Class `Livewire\...` not found | Jalankan `composer require livewire/livewire` lalu `composer dump-autoload` |
 | Peta tidak muncul | Butuh internet (tile OpenStreetMap + CDN Leaflet) |
 | Port 8000 dipakai | `php artisan serve --port=8001` |
