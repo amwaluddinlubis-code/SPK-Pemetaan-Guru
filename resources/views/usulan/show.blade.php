@@ -54,10 +54,10 @@
                     <p class="text-sm opacity-70">Sebagai Kabid PTK, verifikasi usulan ini agar diteruskan ke Kadis.</p>
                     <form method="POST" action="{{ route('usulan.verifikasi', $usulan) }}">
                         @csrf
-                        <label class="form-control w-full">
-                            <span class="label-text">Catatan (opsional)</span>
-                            <textarea name="catatan" rows="2" class="textarea textarea-bordered w-full"></textarea>
-                        </label>
+                        <fieldset class="fieldset w-full">
+                            <legend class="fieldset-legend">Catatan (opsional)</legend>
+                            <textarea name="catatan" rows="2" class="textarea w-full"></textarea>
+                        </fieldset>
                         <button type="submit" class="btn btn-info w-full mt-2">✔️ Verifikasi</button>
                     </form>
                 @endif
@@ -66,10 +66,10 @@
                     <p class="text-sm opacity-70">Sebagai Kadis, persetujuan akan <strong>memutasi guru</strong> ke sekolah tujuan.</p>
                     <form method="POST" action="{{ route('usulan.setujui', $usulan) }}">
                         @csrf
-                        <label class="form-control w-full">
-                            <span class="label-text">Catatan (opsional)</span>
-                            <textarea name="catatan" rows="2" class="textarea textarea-bordered w-full"></textarea>
-                        </label>
+                        <fieldset class="fieldset w-full">
+                            <legend class="fieldset-legend">Catatan (opsional)</legend>
+                            <textarea name="catatan" rows="2" class="textarea w-full"></textarea>
+                        </fieldset>
                         <button type="submit" class="btn btn-success w-full mt-2"
                                 onclick="return confirm('Setujui dan mutasi guru ke {{ $usulan->sekolah->nama }}?')">
                             ✅ Setujui & Mutasi
@@ -82,10 +82,10 @@
                         <div class="divider">atau</div>
                         <form method="POST" action="{{ route('usulan.tolak', $usulan) }}">
                             @csrf
-                            <label class="form-control w-full">
-                                <span class="label-text">Alasan penolakan (wajib)</span>
-                                <textarea name="catatan" rows="2" required class="textarea textarea-bordered w-full"></textarea>
-                            </label>
+                            <fieldset class="fieldset w-full">
+                                <legend class="fieldset-legend">Alasan penolakan (wajib)</legend>
+                                <textarea name="catatan" rows="2" required class="textarea w-full"></textarea>
+                            </fieldset>
                             <button type="submit" class="btn btn-error btn-outline w-full mt-2"
                                     onclick="return confirm('Tolak usulan ini?')">✕ Tolak</button>
                         </form>
