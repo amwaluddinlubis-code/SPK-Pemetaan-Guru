@@ -5,9 +5,9 @@
             <div class="flex flex-wrap gap-2">
                 <input type="text" wire:model.live.debounce.500ms="q"
                        placeholder="Cari nama, NIP, mapel, domisili, sekolah…"
-                       class="input input-bordered flex-1 min-w-52">
+                       class="input flex-1 min-w-52">
                 @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
-                    <select wire:model.live="kecamatan" class="select select-bordered max-w-xs">
+                    <select wire:model.live="kecamatan" class="select max-w-xs">
                         <option value="">— Semua Kecamatan —</option>
                         @foreach ($daftarKecamatan as $kec)
                             <option value="{{ $kec }}">{{ $kec }}</option>
