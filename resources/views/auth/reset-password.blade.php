@@ -13,7 +13,7 @@
             <p class="text-sm opacity-70">Password minimal 8 karakter.</p>
 
             @if ($errors->any())
-                <div class="alert alert-error text-sm">{{ $errors->first() }}</div>
+                <x-galat />
             @endif
 
             <form method="POST" action="{{ route('password.update') }}" class="space-y-4 mt-2">

@@ -12,6 +12,24 @@ agar tampilan konsisten walau dikerjakan bergantian / dibantu AI.
 - Setelah mengubah CSS/JS: jalankan `npm run build` (atau `npm run dev`
   saat pengembangan).
 
+## 1b. Komponen Fondasi (wajib dipakai ulang)
+
+Jangan menulis ulang markup di bawah — pakai komponen anonim `resources/views/components/`:
+
+| Komponen | Pakai | Untuk |
+|---|---|---|
+| `<x-halaman>` | `judul`, slot `aksi`/`deskripsi` | Header semua halaman index/show |
+| `<x-kartu>` | `class` tambahan | Pembungkus kartu (`card bg-base-100 shadow-xl`) |
+| `<x-kosong>` | `pesan`, `kolom` (opsional) | Keadaan kosong (baris tabel / blok) |
+| `<x-hapus>` | `aksi`, `tanya`, `label` | Form hapus + konfirmasi |
+| `<x-galat>` | — | Daftar error validasi di atas form |
+| `<x-info-halaman>` | `data` (paginator) | "Menampilkan X–Y dari Z data" |
+| `<x-alert>` | `tipe` (sukses/error/warning/info) | Alert umum + slot isi |
+| `<x-ikon>` | `nama`, `class` | Ikon Heroicons outline |
+
+Aturan: komponen baru hanya bila pola dipakai ≥3 tempat; varian kecil
+diselesaikan via atribut/`class` tambahan, bukan file baru.
+
 ## 2. Tema & Warna
 
 - Tema daisyUI: `light` (`<html data-theme="light">` di layout).

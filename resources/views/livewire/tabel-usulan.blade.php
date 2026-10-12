@@ -1,6 +1,6 @@
 {{-- Tabel Usulan Penempatan (Livewire): pencarian, filter, sorting, pagination tanpa reload. --}}
 <div>
-    <div class="card bg-base-100 shadow-xl mb-4">
+    <x-kartu class="mb-4">
         <div class="card-body py-3">
             <div class="flex flex-wrap gap-2">
                 <input type="text" wire:model.live.debounce.500ms="q"
@@ -20,9 +20,9 @@
                 <p class="text-sm opacity-60 mt-2">Menampilkan {{ $daftarUsulan->total() }} hasil.</p>
             @endif
         </div>
-    </div>
+    </x-kartu>
 
-    <div class="card bg-base-100 shadow-xl overflow-hidden">
+    <x-kartu class="overflow-hidden">
         <div class="card-body p-0 overflow-x-auto min-w-0">
             <table class="table table-zebra">
                 <thead>
@@ -49,18 +49,15 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="text-center opacity-60 py-8">Tidak ada usulan yang cocok.</td></tr>
+                        <x-kosong pesan="Tidak ada usulan yang cocok." kolom="5" />
                     @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
+    </x-kartu>
 
     <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
-        <p class="text-sm opacity-70">
-            Menampilkan {{ $daftarUsulan->firstItem() ?? 0 }}–{{ $daftarUsulan->lastItem() ?? 0 }}
-            dari {{ $daftarUsulan->total() }} data
-        </p>
+        <x-info-halaman :data="$daftarUsulan" />
         {{ $daftarUsulan->links() }}
     </div>
 </div>

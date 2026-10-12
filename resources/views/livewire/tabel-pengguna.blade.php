@@ -1,6 +1,6 @@
 {{-- Tabel Kelola Pengguna (Livewire): pencarian, filter peran, pagination tanpa reload. --}}
 <div>
-    <div class="card bg-base-100 shadow-xl mb-4">
+    <x-kartu class="mb-4">
         <div class="card-body py-3">
             <div class="flex flex-wrap gap-2">
                 <input type="text" wire:model.live.debounce.500ms="q"
@@ -20,9 +20,9 @@
                 <p class="text-sm opacity-60 mt-2">Menampilkan {{ $daftarUser->total() }} hasil.</p>
             @endif
         </div>
-    </div>
+    </x-kartu>
 
-    <div class="card bg-base-100 shadow-xl overflow-hidden">
+    <x-kartu class="overflow-hidden">
         <div class="card-body p-0 overflow-x-auto min-w-0">
             <table class="table table-zebra">
                 <thead>
@@ -54,20 +54,16 @@
                             </td>
                             <td class="text-right whitespace-nowrap">
                                 <a href="{{ route('pengguna.edit', $u) }}" class="btn btn-sm btn-warning">Ubah</a>
-                                <form method="POST" action="{{ route('pengguna.destroy', $u) }}" class="inline"
-                                      onsubmit="return confirm('Hapus akun {{ $u->name }}?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-error">Hapus</button>
-                                </form>
+                                <x-hapus :aksi="route('pengguna.destroy', $u)" tanya="Hapus akun {{ $u->name }}?" />
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="text-center opacity-60 py-8">Tidak ada pengguna yang cocok.</td></tr>
+                        <x-kosong pesan="Tidak ada pengguna yang cocok." kolom="4" />
                     @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
+    </x-kartu>
 
     <div class="mt-4">{{ $daftarUser->links() }}</div>
 </div>

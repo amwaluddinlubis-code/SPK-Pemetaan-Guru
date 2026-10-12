@@ -1,6 +1,6 @@
 {{-- Tabel Data Sekolah (Livewire): pencarian, filter, sorting, pagination tanpa reload. --}}
 <div>
-    <div class="card bg-base-100 shadow-xl mb-4">
+    <x-kartu class="mb-4">
         <div class="card-body py-3">
             <div class="flex flex-wrap gap-2">
                 <input type="text" wire:model.live.debounce.500ms="q"
@@ -26,9 +26,9 @@
                 </p>
             @endif
         </div>
-    </div>
+    </x-kartu>
 
-    <div class="card bg-base-100 shadow-xl overflow-hidden">
+    <x-kartu class="overflow-hidden">
         <div class="card-body p-0 overflow-x-auto min-w-0">
             <table class="table table-zebra">
                 <thead>
@@ -71,27 +71,20 @@
                                     <a href="{{ route('sekolah.edit', $s) }}" class="btn btn-sm btn-warning">Ubah</a>
                                 @endif
                                 @if (auth()->user()->hasRole('kabid_ptk'))
-                                    <form method="POST" action="{{ route('sekolah.destroy', $s) }}" class="inline"
-                                          onsubmit="return confirm('Hapus {{ $s->nama }} beserta kebutuhan gurunya?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-error">Hapus</button>
-                                    </form>
+                                    <x-hapus :aksi="route('sekolah.destroy', $s)" tanya="Hapus {{ $s->nama }} beserta kebutuhan gurunya?" />
                                 @endif
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="text-center opacity-60 py-8">Tidak ada data sekolah yang cocok.</td></tr>
+                        <x-kosong pesan="Tidak ada data sekolah yang cocok." kolom="7" />
                     @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
+    </x-kartu>
 
     <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
-        <p class="text-sm opacity-70">
-            Menampilkan {{ $daftarSekolah->firstItem() ?? 0 }}–{{ $daftarSekolah->lastItem() ?? 0 }}
-            dari {{ $daftarSekolah->total() }} data
-        </p>
+        <x-info-halaman :data="$daftarSekolah" />
         {{ $daftarSekolah->links() }}
     </div>
 </div>

@@ -8,15 +8,7 @@
         <a href="{{ route('usulan.index') }}" class="btn btn-ghost">← Kembali</a>
     </div>
 
-    @if ($errors->any())
-        <div class="alert alert-error mb-4">
-            <ul class="list-disc list-inside text-sm">
-                @foreach ($errors->all() as $pesan)
-                    <li>{{ $pesan }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <x-galat />
 
     <div class="grid gap-4 lg:grid-cols-2">
         <div class="card bg-base-100 shadow-xl">

@@ -64,15 +64,7 @@
                     <p class="opacity-60 mb-4">Masuk untuk mengelola data penempatan guru</p>
 
                     {{-- Pesan error (validasi / login gagal) --}}
-                    @if ($errors->any())
-                        <div class="alert alert-error mb-4">
-                            <ul class="list-disc list-inside text-sm">
-                                @foreach ($errors->all() as $pesan)
-                                    <li>{{ $pesan }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+                    <x-galat />
 
                     <form method="POST" action="{{ route('login.proses') }}">
                         @csrf

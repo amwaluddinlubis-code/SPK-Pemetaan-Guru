@@ -1,6 +1,6 @@
 {{-- Tabel Jejak Audit (Livewire): filter + pagination tanpa reload. --}}
 <div>
-    <div class="card bg-base-100 shadow p-4 mb-4">
+    <x-kartu class="mb-4 p-4">
         <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
             <div>
                 <label class="label"><span class="label-text">Aksi</span></label>
@@ -42,9 +42,9 @@
                 <button wire:click="resetFilter" class="btn btn-ghost btn-sm">Reset</button>
             </div>
         @endif
-    </div>
+    </x-kartu>
 
-    <div class="card bg-base-100 shadow overflow-x-auto">
+    <x-kartu class="overflow-x-auto">
         <table class="table table-zebra table-sm">
             <thead>
                 <tr><th>Waktu</th><th>Aktor</th><th>Aksi</th><th>Entitas</th><th>Hasil</th><th>Detail</th></tr>
@@ -70,11 +70,11 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="text-center opacity-60 py-6">Belum ada catatan audit.</td></tr>
+                    <x-kosong pesan="Belum ada catatan audit." kolom="6" />
                 @endforelse
             </tbody>
         </table>
-    </div>
+    </x-kartu>
 
     <div class="mt-4">{{ $log->links() }}</div>
 </div>

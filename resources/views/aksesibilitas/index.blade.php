@@ -39,7 +39,7 @@
                     <td class="text-right {{ $d['di_atas_15km'] > 0 ? 'text-warning font-bold' : '' }}">{{ $d['di_atas_15km'] }}</td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="text-center py-8 opacity-60">Tidak ada data jarak yang valid.</td></tr>
+                <x-kosong pesan="Tidak ada data jarak yang valid." kolom="6" />
             @endforelse
         </tbody>
         <tfoot>

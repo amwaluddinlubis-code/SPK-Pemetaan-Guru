@@ -12,7 +12,7 @@
         @endforeach
     </div>
 
-    <div class="overflow-x-auto bg-base-100 rounded-box shadow">
+    <x-kartu class="overflow-x-auto">
         <table class="table table-zebra">
             <thead>
                 <tr>
@@ -117,7 +117,7 @@
                 @endforelse
             </tbody>
         </table>
-    </div>
+    </x-kartu>
 
     <div class="mt-4">
         {{ $swaps->links() }}

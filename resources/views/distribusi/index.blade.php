@@ -55,7 +55,7 @@
                     <td class="text-right">{{ $d['dalam_proses'] }}</td>
                 </tr>
             @empty
-                <tr><td colspan="7" class="text-center py-8 opacity-60">Tidak ada data untuk filter ini.</td></tr>
+                <x-kosong pesan="Tidak ada data untuk filter ini." kolom="7" />
             @endforelse
         </tbody>
     </table>

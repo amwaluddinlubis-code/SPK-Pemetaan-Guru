@@ -7,15 +7,7 @@
 
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
-            @if ($errors->any())
-                <div class="alert alert-error">
-                    <ul class="list-disc list-inside text-sm">
-                        @foreach ($errors->all() as $pesan)
-                            <li>{{ $pesan }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+            <x-galat />
 
             <form method="POST" action="{{ route('usulan.store') }}">
                 @csrf

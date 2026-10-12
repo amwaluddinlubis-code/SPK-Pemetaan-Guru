@@ -7,24 +7,22 @@
      tugasnya melebihi ambang batas ke sekolah terdekat yang kekurangan
      formasi untuk mata pelajarannya. Daftar di bawah Livewire (tanpa reload). --}}
 
-<div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-    <div>
-        <h1 class="text-2xl font-bold">🎯 SPK Penempatan</h1>
-        <p class="text-sm opacity-70 mt-1">
-            Rekomendasi pengisian formasi: guru dengan jarak tugas &gt; {{ \App\Http\Controllers\SpkController::AMBANG_KM }} km
-            dipasangkan ke sekolah terdekat yang kekurangan mapelnya.
-        </p>
-    </div>
-
-    {{-- Tombol generate: khusus administrator (kabid_ptk) --}}
-    @if (auth()->user()->hasRole('kabid_ptk'))
-        <form method="POST" action="{{ route('spk.generate') }}"
-              onsubmit="return confirm('Jalankan SPK untuk semua guru yang jaraknya melebihi {{ \App\Http\Controllers\SpkController::AMBANG_KM }} km?')">
-            @csrf
-            <button type="submit" class="btn btn-primary">⚙️ Generate SPK</button>
-        </form>
-    @endif
-</div>
+<x-halaman judul="🎯 SPK Penempatan">
+    <x-slot:deskripsi>
+        Rekomendasi pengisian formasi: guru dengan jarak tugas &gt; {{ \App\Http\Controllers\SpkController::AMBANG_KM }} km
+        dipasangkan ke sekolah terdekat yang kekurangan mapelnya.
+    </x-slot:deskripsi>
+    <x-slot:aksi>
+        {{-- Tombol generate: khusus administrator (kabid_ptk) --}}
+        @if (auth()->user()->hasRole('kabid_ptk'))
+            <form method="POST" action="{{ route('spk.generate') }}"
+                  onsubmit="return confirm('Jalankan SPK untuk semua guru yang jaraknya melebihi {{ \App\Http\Controllers\SpkController::AMBANG_KM }} km?')">
+                @csrf
+                <button type="submit" class="btn btn-primary">⚙️ Generate SPK</button>
+            </form>
+        @endif
+    </x-slot:aksi>
+</x-halaman>
 
 @livewire('tabel-spk')
 @endsection

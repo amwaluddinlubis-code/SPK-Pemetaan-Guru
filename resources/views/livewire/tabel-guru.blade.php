@@ -1,6 +1,6 @@
 {{-- Tabel Data Guru (Livewire): pencarian, filter, sorting, pagination tanpa reload. --}}
 <div>
-    <div class="card bg-base-100 shadow-xl mb-4">
+    <x-kartu class="mb-4">
         <div class="card-body py-3">
             <div class="flex flex-wrap gap-2">
                 <input type="text" wire:model.live.debounce.500ms="q"
@@ -26,9 +26,9 @@
                 </p>
             @endif
         </div>
-    </div>
+    </x-kartu>
 
-    <div class="card bg-base-100 shadow-xl overflow-hidden hidden md:block" data-testid="tabel-guru-desktop">
+    <x-kartu class="overflow-hidden hidden md:block" data-testid="tabel-guru-desktop">
         <div class="card-body p-0 overflow-x-auto min-w-0">
             <table class="table table-zebra">
                 <thead>
@@ -77,21 +77,17 @@
                                     <a href="{{ route('guru.edit', $g) }}" class="btn btn-sm btn-warning">Ubah</a>
                                 @endif
                                 @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah'))
-                                    <form method="POST" action="{{ route('guru.destroy', $g) }}" class="inline"
-                                          onsubmit="return confirm('Hapus data {{ $g->nama }}?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-error">Hapus</button>
-                                    </form>
+                                    <x-hapus :aksi="route('guru.destroy', $g)" tanya="Hapus data {{ $g->nama }}?" />
                                 @endif
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="8" class="text-center opacity-60 py-8">Tidak ada data guru yang cocok.</td></tr>
+                        <x-kosong pesan="Tidak ada data guru yang cocok." kolom="8" />
                     @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
+    </x-kartu>
 
     {{-- Tampilan kartu untuk mobile (pengganti tabel yang terlalu lebar) --}}
     <div class="grid gap-3 md:hidden" data-testid="kartu-guru-mobile">
@@ -124,25 +120,18 @@
                             <a href="{{ route('guru.edit', $g) }}" class="btn btn-sm btn-warning">Ubah</a>
                         @endif
                         @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah'))
-                            <form method="POST" action="{{ route('guru.destroy', $g) }}" class="inline"
-                                  onsubmit="return confirm('Hapus data {{ $g->nama }}?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-error">Hapus</button>
-                            </form>
+                            <x-hapus :aksi="route('guru.destroy', $g)" tanya="Hapus data {{ $g->nama }}?" />
                         @endif
                     </div>
                 </div>
             </div>
         @empty
-            <p class="text-center opacity-60 py-8">Tidak ada data guru yang cocok.</p>
+            <x-kosong pesan="Tidak ada data guru yang cocok." />
         @endforelse
     </div>
 
     <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
-        <p class="text-sm opacity-70">
-            Menampilkan {{ $daftarGuru->firstItem() ?? 0 }}–{{ $daftarGuru->lastItem() ?? 0 }}
-            dari {{ $daftarGuru->total() }} data
-        </p>
+        <x-info-halaman :data="$daftarGuru" />
         {{ $daftarGuru->links() }}
     </div>
 </div>

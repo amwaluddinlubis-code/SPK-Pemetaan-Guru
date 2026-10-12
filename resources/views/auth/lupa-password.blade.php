@@ -16,7 +16,7 @@
                 <div class="alert alert-success text-sm">{{ session('sukses') }}</div>
             @endif
             @if ($errors->any())
-                <div class="alert alert-error text-sm">{{ $errors->first() }}</div>
+                <x-galat />
             @endif
 
             <form method="POST" action="{{ route('password.email') }}" class="space-y-4 mt-2">

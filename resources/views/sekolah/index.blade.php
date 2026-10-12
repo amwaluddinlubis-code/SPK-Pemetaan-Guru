@@ -3,10 +3,9 @@
 @section('judul', 'Data Sekolah — PetaPenempatan ASN')
 
 @section('konten')
-    <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
-        <h1 class="text-2xl font-bold">🏫 Data Sekolah</h1>
-        @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
-            <div class="flex flex-wrap gap-2">
+    <x-halaman judul="🏫 Data Sekolah">
+        <x-slot:aksi>
+            @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
                 @if (auth()->user()->hasRole('kabid_ptk'))
                     <a href="{{ route('sekolah.import') }}" class="btn btn-secondary">📥 Import Excel</a>
                 @endif
@@ -15,13 +14,13 @@
                 @if (auth()->user()->hasRole('kabid_ptk'))
                     <a href="{{ route('sekolah.create') }}" class="btn btn-primary">+ Tambah Sekolah</a>
                 @endif
-            </div>
-        @endif
-    </div>
+            @endif
+        </x-slot:aksi>
+    </x-halaman>
 
     {{-- Rincian baris yang gagal saat import terakhir --}}
     @if (session('import_gagal'))
-        <div class="alert alert-warning mb-4">
+        <x-alert tipe="warning" class="mb-4">
             <div class="text-sm">
                 <strong>⚠️ Baris yang gagal diimpor:</strong>
                 <ul class="list-disc list-inside mt-1">
@@ -30,7 +29,7 @@
                     @endforeach
                 </ul>
             </div>
-        </div>
+        </x-alert>
     @endif
 
     @livewire('tabel-sekolah')
