@@ -20,9 +20,9 @@
             <form method="POST" action="{{ route('usulan.store') }}">
                 @csrf
                 <div class="grid gap-4 sm:grid-cols-2">
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Guru yang diusulkan</span>
-                        <select name="guru_id" class="select select-bordered w-full" required>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Guru yang diusulkan</legend>
+                        <select name="guru_id" class="select w-full" required>
                             <option value="">— Pilih guru —</option>
                             @foreach ($daftarGuru as $g)
                                 <option value="{{ $g->id }}"
@@ -31,10 +31,10 @@
                                 </option>
                             @endforeach
                         </select>
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Sekolah Tujuan</span>
-                        <select name="sekolah_id" class="select select-bordered w-full" required>
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Sekolah Tujuan</legend>
+                        <select name="sekolah_id" class="select w-full" required>
                             <option value="">— Pilih sekolah —</option>
                             @foreach ($daftarSekolah as $s)
                                 <option value="{{ $s->id }}"
@@ -43,13 +43,13 @@
                                 </option>
                             @endforeach
                         </select>
-                    </label>
-                    <label class="form-control w-full sm:col-span-2">
-                        <span class="label-text font-semibold">Alasan Pengajuan (min. 10 karakter)</span>
+                    </fieldset>
+                    <fieldset class="fieldset w-full sm:col-span-2">
+                        <legend class="fieldset-legend font-semibold">Alasan Pengajuan (min. 10 karakter)</legend>
                         <textarea name="alasan" rows="4" required
-                                  class="textarea textarea-bordered w-full"
+                                  class="textarea w-full"
                                   placeholder="mis. Jarak domisili ke sekolah saat ini 12 km; sekolah tujuan butuh guru Matematika dan hanya 1,5 km dari rumah.">{{ old('alasan') }}</textarea>
-                    </label>
+                    </fieldset>
                 </div>
                 <p class="text-xs opacity-60 mt-2">
                     💡 Sekolah tujuan harus membutuhkan mapel guru yang diusulkan.
