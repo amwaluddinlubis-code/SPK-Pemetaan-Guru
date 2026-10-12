@@ -120,6 +120,14 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:kepala_sekolah,kabid_ptk');
     Route::put('/sekolah/{sekolah}', [SekolahController::class, 'update'])->name('sekolah.update')
         ->middleware('role:kepala_sekolah,kabid_ptk');
+    // Analisis kebutuhan guru (hitung otomatis dari rombel × JP): lihat semua peran,
+    // terapkan hanya kepala_sekolah (milik sendiri) & kabid_ptk
+    Route::get('/sekolah/{sekolah}/analisis-kebutuhan', [SekolahController::class, 'analisis'])
+        ->name('sekolah.analisis')
+        ->middleware('role:guru,kepala_sekolah,ketua_pgri,kabid_ptk,kadis');
+    Route::post('/sekolah/{sekolah}/analisis-kebutuhan/terapkan', [SekolahController::class, 'terapkanAnalisis'])
+        ->name('sekolah.analisis.terapkan')
+        ->middleware('role:kepala_sekolah,kabid_ptk');
 
     // --- Kelola Pengguna: kabid_ptk (administrator) ---
     Route::resource('pengguna', UserController::class)

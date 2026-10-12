@@ -25,6 +25,22 @@
                         <input type="text" name="nama" value="{{ old('nama', $sekolah->nama) }}" required
                                class="input w-full" placeholder="SDN 1 Sukamaju">
                     </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Jenjang</legend>
+                        <select name="jenjang" class="select w-full">
+                            <option value="">— Otomatis dari nama —</option>
+                            @foreach (['SD', 'SMP'] as $j)
+                                <option value="{{ $j }}"
+                                    {{ old('jenjang', $sekolah->jenjang) === $j ? 'selected' : '' }}>{{ $j }}</option>
+                            @endforeach
+                        </select>
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Jumlah Rombel</legend>
+                        <input type="number" name="rombel" value="{{ old('rombel', $sekolah->rombel) }}" min="0" max="300"
+                               class="input w-full" placeholder="mis. 6">
+                        <legend class="fieldset-legend-alt">Dari Dapodik (kolom Rombel di CSV ekspor kecamatan) — bahan hitung analisis kebutuhan.</legend>
+                    </fieldset>
                     <fieldset class="fieldset w-full sm:col-span-2">
                         <legend class="fieldset-legend font-semibold">Alamat</legend>
                         <input type="text" name="alamat" value="{{ old('alamat', $sekolah->alamat) }}" required

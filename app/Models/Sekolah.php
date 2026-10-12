@@ -14,6 +14,8 @@ class Sekolah extends Model
     protected $fillable = [
         'npsn',
         'nama',
+        'jenjang',
+        'rombel',
         'alamat',
         'kecamatan',
         'desa_kelurahan',
@@ -44,7 +46,33 @@ class Sekolah extends Model
     protected $casts = [
         'lat' => 'float',
         'lng' => 'float',
+        'rombel' => 'integer',
     ];
+
+    /**
+     * Jenjang efektif: kolom 'jenjang' bila terisi, jika tidak ditebak dari
+     * nama sekolah (mengandung SMP/MTs → SMP, selain itu SD).
+     */
+    public function jenjangEfektif(): string
+    {
+        if (! empty($this->jenjang)) {
+            return strtoupper($this->jenjang);
+        }
+        $nama = strtoupper((string) $this->nama);
+        if (str_contains($nama, 'SMP') || str_contains($nama, 'MTS')) {
+            return 'SMP';
+        }
+
+        return 'SD';
+    }
+
+    /**
+     * Guru-guru yang saat ini bertugas di sekolah ini.
+     */
+    public function guru()
+    {
+        return $this->hasMany(Guru::class);
+    }
 
     /**
      * Satu sekolah punya BANYAK kebutuhan guru (per mata pelajaran).

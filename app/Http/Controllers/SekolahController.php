@@ -12,6 +12,7 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\KebutuhanGuru;
 use App\Models\Sekolah;
+use App\Services\AnalisisKebutuhanGuru;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -20,6 +21,97 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class SekolahController extends Controller
 {
+    /**
+     * Halaman analisis kebutuhan guru: hitung kebutuhan dari rombel (Dapodik)
+     * × JP Permendikdasmen 13/2025, bandingkan dengan guru eksisting.
+     * Read-only untuk semua peran yang boleh melihat data sekolah.
+     */
+    public function analisis(Sekolah $sekolah)
+    {
+        $sekolah->load(['kebutuhan', 'guru']);
+        $jenjang = $sekolah->jenjangEfektif();
+        $rombel = (int) ($sekolah->rombel ?? 0);
+
+        $eksisting = $this->eksistingPerLabel($sekolah, $jenjang);
+        $baris = $rombel > 0
+            ? AnalisisKebutuhanGuru::hitung($jenjang, $rombel, $eksisting)
+            : [];
+
+        return view('sekolah.analisis', [
+            'sekolah' => $sekolah,
+            'jenjang' => $jenjang,
+            'rombel' => $rombel,
+            'baris' => $baris,
+            'bebanMengajar' => AnalisisKebutuhanGuru::BEBAN_MENGAJAR_JP,
+        ]);
+    }
+
+    /**
+     * Terapkan hasil analisis sebagai kebutuhan guru resmi sekolah:
+     * hapus baris kebutuhan lama, simpan hasil hitungan. Dicatat di audit.
+     */
+    public function terapkanAnalisis(Sekolah $sekolah)
+    {
+        $this->otorisasiUbah($sekolah);
+        $sekolah->load('guru');
+        $jenjang = $sekolah->jenjangEfektif();
+        $rombel = (int) ($sekolah->rombel ?? 0);
+
+        if ($rombel <= 0) {
+            return redirect()->route('sekolah.analisis', $sekolah)
+                ->with('galat', 'Isi jumlah rombel sekolah dulu sebelum menerapkan hasil analisis.');
+        }
+
+        $eksisting = $this->eksistingPerLabel($sekolah, $jenjang);
+        $baris = AnalisisKebutuhanGuru::hitung($jenjang, $rombel, $eksisting);
+
+        DB::transaction(function () use ($sekolah, $baris) {
+            $sekolah->kebutuhan()->delete();
+            foreach ($baris as $b) {
+                if ($b['kebutuhan'] <= 0) {
+                    continue;
+                }
+                KebutuhanGuru::create([
+                    'sekolah_id' => $sekolah->id,
+                    'mapel' => $b['label'],
+                    'jumlah' => $b['kebutuhan'],
+                ]);
+            }
+
+            ActivityLog::catatAman('sekolah.terapkan-analisis-kebutuhan', $sekolah, 'sukses', [
+                'jenjang' => $sekolah->jenjangEfektif(),
+                'rombel' => (int) $sekolah->rombel,
+                'baris' => count($baris),
+            ]);
+        });
+
+        return redirect()->route('sekolah.index')
+            ->with('sukses', 'Hasil analisis kebutuhan berhasil diterapkan ke '.$sekolah->nama.'.');
+    }
+
+    /**
+     * Hitung guru eksisting per label kanonis.
+     * SD: guru yang mapelnya bukan PJOK/Agama dihitung sebagai guru kelas.
+     *
+     * @return array<string, int>
+     */
+    private function eksistingPerLabel(Sekolah $sekolah, string $jenjang): array
+    {
+        $eksisting = [];
+        foreach ($sekolah->guru as $guru) {
+            $label = AnalisisKebutuhanGuru::kanonis((string) $guru->mapel);
+            if ($label === '') {
+                continue;
+            }
+            if ($jenjang === 'SD' && ! in_array($label, ['PJOK', 'Agama'], true)) {
+                $label = AnalisisKebutuhanGuru::LABEL_GURU_KELAS;
+            }
+            $eksisting[$label] = ($eksisting[$label] ?? 0) + 1;
+        }
+
+        return $eksisting;
+    }
+
     /**
      * Query dasar yang sudah dibatasi sesuai scope peran pengguna.
      */
@@ -281,6 +373,7 @@ class SekolahController extends Controller
         DB::transaction(function () use ($data) {
             $sekolah = Sekolah::create([
                 'npsn' => $data['npsn'], 'nama' => $data['nama'],
+                'jenjang' => $data['jenjang'] ?? null, 'rombel' => $data['rombel'] ?? null,
                 'alamat' => $data['alamat'], 'kecamatan' => $data['kecamatan'] ?? null,
                 'desa_kelurahan' => $data['desa_kelurahan'] ?? null,
                 'kategori_daerah' => $data['kategori_daerah'] ?? 'biasa',
@@ -317,6 +410,7 @@ class SekolahController extends Controller
         DB::transaction(function () use ($sekolah, $data) {
             $sekolah->update([
                 'npsn' => $data['npsn'], 'nama' => $data['nama'],
+                'jenjang' => $data['jenjang'] ?? null, 'rombel' => $data['rombel'] ?? null,
                 'alamat' => $data['alamat'], 'kecamatan' => $data['kecamatan'] ?? null,
                 'desa_kelurahan' => $data['desa_kelurahan'] ?? null,
                 'kategori_daerah' => $data['kategori_daerah'] ?? 'biasa',
@@ -371,6 +465,8 @@ class SekolahController extends Controller
         return $request->validate([
             'npsn' => ['required', 'string', 'max:20', 'unique:sekolah,npsn'.($kecualiId ? ','.$kecualiId : '')],
             'nama' => ['required', 'string', 'max:100'],
+            'jenjang' => ['nullable', 'in:SD,SMP'],
+            'rombel' => ['nullable', 'integer', 'min:0', 'max:300'],
             'alamat' => ['required', 'string', 'max:255'],
             'kecamatan' => ['nullable', 'string', 'max:100'],
             'desa_kelurahan' => ['nullable', 'string', 'max:100'],

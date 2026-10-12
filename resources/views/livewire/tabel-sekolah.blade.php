@@ -67,6 +67,7 @@
                                 @endforelse
                             </td>
                             <td class="text-right whitespace-nowrap">
+                                <a href="{{ route('sekolah.analisis', $s) }}" class="btn btn-sm btn-info">Analisis</a>
                                 @if (auth()->user()->hasRole('kepala_sekolah', 'kabid_ptk'))
                                     <a href="{{ route('sekolah.edit', $s) }}" class="btn btn-sm btn-warning">Ubah</a>
                                 @endif
