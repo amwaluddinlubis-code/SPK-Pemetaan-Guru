@@ -25,35 +25,35 @@
 
                 <div class="grid gap-4 sm:grid-cols-2" data-testid="form-guru-berseksi">
                     <h3 class="sm:col-span-2 font-bold text-lg border-b pb-2 mt-2">Data Pribadi</h3>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">NIP</span>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">NIP</legend>
                         <input type="text" name="nip" value="{{ old('nip', $guru->nip) }}" required
-                               class="input input-bordered w-full" placeholder="198501012010011001">
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Nama Lengkap</span>
+                               class="input w-full" placeholder="198501012010011001">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Nama Lengkap</legend>
                         <input type="text" name="nama" value="{{ old('nama', $guru->nama) }}" required
-                               class="input input-bordered w-full" placeholder="Siti Aminah">
-                    </label>
-                    <label class="form-control w-full">
+                               class="input w-full" placeholder="Siti Aminah">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
                     <h3 class="sm:col-span-2 font-bold text-lg border-b pb-2 mt-4">Kepegawaian</h3>
-                        <span class="label-text font-semibold">Mata Pelajaran</span>
+                        <legend class="fieldset-legend font-semibold">Mata Pelajaran</legend>
                         <input type="text" name="mapel" value="{{ old('mapel', $guru->mapel) }}" required
-                               class="input input-bordered w-full" placeholder="Matematika">
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Jenjang</span>
-                        <select name="jenjang" class="select select-bordered w-full" required>
+                               class="input w-full" placeholder="Matematika">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Jenjang</legend>
+                        <select name="jenjang" class="select w-full" required>
                             @foreach (['SD', 'SMP', 'SMA'] as $j)
                                 <option value="{{ $j }}" {{ old('jenjang', $guru->jenjang) == $j ? 'selected' : '' }}>
                                     {{ $j }}
                                 </option>
                             @endforeach
                         </select>
-                    </label>
-                    <label class="form-control w-full">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
                     <h3 class="sm:col-span-2 font-bold text-lg border-b pb-2 mt-4">Domisili</h3>
-                        <span class="label-text font-semibold">Kecamatan Domisili</span>
+                        <legend class="fieldset-legend font-semibold">Kecamatan Domisili</legend>
                         @php
                             // Nilai kecamatan saat ini (tetap ditampilkan walau tak ada di daftar)
                             $kecAktif = old('kecamatan', $guru->kecamatan);
@@ -61,7 +61,7 @@
                                 ? $daftarKecamatan
                                 : $daftarKecamatan->concat([$kecAktif])->sort()->values();
                         @endphp
-                        <select name="kecamatan" class="select select-bordered w-full">
+                        <select name="kecamatan" class="select w-full">
                             <option value="">— Pilih Kecamatan —</option>
                             @foreach ($opsiKec as $kec)
                                 <option value="{{ $kec }}" {{ $kecAktif == $kec ? 'selected' : '' }}>
@@ -69,16 +69,16 @@
                                 </option>
                             @endforeach
                         </select>
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Desa / Kelurahan Domisili</span>
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Desa / Kelurahan Domisili</legend>
                         <input type="text" name="desa_kelurahan"
                                value="{{ old('desa_kelurahan', $guru->desa_kelurahan) }}"
-                               class="input input-bordered w-full" placeholder="cth: Panyabungan Jae" maxlength="100">
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Status Pernikahan</span>
-                        <select name="status_pernikahan" class="select select-bordered w-full">
+                               class="input w-full" placeholder="cth: Panyabungan Jae" maxlength="100">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Status Pernikahan</legend>
+                        <select name="status_pernikahan" class="select w-full">
                             @foreach (\App\Models\Guru::STATUS_PERNIKAHAN as $kode => $label)
                                 <option value="{{ $kode }}"
                                     {{ old('status_pernikahan', $guru->status_pernikahan ?? 'belum_kawin') === $kode ? 'selected' : '' }}>
@@ -86,11 +86,11 @@
                                 </option>
                             @endforeach
                         </select>
-                    </label>
+                    </fieldset>
                     {{-- Data kepegawaian (administratif: kabid/kepala sekolah) --}}
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Status Kepegawaian</span>
-                        <select name="status_kepegawaian" class="select select-bordered w-full">
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Status Kepegawaian</legend>
+                        <select name="status_kepegawaian" class="select w-full">
                             @foreach (\App\Models\Guru::STATUS_KEPEGAWAIAN as $kode => $label)
                                 <option value="{{ $kode }}"
                                     {{ old('status_kepegawaian', $guru->status_kepegawaian ?? 'pns') === $kode ? 'selected' : '' }}>
@@ -98,25 +98,25 @@
                                 </option>
                             @endforeach
                         </select>
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Sertifikasi Pendidik</span>
-                        <select name="sudah_sertifikasi" class="select select-bordered w-full">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Sertifikasi Pendidik</legend>
+                        <select name="sudah_sertifikasi" class="select w-full">
                             <option value="0" {{ old('sudah_sertifikasi', $guru->sudah_sertifikasi ?? 0) == 0 ? 'selected' : '' }}>Belum sertifikasi</option>
                             <option value="1" {{ old('sudah_sertifikasi', $guru->sudah_sertifikasi ?? 0) == 1 ? 'selected' : '' }}>Sudah sertifikasi</option>
                         </select>
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Mapel Sertifikat (bila sudah sertifikasi)</span>
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Mapel Sertifikat (bila sudah sertifikasi)</legend>
                         <input type="text" name="mapel_sertifikasi"
                                value="{{ old('mapel_sertifikasi', $guru->mapel_sertifikasi) }}"
-                               class="input input-bordered w-full" placeholder="cth: Matematika" maxlength="50">
-                    </label>
+                               class="input w-full" placeholder="cth: Matematika" maxlength="50">
+                    </fieldset>
                     {{-- Sekolah tempat bertugas (administratif) --}}
                     @if (auth()->user()->hasRole('kabid_ptk'))
-                        <label class="form-control w-full">
-                            <span class="label-text font-semibold">Sekolah Tempat Bertugas</span>
-                            <select name="sekolah_id" class="select select-bordered w-full">
+                        <fieldset class="fieldset w-full">
+                            <legend class="fieldset-legend font-semibold">Sekolah Tempat Bertugas</legend>
+                            <select name="sekolah_id" class="select w-full">
                                 <option value="">— Belum terdata di sistem —</option>
                                 @foreach ($daftarSekolah as $s)
                                     <option value="{{ $s->id }}"
@@ -125,7 +125,7 @@
                                     </option>
                                 @endforeach
                             </select>
-                        </label>
+                        </fieldset>
                     @else
                         {{-- Kepala sekolah & guru: tidak bisa mengubah relasi sekolah --}}
                         <input type="hidden" name="sekolah_id" value="{{ $guru->sekolah_id }}">
@@ -135,24 +135,24 @@
                 <div class="divider">Domisili (rumah)</div>
 
                 <div class="grid gap-4 sm:grid-cols-2">
-                    <label class="form-control w-full sm:col-span-2">
-                        <span class="label-text font-semibold">Alamat Domisili</span>
+                    <fieldset class="fieldset w-full sm:col-span-2">
+                        <legend class="fieldset-legend font-semibold">Alamat Domisili</legend>
                         <input type="text" name="domisili_alamat"
                                value="{{ old('domisili_alamat', $guru->domisili_alamat) }}" required
-                               class="input input-bordered w-full" placeholder="Jl. Mawar No.10, Kec. Sukamaju">
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Latitude</span>
+                               class="input w-full" placeholder="Jl. Mawar No.10, Kec. Sukamaju">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Latitude</legend>
                         <input type="text" id="domisili_lat" name="domisili_lat"
                                value="{{ old('domisili_lat', $guru->domisili_lat) }}" required
-                               class="input input-bordered w-full" placeholder="0.7900">
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Longitude</span>
+                               class="input w-full" placeholder="0.7900">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Longitude</legend>
                         <input type="text" id="domisili_lng" name="domisili_lng"
                                value="{{ old('domisili_lng', $guru->domisili_lng) }}" required
-                               class="input input-bordered w-full" placeholder="99.4100">
-                    </label>
+                               class="input w-full" placeholder="99.4100">
+                    </fieldset>
                 </div>
 
                 {{-- Peta pemilih koordinat domisili (default: tengah Kab. Madina) --}}
@@ -172,24 +172,24 @@
                 <div class="divider">Sekolah tempat bertugas saat ini</div>
 
                 <div class="grid gap-4 sm:grid-cols-2">
-                    <label class="form-control w-full sm:col-span-2">
-                        <span class="label-text font-semibold">Nama Sekolah</span>
+                    <fieldset class="fieldset w-full sm:col-span-2">
+                        <legend class="fieldset-legend font-semibold">Nama Sekolah</legend>
                         <input type="text" name="sekolah_saat_ini"
                                value="{{ old('sekolah_saat_ini', $guru->sekolah_saat_ini) }}" required
-                               class="input input-bordered w-full" placeholder="SDN 5 Cijauh">
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Latitude Sekolah</span>
+                               class="input w-full" placeholder="SDN 5 Cijauh">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Latitude Sekolah</legend>
                         <input type="text" id="sekolah_saat_ini_lat" name="sekolah_saat_ini_lat"
                                value="{{ old('sekolah_saat_ini_lat', $guru->sekolah_saat_ini_lat) }}"
-                               class="input input-bordered w-full" placeholder="0.7900">
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Longitude Sekolah</span>
+                               class="input w-full" placeholder="0.7900">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Longitude Sekolah</legend>
                         <input type="text" id="sekolah_saat_ini_lng" name="sekolah_saat_ini_lng"
                                value="{{ old('sekolah_saat_ini_lng', $guru->sekolah_saat_ini_lng) }}"
-                               class="input input-bordered w-full" placeholder="99.4100">
-                    </label>
+                               class="input w-full" placeholder="99.4100">
+                    </fieldset>
                 </div>
 
                 {{-- Peta pemilih koordinat sekolah tempat bertugas --}}
