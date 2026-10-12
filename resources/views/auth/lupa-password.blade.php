@@ -21,11 +21,11 @@
 
             <form method="POST" action="{{ route('password.email') }}" class="space-y-4 mt-2">
                 @csrf
-                <label class="form-control w-full">
-                    <span class="label-text font-semibold">Email</span>
+                <fieldset class="fieldset w-full">
+                    <legend class="fieldset-legend font-semibold">Email</legend>
                     <input type="email" name="email" required value="{{ old('email') }}"
-                           class="input input-bordered w-full" placeholder="nama@contoh.id" autofocus>
-                </label>
+                           class="input w-full" placeholder="nama@contoh.id" autofocus>
+                </fieldset>
                 <button type="submit" class="btn btn-primary w-full">Kirim Tautan Reset</button>
             </form>
 
