@@ -22,13 +22,13 @@
 </div>
 
 <form method="GET" action="{{ route('distribusi.index') }}" class="flex gap-2 mb-4">
-    <select name="kecamatan" class="select select-bordered select-sm">
+    <select name="kecamatan" class="select select-sm">
         <option value="">Semua kecamatan</option>
         @foreach ($filter['kecamatan'] as $k)
             <option value="{{ $k }}" @selected(request('kecamatan') === $k)>{{ $k }}</option>
         @endforeach
     </select>
-    <select name="mapel" class="select select-bordered select-sm">
+    <select name="mapel" class="select select-sm">
         <option value="">Semua mapel</option>
         @foreach ($filter['mapel'] as $m)
             <option value="{{ $m }}" @selected(request('mapel') === $m)>{{ $m }}</option>
