@@ -1,4 +1,5 @@
 <?php
+
 // Controller CRUD Pengguna (akun login 5 peran).
 // Hanya untuk kadis & kabid_ptk (dibatasi middleware 'role' di routes).
 // Route: /pengguna
@@ -14,28 +15,13 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * Halaman index dirender komponen Livewire TabelPengguna
+     * (pencarian, filter peran, pagination tanpa reload).
+     */
+    public function index()
     {
-        $query = User::with(['guru', 'sekolah']);
-
-        // Pencarian teks: nama, email
-        $kataKunci = trim($request->get('q', ''));
-        if ($kataKunci !== '') {
-            $query->where(function ($w) use ($kataKunci) {
-                $w->where('name', 'like', "%{$kataKunci}%")
-                    ->orWhere('email', 'like', "%{$kataKunci}%");
-            });
-        }
-
-        // Filter peran
-        $filterRole = $request->get('role', '');
-        if ($filterRole !== '' && array_key_exists($filterRole, User::ROLES)) {
-            $query->where('role', $filterRole);
-        }
-
-        $daftarUser = $query->orderBy('name')->paginate(15)->withQueryString();
-
-        return view('pengguna.index', compact('daftarUser'));
+        return view('pengguna.index');
     }
 
     public function create()
@@ -114,14 +100,14 @@ class UserController extends Controller
     private function validasi(Request $request, ?int $kecualiId = null): array
     {
         $aturan = [
-            'name'  => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255',
-                        Rule::unique('users', 'email')->ignore($kecualiId)],
-            'role'  => ['required', Rule::in(array_keys(User::ROLES))],
+                Rule::unique('users', 'email')->ignore($kecualiId)],
+            'role' => ['required', Rule::in(array_keys(User::ROLES))],
             // Relasi opsional sesuai peran
-            'guru_id'    => ['nullable', 'exists:guru,id'],
+            'guru_id' => ['nullable', 'exists:guru,id'],
             'sekolah_id' => ['nullable', 'exists:sekolah,id'],
-            'kecamatan'  => ['nullable', 'string', 'max:100'],
+            'kecamatan' => ['nullable', 'string', 'max:100'],
         ];
 
         // Password wajib saat tambah, opsional saat ubah

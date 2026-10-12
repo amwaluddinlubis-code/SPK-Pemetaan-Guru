@@ -8,6 +8,7 @@ dengan komponen UI dari **daisyUI**.
 - 🗺️ Dashboard peta interaktif (Leaflet + OpenStreetMap, gratis)
 - 🎯 Rekomendasi sekolah terdekat yang membutuhkan mapel guru (otomatis, tanpa reload — Livewire)
 - 🔍 Pencarian + filter kecamatan di tabel guru & sekolah, filter peran di tabel pengguna
+- ⚡ Semua tabel interaktif Livewire (cari/filter/sortir/pagination tanpa reload; filter sinkron URL)
 - 📍 Pemilih koordinat klik-peta di form guru & sekolah (klik/geser pin → lat/lng terisi otomatis)
 - 👩‍🏫 CRUD Data Guru (NIP, mapel, domisili + koordinat; kecamatan berupa dropdown)
 - 📥 Import massal data guru dari Excel/CSV + unduh template (khusus administrator)

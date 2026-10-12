@@ -154,3 +154,13 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - Run `vendor/bin/phpunit` to call the test runner directly. It accepts the same file path and `--filter=testName` arguments.
 
 </laravel-boost-guidelines>
+
+## Aturan Livewire Proyek (wajib)
+
+1. Semua tabel/daftar interaktif (cari, filter, sortir, pagination) WAJIB komponen Livewire di App\Livewire\Tabel* + view livewire/tabel-*.blade.php. Dilarang form GET + reload untuk interaksi tabel.
+2. Properti filter sinkron ke URL via #[Url]; input teks pakai wire:model.live.debounce.500ms; select/date pakai wire:model.live.
+3. Kolom sortir WAJIB whitelist di konstanta KOLOM_SORTIR + method urutkan(); setiap filter berubah WAJIB resetPage(); sediakan resetFilter().
+4. Scope peran + otorisasi (SEC-001/SEC-003) ditegakkan di dalam komponen, bukan di Blade. Jangan andalkan sembunyi tombol.
+5. Controller index() hanya return view (header + tombol aksi tetap Blade). Logika query daftar tidak boleh di controller (kecuali dipakai ulang export/cetak).
+6. Alpine.js hanya untuk interaksi trivial tanpa state server (dropdown, toggle, confirm). Peta memakai wire:ignore.
+7. Setiap tabel Livewire WAJIB diuji: render awal + filter + scope peran via Livewire::test().

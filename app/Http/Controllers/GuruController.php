@@ -9,9 +9,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Guru;
 use App\Models\Sekolah;
-use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -65,38 +65,13 @@ class GuruController extends Controller
         return $query;
     }
 
-    public function index(Request $request)
+    /**
+     * Halaman index dirender komponen Livewire TabelGuru
+     * (pencarian, filter, sorting, pagination tanpa reload).
+     */
+    public function index()
     {
-        $query = $this->queryScope();
-
-        // Pencarian teks: nama, NIP, mapel, alamat domisili, sekolah saat ini
-        $kataKunci = trim($request->get('q', ''));
-        if ($kataKunci !== '') {
-            $query->where(function ($w) use ($kataKunci) {
-                $w->where('nama', 'like', "%{$kataKunci}%")
-                    ->orWhere('nip', 'like', "%{$kataKunci}%")
-                    ->orWhere('mapel', 'like', "%{$kataKunci}%")
-                    ->orWhere('domisili_alamat', 'like', "%{$kataKunci}%")
-                    ->orWhere('sekolah_saat_ini', 'like', "%{$kataKunci}%");
-            });
-        }
-
-        // Filter kecamatan (disembunyikan di view jika scope peran sudah tetap)
-        $filterKecamatan = $request->get('kecamatan', '');
-        if ($filterKecamatan !== '') {
-            $query->where('kecamatan', $filterKecamatan);
-        }
-
-        // Sorting kolom (whitelist agar aman dari injeksi)
-        $kolomSortir = ['nama', 'nip', 'mapel', 'kecamatan'];
-        $sortir = in_array($request->get('sort'), $kolomSortir, true) ? $request->get('sort') : 'nama';
-        $arah = $request->get('arah') === 'desc' ? 'desc' : 'asc';
-        $query->orderBy($sortir, $arah);
-
-        $daftarGuru = $query->paginate(15)->withQueryString();
-        $daftarKecamatan = $this->daftarKecamatan();
-
-        return view('guru.index', compact('daftarGuru', 'daftarKecamatan', 'sortir', 'arah'));
+        return view('guru.index');
     }
 
     /**
@@ -181,6 +156,7 @@ class GuruController extends Controller
         ActivityLog::catatAman('guru.ubah', $guru, 'sukses', [
             'kolom' => array_keys($data),
         ]);
+
         return redirect()->route('guru.index')
             ->with('sukses', 'Data guru berhasil diperbarui.');
     }
@@ -254,7 +230,7 @@ class GuruController extends Controller
         $baris = 2;
         foreach ($data as $g) {
             $lembar->fromArray([[
-                $g->nip, $g->nama, $g->mapel, $g->jenjang,
+                $g->nipTersamar(), $g->nama, $g->mapel, $g->jenjang,
                 $g->labelStatusPernikahan(), $g->labelStatusKepegawaian(),
                 $g->sudah_sertifikasi ? 'Ya ('.($g->mapel_sertifikasi ?? '-').')' : 'Belum',
                 $g->domisili_alamat, $g->kecamatan, $g->sekolah_saat_ini,

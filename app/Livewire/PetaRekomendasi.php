@@ -54,7 +54,8 @@ class PetaRekomendasi extends Component
      *   guru           → dirinya sendiri
      *   kepala_sekolah → guru di sekolahnya
      *   ketua_pgri     → guru se-kecamatan
-     *   lainnya        → semua (kabid_ptk, kadis, pemda)
+     *   pemda          → tidak ada (minimisasi data: hanya agregat sekolah)
+     *   lainnya        → semua (kabid_ptk, kadis)
      */
     private function scopeGuru($query)
     {
@@ -68,6 +69,8 @@ class PetaRekomendasi extends Component
             $query->where('sekolah_id', $user->sekolah_id);
         } elseif ($user->role === 'ketua_pgri') {
             $query->where('kecamatan', $user->kecamatan);
+        } elseif ($user->role === 'pemda') {
+            $query->whereRaw('1 = 0'); // eksekutif: tanpa identitas guru perorangan
         }
 
         return $query;
@@ -108,6 +111,9 @@ class PetaRekomendasi extends Component
      */
     public function cari(): void
     {
+        // Minimisasi data: peran pemda tidak menjalankan rekomendasi perorangan.
+        abort_if(auth()->check() && auth()->user()->role === 'pemda',
+            403, 'Gunakan halaman Pemda untuk data ringkasan.');
         // Pengaman: role guru tidak bisa mengintip guru lain walau memanipulasi request
         if (auth()->check() && auth()->user()->role === 'guru') {
             $this->guruId = (string) auth()->user()->guru_id;

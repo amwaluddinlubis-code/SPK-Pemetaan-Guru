@@ -26,7 +26,7 @@
         <tbody>
             @foreach ($data as $i => $g)
                 <tr>
-                    <td>{{ $i + 1 }}</td><td>{{ $g->nip }}</td><td>{{ $g->nama }}</td>
+                    <td>{{ $i + 1 }}</td><td>{{ $g->nipTersamar() }}</td><td>{{ $g->nama }}</td>
                     <td>{{ $g->mapel }}</td><td>{{ $g->jenjang }}</td>
                     <td>{{ $g->labelStatusKepegawaian() }}</td>
                     <td>{{ $g->domisili_alamat }}</td><td>{{ $g->sekolah_saat_ini }}</td>

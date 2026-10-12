@@ -5,37 +5,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ActivityLog;
-use App\Models\User;
-use Illuminate\Http\Request;
-
 class AktivitasController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * Halaman index dirender komponen Livewire TabelAktivitas
+     * (filter aksi/aktor/hasil/tanggal, pagination tanpa reload).
+     */
+    public function index()
     {
-        $query = ActivityLog::with('user')->orderByDesc('waktu');
-
-        if ($request->filled('aksi')) {
-            $query->where('aksi', $request->aksi);
-        }
-        if ($request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
-        }
-        if ($request->filled('hasil')) {
-            $query->where('hasil', $request->hasil);
-        }
-        if ($request->filled('dari')) {
-            $query->whereDate('waktu', '>=', $request->dari);
-        }
-        if ($request->filled('sampai')) {
-            $query->whereDate('waktu', '<=', $request->sampai);
-        }
-
-        $daftarAksi = ActivityLog::distinct()->orderBy('aksi')->pluck('aksi');
-        $daftarUser = User::orderBy('name')->get(['id', 'name', 'role']);
-
-        $log = $query->paginate(20)->withQueryString();
-
-        return view('aktivitas.index', compact('log', 'daftarAksi', 'daftarUser'));
+        return view('aktivitas.index');
     }
 }

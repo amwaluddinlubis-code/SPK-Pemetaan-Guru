@@ -131,6 +131,20 @@ class Guru extends Model
     }
 
     /**
+     * NIP tersamar untuk export/cetak (PII): 8 digit depan + bintang + 4 digit belakang.
+     * Contoh: 198501012010011001 → 19850101******1001.
+     */
+    public function nipTersamar(): string
+    {
+        $nip = (string) $this->nip;
+        if (strlen($nip) <= 12) {
+            return str_repeat('*', strlen($nip));
+        }
+
+        return substr($nip, 0, 8).str_repeat('*', strlen($nip) - 12).substr($nip, -4);
+    }
+
+    /**
      * MAP-001: koordinat sekolah tempat bertugas.
      * Sumber kebenaran tunggal = relasi `sekolah` (tabel sekolah).
      * Kolom denormalisasi `sekolah_saat_ini_lat/lng` hanya cache tampilan;

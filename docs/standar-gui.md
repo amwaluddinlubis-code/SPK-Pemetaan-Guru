@@ -172,7 +172,7 @@ Satu status = satu warna, berlaku di semua halaman:
 
 - [ ] `@section('judul', '... — PetaPenempatan ASN')`
 - [ ] Header `h1.text-2xl.font-bold` + tombol aksi kanan (sesuai peran)
-- [ ] Tabel pakai pola kartu + `table-zebra` + `overflow-x-auto`
+- [ ] Tabel interaktif WAJIB komponen Livewire `Tabel*` (lihat Aturan Livewire di AGENTS.md): pola kartu + `table-zebra` + `overflow-x-auto`
 - [ ] Form pakai pola `form-control` + `old()` + error validasi
 - [ ] Badge status mengikuti tabel warna §9
 - [ ] Aksi merusak punya `confirm()`

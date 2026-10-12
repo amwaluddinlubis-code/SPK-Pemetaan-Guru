@@ -27,7 +27,7 @@
             @foreach ($data as $i => $u)
                 <tr>
                     <td>{{ $i + 1 }}</td><td>{{ $u->created_at?->format('d-m-Y') }}</td>
-                    <td>{{ $u->guru?->nama }} ({{ $u->guru?->nip }})</td>
+                    <td>{{ $u->guru?->nama }} ({{ $u->guru?->nipTersamar() }})</td>
                     <td>{{ $u->sekolah?->nama }}</td><td>{{ $u->alasan }}</td>
                     <td>{{ $u->labelStatus() }}</td>
                 </tr>

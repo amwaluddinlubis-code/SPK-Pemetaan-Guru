@@ -13,12 +13,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Guru;
 use App\Models\HasilSpk;
 use App\Models\KebutuhanGuru;
 use App\Models\Sekolah;
-use App\Models\ActivityLog;
-use App\Services\RoutingJalan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -34,79 +33,12 @@ class SpkController extends Controller
     // Daftar rekomendasi SPK — dibatasi scope peran (SEC-003):
     // guru hanya melihat rekomendasinya sendiri, kepala sekolah se-sekolah,
     // ketua PGRI se-kecamatan; kabid/kadis/pemda melihat semua.
-    public function index(Request $request)
+    //
+    // Halaman index dirender komponen Livewire TabelSpk
+    // (filter status, pagination tanpa reload + data kelayakan per halaman).
+    public function index()
     {
-        $query = HasilSpk::with(['guru.sekolah', 'sekolahTujuan', 'diprosesOleh']);
-        $query = $this->terapkanScopePeran($query);
-
-        // Filter status via ?status=rekomendasi
-        if ($request->filled('status') && array_key_exists($request->status, HasilSpk::STATUS)) {
-            $query->where('status', $request->status);
-        }
-
-        // Urutkan: yang masih rekomendasi dulu, lalu jarak terdekat
-        $spks = $query
-            ->orderByRaw("FIELD(status, 'rekomendasi', 'disetujui', 'ditolak')")
-            ->orderBy('jarak_km')
-            ->paginate(20)
-            ->withQueryString();
-
-        return view('spk.index', [
-            'spks' => $spks,
-            'statusAktif' => $request->status,
-            'ambangKm' => self::AMBANG_KM,
-            // SPK-003: sisa formasi per (sekolah, mapel) untuk kolom penjelasan
-            'sisaKuota' => KebutuhanGuru::sisaDenganAlokasi(),
-            // Analisis kepegawaian: dampak mutasi ke sekolah asal.
-            // Bila sekolah asal kekurangan guru mapel yang sama, mutasi akan
-            // memperparah — tampil sebagai peringatan di kolom Kelayakan.
-            'dampakAsal' => $this->petaDampakAsal($spks->getCollection()),
-            // Hybrid routing: jarak jalan untuk rekomendasi yang ditampilkan
-            // (cache dulu, API bila miss, fallback Haversine).
-            'jarakJalan' => $this->petaJarakJalan($spks->getCollection()),
-        ]);
-    }
-
-    // Ambil jarak jalan untuk koleksi rekomendasi (hybrid: cache → API → fallback).
-    // Hanya untuk item yang ditampilkan (paginasi), bukan seluruh kandidat.
-    private function petaJarakJalan($spks): array
-    {
-        $routing = app(RoutingJalan::class);
-        $hasil = [];
-
-        foreach ($spks as $s) {
-            $guru = $s->guru;
-            $tujuan = $s->sekolahTujuan;
-            if (! $guru || ! $tujuan || ! $guru->domisili_lat || ! $tujuan->lat) {
-                continue;
-            }
-            $hasil[$s->id] = $routing->jarak(
-                (float) $guru->domisili_lat, (float) $guru->domisili_lng,
-                (float) $tujuan->lat, (float) $tujuan->lng
-            );
-        }
-
-        return $hasil;
-    }
-
-    /**
-     * Batasi daftar rekomendasi sesuai scope peran pengguna (SEC-003).
-     */
-    private function terapkanScopePeran($query)
-    {
-        $user = auth()->user();
-        if (! $user) {
-            return $query->whereRaw('1 = 0');
-        }
-        if ($user->role === 'guru') {
-            $query->where('hasil_spks.guru_id', $user->guru_id);
-        } elseif ($user->role === 'kepala_sekolah') {
-            $query->whereHas('guru', fn ($q) => $q->where('sekolah_id', $user->sekolah_id));
-        } elseif ($user->role === 'ketua_pgri') {
-            $query->whereHas('guru', fn ($q) => $q->where('kecamatan', $user->kecamatan));
-        }
-
-        return $query;
+        return view('spk.index');
     }
 
     /**

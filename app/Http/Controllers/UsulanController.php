@@ -10,10 +10,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Guru;
 use App\Models\Sekolah;
 use App\Models\UsulanPenempatan;
-use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -43,34 +43,13 @@ class UsulanController extends Controller
         return $query->latest();
     }
 
-    public function index(Request $request)
+    /**
+     * Halaman index dirender komponen Livewire TabelUsulan
+     * (pencarian, filter status, sorting, pagination tanpa reload).
+     */
+    public function index()
     {
-        $query = $this->queryScope();
-
-        // Pencarian nama/NIP guru
-        $kataKunci = trim($request->get('q', ''));
-        if ($kataKunci !== '') {
-            $query->whereHas('guru', function ($w) use ($kataKunci) {
-                $w->where('nama', 'like', "%{$kataKunci}%")
-                    ->orWhere('nip', 'like', "%{$kataKunci}%");
-            });
-        }
-
-        // Filter status
-        $filterStatus = $request->get('status', '');
-        if ($filterStatus !== '' && array_key_exists($filterStatus, UsulanPenempatan::STATUS)) {
-            $query->where('status', $filterStatus);
-        }
-
-        // Sorting kolom (whitelist agar aman dari injeksi)
-        $kolomSortir = ['created_at', 'status'];
-        $sortir = in_array($request->get('sort'), $kolomSortir, true) ? $request->get('sort') : 'created_at';
-        $arah = $request->get('arah') === 'asc' ? 'asc' : 'desc';
-        $query->orderBy($sortir, $arah);
-
-        $daftarUsulan = $query->paginate(15)->withQueryString();
-
-        return view('usulan.index', compact('daftarUsulan', 'sortir', 'arah'));
+        return view('usulan.index');
     }
 
     /**
@@ -88,7 +67,7 @@ class UsulanController extends Controller
         $baris = 2;
         foreach ($data as $u) {
             $lembar->fromArray([[
-                $u->created_at?->format('d-m-Y'), $u->guru?->nama, $u->guru?->nip,
+                $u->created_at?->format('d-m-Y'), $u->guru?->nama, $u->guru?->nipTersamar(),
                 $u->sekolah?->nama, $u->alasan, $u->labelStatus(),
             ]], null, "A{$baris}");
             $baris++;

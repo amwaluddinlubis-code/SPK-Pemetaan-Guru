@@ -8,19 +8,19 @@
 //   kadis          → reviewer (read-only semua)
 //   pemda          → eksekutif daerah (dashboard ringkasan, read-only)
 
+use App\Http\Controllers\AksesibilitasController;
+use App\Http\Controllers\AktivitasController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AktivitasController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DistribusiController;
-use App\Http\Controllers\AksesibilitasController;
 use App\Http\Controllers\GuruController;
-use App\Http\Controllers\ProyeksiController;
-use App\Http\Controllers\SimulasiController;
 use App\Http\Controllers\KualitasDataController;
 use App\Http\Controllers\PemdaController;
 use App\Http\Controllers\ProfilController;
+use App\Http\Controllers\ProyeksiController;
 use App\Http\Controllers\SekolahController;
+use App\Http\Controllers\SimulasiController;
 use App\Http\Controllers\SpkController;
 use App\Http\Controllers\SwapController;
 use App\Http\Controllers\UserController;
@@ -78,11 +78,11 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:kabid_ptk');
     Route::get('/guru/contoh-template', [GuruController::class, 'unduhTemplate'])->name('guru.template')
         ->middleware('role:kabid_ptk');
-    // Export Excel & cetak/PDF: kabid_ptk, kepala_sekolah
+    // Export Excel & cetak/PDF: kabid_ptk, kepala_sekolah, kadis (reviewer)
     Route::get('/guru/export', [GuruController::class, 'export'])->name('guru.export')
-        ->middleware('role:kabid_ptk,kepala_sekolah');
+        ->middleware('role:kabid_ptk,kepala_sekolah,kadis');
     Route::get('/guru/cetak', [GuruController::class, 'cetak'])->name('guru.cetak')
-        ->middleware('role:kabid_ptk,kepala_sekolah');
+        ->middleware('role:kabid_ptk,kepala_sekolah,kadis');
     // Ubah: guru (milik sendiri), kepala_sekolah (di sekolahnya), kabid_ptk
     Route::get('/guru/{guru}/edit', [GuruController::class, 'edit'])->name('guru.edit')
         ->middleware('role:guru,kepala_sekolah,kabid_ptk');
@@ -96,11 +96,11 @@ Route::middleware('auth')->group(function () {
     // Lihat: semua peran (controller membatasi cakupan data)
     Route::get('/sekolah', [SekolahController::class, 'index'])->name('sekolah.index')
         ->middleware('role:guru,kepala_sekolah,ketua_pgri,kabid_ptk,kadis');
-    // Export Excel & cetak/PDF: kabid_ptk
+    // Export Excel & cetak/PDF: kabid_ptk, kadis (reviewer)
     Route::get('/sekolah/export', [SekolahController::class, 'export'])->name('sekolah.export')
-        ->middleware('role:kabid_ptk');
+        ->middleware('role:kabid_ptk,kadis');
     Route::get('/sekolah/cetak', [SekolahController::class, 'cetak'])->name('sekolah.cetak')
-        ->middleware('role:kabid_ptk');
+        ->middleware('role:kabid_ptk,kadis');
     // Import Excel: khusus kabid_ptk (administrator)
     Route::get('/sekolah/import', [SekolahController::class, 'importForm'])->name('sekolah.import')
         ->middleware('role:kabid_ptk');

@@ -8,9 +8,11 @@
         <div class="card-body p-3">
             <div wire:ignore id="peta-asn" style="height: 480px;" class="rounded-xl z-0"></div>
             <div class="flex gap-4 text-sm mt-2 px-1">
-                <span class="flex items-center gap-1">
-                    <span class="inline-block w-3.5 h-3.5 rounded-full bg-blue-600"></span> Guru
-                </span>
+                @unless (auth()->user()->hasRole('pemda'))
+                    <span class="flex items-center gap-1">
+                        <span class="inline-block w-3.5 h-3.5 rounded-full bg-blue-600"></span> Guru
+                    </span>
+                @endunless
                 <span class="flex items-center gap-1">
                     <span class="inline-block w-3.5 h-3.5 rounded-full bg-green-600"></span> Sekolah
                 </span>
@@ -23,6 +25,18 @@
         <div class="card-body">
             <h2 class="card-title">🎯 Rekomendasi Penempatan</h2>
 
+            @if (auth()->user()->hasRole('pemda'))
+                {{-- Minimisasi data: eksekutif hanya melihat sebaran sekolah.
+                     Data ringkasan ada di halaman Pemda & Distribusi. --}}
+                <div class="alert alert-info mt-2">
+                    <span class="text-sm">
+                        Mode ringkasan: peta menampilkan sebaran sekolah tanpa identitas guru.
+                        Buka <a href="{{ route('pemda.dashboard') }}" class="link">Dashboard Pemda</a>
+                        atau <a href="{{ route('distribusi.index') }}" class="link">Distribusi</a>
+                        untuk angka agregat.
+                    </span>
+                </div>
+            @else
             <label class="form-control w-full">
                 <span class="label-text font-semibold">Pilih guru</span>
                 <select wire:model="guruId" class="select select-bordered w-full"
@@ -43,6 +57,7 @@
                 <span wire:loading.remove>Cari Sekolah Terdekat</span>
                 <span wire:loading>Menghitung...</span>
             </button>
+            @endif
 
             {{-- Info guru terpilih --}}
             @if ($infoGuru)

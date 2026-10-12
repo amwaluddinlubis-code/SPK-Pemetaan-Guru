@@ -18,6 +18,17 @@
 `ProyeksiTest` (3) =
 **98 passed, 315 assertions** tercatat pada commit implementasi fitur `fcd858b`. Angka ini tidak mewakili tes setelah audit lanjutan di bawah; gunakan run CI yang SHA-nya cocok dengan commit terbaru untuk status saat ini.
 
+## Konversi tabel ke Livewire (12 Okt 2026)
+
+Tujuh tabel interaktif (guru, sekolah, pengguna, usulan, SPK, swap, aktivitas)
+dipindah ke komponen `App\Livewire\Tabel*` (cari/filter/sortir/pagination
+tanpa reload; filter sinkron URL via `#[Url]`). Aturannya di
+`AGENTS.md`/`CLAUDE.md` ("Aturan Livewire Proyek").
+
+`TabelLivewireTest` (5 test: render awal + filter + scope peran per tabel)
+lolos lokal 12 Okt 2026: total suite **118 test, 402 assertions, 0 gagal**
+(sqlite `:memory:`; angka CI MySQL menyusul via workflow).
+
 ## CI
 
 Workflow `.github/workflows/phpunit.yml` SUDAH ADA di repo (dibuat sesi

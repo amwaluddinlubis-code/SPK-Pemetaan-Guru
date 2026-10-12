@@ -12,40 +12,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Guru;
 use App\Models\RekomendasiSwap;
 use App\Models\UsulanPenempatan;
-use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class SwapController extends Controller
 {
     // Daftar rekomendasi swap (semua peran boleh melihat)
-    public function index(Request $request)
+    /**
+     * Halaman index dirender komponen Livewire TabelSwap
+     * (filter status, pagination tanpa reload).
+     */
+    public function index()
     {
-        $query = RekomendasiSwap::with([
-            'guruA.sekolah', 'guruB.sekolah',
-            'sekolahTujuanA', 'sekolahTujuanB', 'diprosesOleh',
-        ]);
-        $query = $this->terapkanScopePeran($query);
-
-        // Filter status via ?status=menunggu
-        if ($request->filled('status') && array_key_exists($request->status, RekomendasiSwap::STATUS)) {
-            $query->where('status', $request->status);
-        }
-
-        // Urutkan: yang menunggu dulu, lalu total penghematan terbesar
-        $swaps = $query
-            ->orderByRaw("FIELD(status, 'menunggu', 'disetujui', 'ditolak', 'batal_karena_konflik')")
-            ->orderByDesc('total_hemat_km')
-            ->paginate(20)
-            ->withQueryString();
-
-        return view('swap.index', [
-            'swaps' => $swaps,
-            'statusAktif' => $request->status,
-        ]);
+        return view('swap.index');
     }
 
     // Generate rekomendasi (kabid_ptk): cocokkan semua pasangan guru O(N^2)
@@ -313,32 +296,6 @@ class SwapController extends Controller
     }
 
     // Tolak swap (kabid_ptk / kadis)
-    /**
-     * Batasi daftar rekomendasi sesuai scope peran pengguna (SEC-003).
-     */
-    private function terapkanScopePeran($query)
-    {
-        $user = auth()->user();
-        if (! $user) {
-            return $query->whereRaw('1 = 0');
-        }
-        if ($user->role === 'guru') {
-            $query->where(fn ($q) => $q
-                ->where('guru_a_id', $user->guru_id)
-                ->orWhere('guru_b_id', $user->guru_id));
-        } elseif ($user->role === 'kepala_sekolah') {
-            $query->where(fn ($q) => $q
-                ->whereHas('guruA', fn ($s) => $s->where('sekolah_id', $user->sekolah_id))
-                ->orWhereHas('guruB', fn ($s) => $s->where('sekolah_id', $user->sekolah_id)));
-        } elseif ($user->role === 'ketua_pgri') {
-            $query->where(fn ($q) => $q
-                ->whereHas('guruA', fn ($s) => $s->where('kecamatan', $user->kecamatan))
-                ->orWhereHas('guruB', fn ($s) => $s->where('kecamatan', $user->kecamatan)));
-        }
-
-        return $query;
-    }
-
     public function tolak(Request $request, RekomendasiSwap $swap)
     {
         // Alasan penolakan wajib (D) — keputusan harus dapat diaudit.

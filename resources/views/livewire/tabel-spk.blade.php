@@ -1,0 +1,163 @@
+{{-- Tabel SPK Penempatan (Livewire): filter status + pagination tanpa reload. --}}
+<div>
+    {{-- Filter status --}}
+    <div class="flex flex-wrap gap-2 mb-4">
+        <button wire:click="$set('status', '')"
+           class="badge {{ $status === '' ? 'badge-primary' : 'badge-ghost' }} badge-lg">Semua</button>
+        @foreach (\App\Models\HasilSpk::STATUS as $kode => $label)
+            <button wire:click="$set('status', '{{ $kode }}')"
+               class="badge {{ $status === $kode ? 'badge-primary' : 'badge-ghost' }} badge-lg">
+                {{ $label }}
+            </button>
+        @endforeach
+    </div>
+
+    <div class="overflow-x-auto bg-base-100 rounded-box shadow">
+        <table class="table table-zebra">
+            <thead>
+                <tr>
+                    <th>Guru</th>
+                    <th>Sekolah Tujuan</th>
+                    <th>Jarak</th>
+                    <th>Kelayakan</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($spks as $s)
+                    <tr>
+                        {{-- Guru: nama, mapel, sekolah asal + jarak saat ini --}}
+                        <td>
+                            <div class="font-semibold">{{ $s->guru->nama }}</div>
+                            <div class="text-xs opacity-70">{{ $s->guru->mapel }}</div>
+                            <div class="text-xs mt-1">
+                                Asal: {{ $s->guru->sekolah->nama ?? '-' }}
+                            </div>
+                            <div class="text-xs opacity-70">
+                                Jarak sekarang: {{ number_format($s->jarak_sekarang_km, 1, ',', '.') }} km (garis lurus)
+                            </div>
+                        </td>
+
+                        {{-- Sekolah tujuan + jarak usulan (hybrid: jalan bila tersedia) --}}
+                        <td>
+                            <div class="font-semibold text-primary">{{ $s->sekolahTujuan->nama }}</div>
+                            <div class="text-xs opacity-70">{{ $s->sekolahTujuan->kecamatan }}</div>
+                            <div class="text-xs mt-1">
+                                @php $jj = $jarakJalan[$s->id] ?? null; @endphp
+                                @if ($jj && $jj['sumber'] === 'jalan')
+                                    Jarak usulan: <strong>{{ number_format($jj['jarak_km'], 1, ',', '.') }} km</strong>
+                                    <span class="badge badge-info badge-xs" title="Jarak tempuh jalan via routing{{ $jj['cached'] ? ' (cache)' : '' }}{{ $jj['waktu_menit'] ? ' · ±'.$jj['waktu_menit'].' mnt' : '' }}">🚗 jalan</span>
+                                    <br><span class="opacity-60">{{ number_format($s->jarak_km, 1, ',', '.') }} km garis lurus</span>
+                                @else
+                                    Jarak usulan: {{ number_format($s->jarak_km, 1, ',', '.') }} km (garis lurus)
+                                @endif
+                            </div>
+                        </td>
+
+                        {{-- Penghematan --}}
+                        <td class="whitespace-nowrap">
+                            <div class="font-bold text-success text-lg">
+                                −{{ number_format($s->hematKm(), 1, ',', '.') }} km
+                            </div>
+                            <div class="text-xs opacity-70">lebih dekat</div>
+                            <div class="text-xs opacity-50">(garis lurus)</div>
+                        </td>
+
+                        {{-- Kelayakan: penjelasan mengapa kandidat ini lolos (SPK-003) --}}
+                        <td>
+                            @php
+                                $kunciKuota = $s->sekolah_tujuan_id . '|' . strtolower(trim($s->guru->mapel));
+                                $sisa = $sisaKuota[$kunciKuota] ?? 0;
+                            @endphp
+                            <ul class="text-xs space-y-1 list-none p-0 m-0">
+                                <li>✅ Mapel <strong>{{ $s->guru->mapel }}</strong> dibutuhkan sekolah tujuan</li>
+                                <li>
+                                    @if ($sisa > 0)
+                                        ✅ Sisa formasi: <strong>{{ $sisa }}</strong>
+                                    @else
+                                        ⚠️ Sisa formasi: <strong>0</strong> (penuh)
+                                    @endif
+                                </li>
+                                <li>
+                                    ✅ Menghemat {{ number_format($s->hematKm(), 1, ',', '.') }} km
+                                    ({{ number_format($s->jarak_sekarang_km, 1, ',', '.') }} → {{ number_format($s->jarak_km, 1, ',', '.') }} km),
+                                    di atas ambang {{ $ambangKm }} km
+                                </li>
+                                <li>
+                                    @if ($s->guru->berkeluarga())
+                                        👨‍👩‍👧 {{ $s->guru->labelStatusPernikahan() }} — prioritas keluarga
+                                    @else
+                                        {{ $s->guru->labelStatusPernikahan() }}
+                                    @endif
+                                </li>
+                                <li>
+                                    <span class="badge badge-neutral badge-xs">{{ $s->guru->labelStatusKepegawaian() }}</span>
+                                    @if ($s->guru->sudah_sertifikasi)
+                                        <span class="badge {{ $s->guru->linear() ? 'badge-success' : 'badge-error' }} badge-xs">
+                                            Serdik{{ $s->guru->linear() ? '' : ' tidak linear' }}
+                                        </span>
+                                    @endif
+                                </li>
+                                @if (! empty($dampakAsal[$s->id]))
+                                    <li class="text-warning">⚠️ {{ $dampakAsal[$s->id] }}</li>
+                                @endif
+                            </ul>
+                        </td>
+
+                        {{-- Status --}}
+                        <td>
+                            <span class="badge {{ $s->badgeStatus() }}">{{ $s->labelStatus() }}</span>
+                            @if ($s->diprosesOleh)
+                                <div class="text-xs opacity-70 mt-1">oleh {{ $s->diprosesOleh->name }}</div>
+                            @endif
+                            @if ($s->catatan_admin)
+                                <div class="text-xs opacity-70 italic">"{{ $s->catatan_admin }}"</div>
+                            @endif
+                        </td>
+
+                        {{-- Aksi: hanya untuk yang masih berstatus rekomendasi --}}
+                        <td class="whitespace-nowrap">
+                            @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
+                                <a href="{{ route('spk.telaahan', $s) }}" target="_blank"
+                                   class="btn btn-info btn-sm" title="Cetak telaahan staf untuk PPK">📄 Telaahan</a>
+                            @endif
+                            @if ($s->status === 'rekomendasi')
+                                @if (auth()->user()->hasRole('kadis'))
+                                    <form method="POST" action="{{ route('spk.setujui', $s) }}" class="inline"
+                                          onsubmit="return confirm('Setujui penempatan ini? Guru akan langsung dimutasi.')">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success btn-sm">Setujui</button>
+                                    </form>
+                                @endif
+                                @if (auth()->user()->hasRole('kabid_ptk') || auth()->user()->hasRole('kadis'))
+                                    <form method="POST" action="{{ route('spk.tolak', $s) }}" class="inline"
+                                          onsubmit="const a = prompt('Alasan penolakan (wajib diisi):'); if (!a || !a.trim()) { alert('Alasan penolakan wajib diisi.'); return false; } this.querySelector('[name=catatan_admin]').value = a.trim(); return true;">
+                                        @csrf
+                                        <input type="hidden" name="catatan_admin" value="">
+                                        <button type="submit" class="btn btn-error btn-sm">Tolak</button>
+                                    </form>
+                                @endif
+                            @else
+                                <span class="text-xs opacity-50">—</span>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center py-8 opacity-60">
+                            Belum ada rekomendasi SPK.
+                            @if (auth()->user()->hasRole('kabid_ptk'))
+                                Klik <strong>Generate SPK</strong> untuk mencari penempatan.
+                            @endif
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        {{ $spks->links() }}
+    </div>
+</div>
