@@ -5,8 +5,8 @@
             <div class="flex flex-wrap gap-2">
                 <input type="text" wire:model.live.debounce.500ms="q"
                        placeholder="Cari nama atau email…"
-                       class="input input-bordered flex-1 min-w-52">
-                <select wire:model.live="role" class="select select-bordered max-w-xs">
+                       class="input flex-1 min-w-52">
+                <select wire:model.live="role" class="select max-w-xs">
                     <option value="">— Semua Peran —</option>
                     @foreach (\App\Models\User::ROLES as $nilai => $label)
                         <option value="{{ $nilai }}">{{ $label }}</option>
