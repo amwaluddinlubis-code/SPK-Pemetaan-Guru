@@ -22,20 +22,20 @@
             <form method="POST" action="{{ route('profil.password') }}" class="space-y-4 mt-2">
                 @csrf
                 @method('PUT')
-                <label class="form-control w-full">
-                    <span class="label-text font-semibold">Password Lama</span>
-                    <input type="password" name="password_lama" required class="input input-bordered w-full" autocomplete="current-password">
+                <fieldset class="fieldset w-full">
+                    <legend class="fieldset-legend font-semibold">Password Lama</legend>
+                    <input type="password" name="password_lama" required class="input w-full" autocomplete="current-password">
                     @error('password_lama')<span class="text-error text-sm">{{ $message }}</span>@enderror
-                </label>
-                <label class="form-control w-full">
-                    <span class="label-text font-semibold">Password Baru</span>
-                    <input type="password" name="password" required class="input input-bordered w-full" autocomplete="new-password">
+                </fieldset>
+                <fieldset class="fieldset w-full">
+                    <legend class="fieldset-legend font-semibold">Password Baru</legend>
+                    <input type="password" name="password" required class="input w-full" autocomplete="new-password">
                     @error('password')<span class="text-error text-sm">{{ $message }}</span>@enderror
-                </label>
-                <label class="form-control w-full">
-                    <span class="label-text font-semibold">Ulangi Password Baru</span>
-                    <input type="password" name="password_confirmation" required class="input input-bordered w-full" autocomplete="new-password">
-                </label>
+                </fieldset>
+                <fieldset class="fieldset w-full">
+                    <legend class="fieldset-legend font-semibold">Ulangi Password Baru</legend>
+                    <input type="password" name="password_confirmation" required class="input w-full" autocomplete="new-password">
+                </fieldset>
                 <button type="submit" class="btn btn-primary">Simpan Password Baru</button>
             </form>
         </div>
