@@ -30,13 +30,13 @@
 </div>
 
 <form method="GET" action="{{ route('kualitas-data.index') }}" class="flex gap-2 mb-4">
-    <select name="dampak" class="select select-bordered select-sm">
+    <select name="dampak" class="select select-sm">
         <option value="">Semua dampak</option>
         @foreach (['tinggi', 'sedang', 'rendah'] as $d)
             <option value="{{ $d }}" @selected(request('dampak') === $d)>{{ ucfirst($d) }}</option>
         @endforeach
     </select>
-    <select name="jenis" class="select select-bordered select-sm">
+    <select name="jenis" class="select select-sm">
         <option value="">Semua jenis</option>
         @foreach ($daftarJenis as $j)
             <option value="{{ $j }}" @selected(request('jenis') === $j)>{{ $j }}</option>
