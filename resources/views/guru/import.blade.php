@@ -21,11 +21,11 @@
                 @endif
                 <form method="POST" action="{{ route('guru.import.proses') }}" enctype="multipart/form-data">
                     @csrf
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">File Excel/CSV (maks. 5 MB)</span>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">File Excel/CSV (maks. 5 MB)</legend>
                         <input type="file" name="berkas" accept=".xlsx,.xls,.csv" required
-                               class="file-input file-input-bordered w-full">
-                    </label>
+                               class="file-input w-full">
+                    </fieldset>
                     <div class="flex gap-2 mt-4">
                         <button type="submit" class="btn btn-primary">⬆️ Proses Import</button>
                         <a href="{{ route('guru.index') }}" class="btn btn-ghost">Batal</a>
