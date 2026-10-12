@@ -14,6 +14,10 @@
     // klik peta / geser pin → input lat/lng terisi; ketik manual → pin ikut pindah.
     function inisiasiPetaPicker(idPeta, idLat, idLng, latAwal, lngAwal) {
         const peta = L.map(idPeta).setView([latAwal, lngAwal], 13);
+        // Daftarkan instance agar tab/step bisa memanggil invalidateSize()
+        // saat panel peta ditampilkan (Leaflet butuh ini jika di-init tersembunyi).
+        window.petaPickers = window.petaPickers || {};
+        window.petaPickers[idPeta] = peta;
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; OpenStreetMap'
