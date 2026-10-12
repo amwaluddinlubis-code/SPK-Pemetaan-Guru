@@ -93,19 +93,26 @@ Semua halaman (kecuali login) memakai `layouts.app`:
   "Belum ada rekomendasi SPK. Klik Generate SPK untuk mencari penempatan."
 - Pagination Laravel standar di bawah tabel (`$data->links()`).
 
-## 7. Formulir
+## 7. Formulir (daisyUI v5)
 
 ```blade
-<label class="form-control w-full mb-4">
-    <span class="label-text font-semibold mb-1">Nama Label</span>
+<fieldset class="fieldset w-full mb-4">
+    <legend class="fieldset-legend font-semibold mb-1">Nama Label</legend>
     <input type="text" name="nama" value="{{ old('nama') }}"
-           class="input input-bordered w-full">
-</label>
+           class="input w-full">
+</fieldset>
 ```
 
-- Input teks: `input input-bordered w-full`
-- Pilihan: `select select-bordered w-full`
-- Teks panjang: `textarea textarea-bordered w-full`
+- Input teks: `input w-full` (bordered by default di v5)
+- Pilihan: `select w-full`
+- Teks panjang: `textarea w-full`
+- File: `file-input w-full`
+- **Jangan pakai** kelas v4 yang sudah dihapus di daisyUI v5:
+  `form-control`, `label-text` (di dalam form), `input-bordered`,
+  `select-bordered`, `textarea-bordered`, `file-input-bordered`
+  — kelas-kelas itu tidak ada efeknya di v5.
+- Label checkbox/toggle tetap pakai pola v5 `<label class="label">`
+  + `<span class="label-text">`.
 - Pertahankan isian lama dengan `old('nama')` dan tampilkan error
   validasi di atas form (`$errors->any()` → `alert alert-error`).
 - Form tambah/ubah dibungkus `card bg-base-100 shadow-xl` + `card-body`.
