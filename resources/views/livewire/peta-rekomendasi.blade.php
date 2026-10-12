@@ -37,9 +37,9 @@
                     </span>
                 </div>
             @else
-            <label class="form-control w-full">
-                <span class="label-text font-semibold">Pilih guru</span>
-                <select wire:model="guruId" class="select select-bordered w-full"
+            <fieldset class="fieldset w-full">
+                <legend class="fieldset-legend font-semibold">Pilih guru</legend>
+                <select wire:model="guruId" class="select w-full"
                         @if($terkunci) disabled @endif>
                     <option value="">— Pilih guru —</option>
                     @foreach ($daftarGuru as $g)
@@ -50,7 +50,7 @@
                     <span class="text-xs opacity-60 mt-1">🔒 Terkunci: Anda hanya bisa melihat rekomendasi untuk diri sendiri.</span>
                 @endif
                 @error('guruId') <span class="text-error text-sm">{{ $message }}</span> @enderror
-            </label>
+            </fieldset>
 
             <button wire:click="cari" wire:loading.attr="disabled"
                     class="btn btn-primary w-full mt-2">
