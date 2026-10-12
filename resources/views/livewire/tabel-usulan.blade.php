@@ -5,8 +5,8 @@
             <div class="flex flex-wrap gap-2">
                 <input type="text" wire:model.live.debounce.500ms="q"
                        placeholder="Cari nama/NIP guru…"
-                       class="input input-bordered flex-1 min-w-52">
-                <select wire:model.live="status" class="select select-bordered max-w-xs">
+                       class="input flex-1 min-w-52">
+                <select wire:model.live="status" class="select max-w-xs">
                     <option value="">— Semua Status —</option>
                     @foreach (\App\Models\UsulanPenempatan::STATUS as $nilai => $label)
                         <option value="{{ $nilai }}">{{ $label }}</option>
