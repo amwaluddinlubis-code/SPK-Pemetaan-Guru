@@ -23,30 +23,30 @@
                 @if ($sekolah->exists) @method('PUT') @endif
 
                 <div class="grid gap-4 sm:grid-cols-2">
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">NPSN</span>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">NPSN</legend>
                         <input type="text" name="npsn" value="{{ old('npsn', $sekolah->npsn) }}" required
-                               class="input input-bordered w-full" placeholder="20100001">
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Nama Sekolah</span>
+                               class="input w-full" placeholder="20100001">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Nama Sekolah</legend>
                         <input type="text" name="nama" value="{{ old('nama', $sekolah->nama) }}" required
-                               class="input input-bordered w-full" placeholder="SDN 1 Sukamaju">
-                    </label>
-                    <label class="form-control w-full sm:col-span-2">
-                        <span class="label-text font-semibold">Alamat</span>
+                               class="input w-full" placeholder="SDN 1 Sukamaju">
+                    </fieldset>
+                    <fieldset class="fieldset w-full sm:col-span-2">
+                        <legend class="fieldset-legend font-semibold">Alamat</legend>
                         <input type="text" name="alamat" value="{{ old('alamat', $sekolah->alamat) }}" required
-                               class="input input-bordered w-full" placeholder="Jl. Pendidikan No.1">
-                    </label>
-                    <label class="form-control w-full sm:col-span-2">
-                        <span class="label-text font-semibold">Kecamatan</span>
+                               class="input w-full" placeholder="Jl. Pendidikan No.1">
+                    </fieldset>
+                    <fieldset class="fieldset w-full sm:col-span-2">
+                        <legend class="fieldset-legend font-semibold">Kecamatan</legend>
                         @php
                             $kecAktif = old('kecamatan', $sekolah->kecamatan);
                             $opsiKec = $daftarKecamatan->contains($kecAktif) || empty($kecAktif)
                                 ? $daftarKecamatan
                                 : $daftarKecamatan->concat([$kecAktif])->sort()->values();
                         @endphp
-                        <select name="kecamatan" class="select select-bordered w-full">
+                        <select name="kecamatan" class="select w-full">
                             <option value="">— Pilih Kecamatan —</option>
                             @foreach ($opsiKec as $kec)
                                 <option value="{{ $kec }}" {{ $kecAktif == $kec ? 'selected' : '' }}>
@@ -54,16 +54,16 @@
                                 </option>
                             @endforeach
                         </select>
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Desa / Kelurahan</span>
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Desa / Kelurahan</legend>
                         <input type="text" name="desa_kelurahan"
                                value="{{ old('desa_kelurahan', $sekolah->desa_kelurahan) }}"
-                               class="input input-bordered w-full" placeholder="cth: Panyabungan Jae" maxlength="100">
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Kategori Daerah</span>
-                        <select name="kategori_daerah" class="select select-bordered w-full">
+                               class="input w-full" placeholder="cth: Panyabungan Jae" maxlength="100">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Kategori Daerah</legend>
+                        <select name="kategori_daerah" class="select w-full">
                             @foreach (\App\Models\Sekolah::KATEGORI_DAERAH as $kode => $label)
                                 <option value="{{ $kode }}"
                                     {{ old('kategori_daerah', $sekolah->kategori_daerah ?? 'biasa') === $kode ? 'selected' : '' }}>
@@ -71,18 +71,18 @@
                                 </option>
                             @endforeach
                         </select>
-                        <span class="label-text-alt">Guru di sekolah Terpencil/3T dilindungi dari mutasi keluar lewat SPK (rem pemerataan).</span>
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Latitude</span>
+                        <legend class="fieldset-legend-alt">Guru di sekolah Terpencil/3T dilindungi dari mutasi keluar lewat SPK (rem pemerataan).</legend>
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Latitude</legend>
                         <input type="text" id="lat" name="lat" value="{{ old('lat', $sekolah->lat) }}" required
-                               class="input input-bordered w-full" placeholder="0.7900">
-                    </label>
-                    <label class="form-control w-full">
-                        <span class="label-text font-semibold">Longitude</span>
+                               class="input w-full" placeholder="0.7900">
+                    </fieldset>
+                    <fieldset class="fieldset w-full">
+                        <legend class="fieldset-legend font-semibold">Longitude</legend>
                         <input type="text" id="lng" name="lng" value="{{ old('lng', $sekolah->lng) }}" required
-                               class="input input-bordered w-full" placeholder="99.4100">
-                    </label>
+                               class="input w-full" placeholder="99.4100">
+                    </fieldset>
                 </div>
 
                 {{-- Peta pemilih koordinat sekolah (default: tengah Kab. Madina) --}}
@@ -111,9 +111,9 @@
                         <div class="flex gap-2 mb-2">
                             <input type="text" :name="'kebutuhan[' + i + '][mapel]'" x-model="b.mapel"
                                    placeholder="Mata pelajaran (mis. Matematika)"
-                                   class="input input-bordered flex-1">
+                                   class="input flex-1">
                             <input type="number" :name="'kebutuhan[' + i + '][jumlah]'" x-model="b.jumlah"
-                                   min="1" placeholder="Jumlah" class="input input-bordered w-28">
+                                   min="1" placeholder="Jumlah" class="input w-28">
                             <button type="button" @click="baris.splice(i, 1)"
                                     class="btn btn-error btn-outline" title="Hapus baris">✕</button>
                         </div>
