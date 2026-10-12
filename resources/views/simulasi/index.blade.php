@@ -13,13 +13,13 @@
     <div class="grid gap-4">
         <div>
             <label class="label"><span class="label-text font-semibold">Ambang jarak (km) *</span></label>
-            <input type="number" name="ambang_km" value="{{ old('ambang_km', 15) }}" min="1" max="500" step="0.5" class="input input-bordered w-full" required>
+            <input type="number" name="ambang_km" value="{{ old('ambang_km', 15) }}" min="1" max="500" step="0.5" class="input w-full" required>
             <p class="text-xs opacity-60 mt-1">Hanya guru yang jaraknya melebihi ambang ini yang dipertimbangkan.</p>
             @error('ambang_km')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
         </div>
         <div>
             <label class="label"><span class="label-text font-semibold">Mapel</span></label>
-            <select name="mapel" class="select select-bordered w-full">
+            <select name="mapel" class="select w-full">
                 <option value="">Semua mapel</option>
                 @foreach ($daftarMapel as $m)
                     <option value="{{ $m }}" @selected(old('mapel') === $m)>{{ $m }}</option>
@@ -28,7 +28,7 @@
         </div>
         <div>
             <label class="label"><span class="label-text font-semibold">Kecamatan domisili</span></label>
-            <select name="kecamatan" class="select select-bordered w-full">
+            <select name="kecamatan" class="select w-full">
                 <option value="">Semua kecamatan</option>
                 @foreach ($daftarKecamatan as $k)
                     <option value="{{ $k }}" @selected(old('kecamatan') === $k)>{{ $k }}</option>
