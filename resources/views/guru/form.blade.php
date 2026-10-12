@@ -23,7 +23,8 @@
                 @csrf
                 @if ($guru->exists) @method('PUT') @endif
 
-                <div class="grid gap-4 sm:grid-cols-2">
+                <div class="grid gap-4 sm:grid-cols-2" data-testid="form-guru-berseksi">
+                    <h3 class="sm:col-span-2 font-bold text-lg border-b pb-2 mt-2">Data Pribadi</h3>
                     <label class="form-control w-full">
                         <span class="label-text font-semibold">NIP</span>
                         <input type="text" name="nip" value="{{ old('nip', $guru->nip) }}" required
@@ -35,6 +36,7 @@
                                class="input input-bordered w-full" placeholder="Siti Aminah">
                     </label>
                     <label class="form-control w-full">
+                    <h3 class="sm:col-span-2 font-bold text-lg border-b pb-2 mt-4">Kepegawaian</h3>
                         <span class="label-text font-semibold">Mata Pelajaran</span>
                         <input type="text" name="mapel" value="{{ old('mapel', $guru->mapel) }}" required
                                class="input input-bordered w-full" placeholder="Matematika">
@@ -50,6 +52,7 @@
                         </select>
                     </label>
                     <label class="form-control w-full">
+                    <h3 class="sm:col-span-2 font-bold text-lg border-b pb-2 mt-4">Domisili</h3>
                         <span class="label-text font-semibold">Kecamatan Domisili</span>
                         @php
                             // Nilai kecamatan saat ini (tetap ditampilkan walau tak ada di daftar)
@@ -66,6 +69,48 @@
                                 </option>
                             @endforeach
                         </select>
+                    </label>
+                    <label class="form-control w-full">
+                        <span class="label-text font-semibold">Desa / Kelurahan Domisili</span>
+                        <input type="text" name="desa_kelurahan"
+                               value="{{ old('desa_kelurahan', $guru->desa_kelurahan) }}"
+                               class="input input-bordered w-full" placeholder="cth: Panyabungan Jae" maxlength="100">
+                    </label>
+                    <label class="form-control w-full">
+                        <span class="label-text font-semibold">Status Pernikahan</span>
+                        <select name="status_pernikahan" class="select select-bordered w-full">
+                            @foreach (\App\Models\Guru::STATUS_PERNIKAHAN as $kode => $label)
+                                <option value="{{ $kode }}"
+                                    {{ old('status_pernikahan', $guru->status_pernikahan ?? 'belum_kawin') === $kode ? 'selected' : '' }}>
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </label>
+                    {{-- Data kepegawaian (administratif: kabid/kepala sekolah) --}}
+                    <label class="form-control w-full">
+                        <span class="label-text font-semibold">Status Kepegawaian</span>
+                        <select name="status_kepegawaian" class="select select-bordered w-full">
+                            @foreach (\App\Models\Guru::STATUS_KEPEGAWAIAN as $kode => $label)
+                                <option value="{{ $kode }}"
+                                    {{ old('status_kepegawaian', $guru->status_kepegawaian ?? 'pns') === $kode ? 'selected' : '' }}>
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </label>
+                    <label class="form-control w-full">
+                        <span class="label-text font-semibold">Sertifikasi Pendidik</span>
+                        <select name="sudah_sertifikasi" class="select select-bordered w-full">
+                            <option value="0" {{ old('sudah_sertifikasi', $guru->sudah_sertifikasi ?? 0) == 0 ? 'selected' : '' }}>Belum sertifikasi</option>
+                            <option value="1" {{ old('sudah_sertifikasi', $guru->sudah_sertifikasi ?? 0) == 1 ? 'selected' : '' }}>Sudah sertifikasi</option>
+                        </select>
+                    </label>
+                    <label class="form-control w-full">
+                        <span class="label-text font-semibold">Mapel Sertifikat (bila sudah sertifikasi)</span>
+                        <input type="text" name="mapel_sertifikasi"
+                               value="{{ old('mapel_sertifikasi', $guru->mapel_sertifikasi) }}"
+                               class="input input-bordered w-full" placeholder="cth: Matematika" maxlength="50">
                     </label>
                     {{-- Sekolah tempat bertugas (administratif) --}}
                     @if (auth()->user()->hasRole('kabid_ptk'))

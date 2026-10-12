@@ -1,4 +1,4 @@
-import axios from 'axios';
-window.axios = axios;
-
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+// Konfigurasi dasar JavaScript aplikasi.
+// File ini diimpor oleh resources/js/app.js.
+// (Dikosongkan karena aplikasi belum memakai axios/Echo;
+//  tambahkan import axios di sini jika nanti dibutuhkan.)

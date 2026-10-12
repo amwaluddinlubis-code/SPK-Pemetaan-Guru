@@ -3,19 +3,33 @@
 @section('judul', 'Data Sekolah — PetaPenempatan ASN')
 
 @section('konten')
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
         <h1 class="text-2xl font-bold">🏫 Data Sekolah</h1>
-        <div class="flex gap-2">
-            <a href="{{ route('export.sekolah') }}" class="btn btn-outline btn-sm">📤 Export CSV</a>
-            @if (auth()->user()->hasRole('kabid_ptk'))
-            <a href="{{ route('sekolah.import') }}" class="btn btn-secondary btn-sm">📥 Import</a>
-            <a href="{{ route('sekolah.create') }}" class="btn btn-primary">+ Tambah Sekolah</a>
-            @endif
-        </div>
+        @if (auth()->user()->hasRole('kabid_ptk'))
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('sekolah.import') }}" class="btn btn-secondary">📥 Import Excel</a>
+                <a href="{{ route('sekolah.export', request()->only(['q', 'kecamatan'])) }}" class="btn btn-accent">📊 Export Excel</a>
+                <a href="{{ route('sekolah.cetak', request()->only(['q', 'kecamatan'])) }}" target="_blank" class="btn btn-neutral">🖨️ Cetak/PDF</a>
+                <a href="{{ route('sekolah.create') }}" class="btn btn-primary">+ Tambah Sekolah</a>
+            </div>
+        @endif
     </div>
 
     <div class="card bg-base-100 shadow-xl mb-4">
         <div class="card-body py-3">
+            {{-- Rincian baris yang gagal saat import terakhir --}}
+            @if (session('import_gagal'))
+                <div class="alert alert-warning mb-3">
+                    <div class="text-sm">
+                        <strong>⚠️ Baris yang gagal diimpor:</strong>
+                        <ul class="list-disc list-inside mt-1">
+                            @foreach (session('import_gagal') as $pesan)
+                                <li>{{ $pesan }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
             {{-- Pencarian + filter kecamatan (GET, dibawa saat pindah halaman) --}}
             <form method="GET" action="{{ route('sekolah.index') }}" class="flex flex-wrap gap-2">
                 <input type="text" name="q" value="{{ request('q') }}"
@@ -46,14 +60,16 @@
         </div>
     </div>
 
-    <div class="card bg-base-100 shadow-xl">
-        <div class="card-body p-0 overflow-x-auto">
+    <div class="card bg-base-100 shadow-xl overflow-hidden">
+        <div class="card-body p-0 overflow-x-auto min-w-0">
             <table class="table table-zebra">
                 <thead>
                     <tr>
-                        @include('komponen.th-sort', ['kolom' => 'nama', 'label' => 'Nama / NPSN'])
+                        <th><a href="{{ route('sekolah.index', array_merge(request()->except(['sort', 'arah', 'page']), ['sort' => 'nama', 'arah' => ($sortir === 'nama' && $arah === 'asc') ? 'desc' : 'asc'])) }}" class="link">Nama / NPSN {{ $sortir === 'nama' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</a></th>
                         <th>Alamat</th>
-                        @include('komponen.th-sort', ['kolom' => 'kecamatan', 'label' => 'Kecamatan'])
+                        <th><a href="{{ route('sekolah.index', array_merge(request()->except(['sort', 'arah', 'page']), ['sort' => 'kecamatan', 'arah' => ($sortir === 'kecamatan' && $arah === 'asc') ? 'desc' : 'asc'])) }}" class="link">Kecamatan {{ $sortir === 'kecamatan' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</a></th>
+                        <th>Desa/Kelurahan</th>
+                        <th>Kategori Daerah</th>
                         <th>Kebutuhan Guru</th>
                         <th class="text-right">Aksi</th>
                     </tr>
@@ -67,6 +83,14 @@
                             </td>
                             <td class="text-sm">{{ $s->alamat }}</td>
                             <td class="text-sm">{{ $s->kecamatan ?? '—' }}</td>
+                            <td class="text-sm">{{ $s->desa_kelurahan ?? '—' }}</td>
+                            <td>
+                                @if ($s->isDaerah3T())
+                                    <span class="badge badge-warning badge-sm" title="Rem pemerataan: guru di sekolah ini dilindungi dari mutasi keluar lewat SPK">{{ $s->labelKategoriDaerah() }}</span>
+                                @else
+                                    <span class="text-sm opacity-60">{{ $s->labelKategoriDaerah() }}</span>
+                                @endif
+                            </td>
                             <td>
                                 @forelse ($s->kebutuhan as $k)
                                     <span class="badge badge-outline mr-1 mb-1">{{ $k->mapel }} ({{ $k->jumlah }})</span>

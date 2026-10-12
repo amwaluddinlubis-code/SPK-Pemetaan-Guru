@@ -1,4 +1,5 @@
 <?php
+
 // Komponen Livewire: PetaRekomendasi
 // Menampilkan peta + panel rekomendasi penempatan yang interaktif
 // (tanpa reload halaman). Dipakai di halaman Dashboard.
@@ -23,6 +24,7 @@ class PetaRekomendasi extends Component
 
     // Data marker untuk peta (dikirim ke JavaScript sebagai JSON)
     public $markersGuru = [];
+
     public $markersSekolah = [];
 
     // Jika true, dropdown guru dikunci (untuk role 'guru': hanya dirinya sendiri)
@@ -48,33 +50,55 @@ class PetaRekomendasi extends Component
     }
 
     /**
-     * Marker guru: role guru hanya melihat dirinya sendiri di peta.
+     * SEC-001: batasi query guru sesuai scope peran pengguna.
+     *   guru           → dirinya sendiri
+     *   kepala_sekolah → guru di sekolahnya
+     *   ketua_pgri     → guru se-kecamatan
+     *   lainnya        → semua (kabid_ptk, kadis, pemda)
+     */
+    private function scopeGuru($query)
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return $query->whereRaw('1 = 0'); // tamu: tidak ada data
+        }
+        if ($user->role === 'guru') {
+            $query->where('id', $user->guru_id);
+        } elseif ($user->role === 'kepala_sekolah') {
+            $query->where('sekolah_id', $user->sekolah_id);
+        } elseif ($user->role === 'ketua_pgri') {
+            $query->where('kecamatan', $user->kecamatan);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Marker guru: dibatasi scope peran (SEC-001).
      */
     private function daftarGuruPeta(): array
     {
-        $query = Guru::query();
-        if (auth()->check() && auth()->user()->role === 'guru') {
-            $query->where('id', auth()->user()->guru_id);
-        }
+        $query = $this->scopeGuru(Guru::query());
+
         return $query->get()->map(fn ($g) => [
-            'id'     => $g->id,
-            'nama'   => $g->nama,
-            'mapel'  => $g->mapel,
+            'id' => $g->id,
+            'nama' => $g->nama,
+            'mapel' => $g->mapel,
             'alamat' => $g->domisili_alamat,
-            'lat'    => (float) $g->domisili_lat,
-            'lng'    => (float) $g->domisili_lng,
+            'lat' => (float) $g->domisili_lat,
+            'lng' => (float) $g->domisili_lng,
         ])->toArray();
     }
 
     private function daftarSekolahPeta(): array
     {
         return Sekolah::with('kebutuhan')->get()->map(fn ($s) => [
-            'id'      => $s->id,
-            'nama'    => $s->nama,
-            'alamat'  => $s->alamat,
-            'lat'     => (float) $s->lat,
-            'lng'     => (float) $s->lng,
-            'butuh'   => $s->kebutuhan->map(fn ($k) => $k->mapel . ' (' . $k->jumlah . ')')->join(', '),
+            'id' => $s->id,
+            'nama' => $s->nama,
+            'alamat' => $s->alamat,
+            'lat' => (float) $s->lat,
+            'lng' => (float) $s->lng,
+            'butuh' => $s->kebutuhan->map(fn ($k) => $k->mapel.' ('.$k->jumlah.')')->join(', '),
         ])->toArray();
     }
 
@@ -92,23 +116,26 @@ class PetaRekomendasi extends Component
         $this->validate(['guruId' => ['required', 'exists:guru,id']],
             ['guruId.required' => 'Pilih dulu gurunya.']);
 
+        // SEC-001: pastikan guru yang dicari masih dalam scope peran pengguna
+        // (mencegah intip data guru lain lewat manipulasi request).
+        $dalamScope = $this->scopeGuru(Guru::where('id', $this->guruId))->exists();
+        abort_unless($dalamScope, 403, 'Anda tidak berhak mengakses data guru ini.');
+
         $guru = Guru::findOrFail($this->guruId);
 
-        // Jarak domisili → sekolah tempat bertugas SAAT INI (ini masalahnya)
-        $jarakSaatIni = $guru->jarakKe(
-            (float) $guru->sekolah_saat_ini_lat,
-            (float) $guru->sekolah_saat_ini_lng
-        );
+        // Jarak domisili → sekolah tempat bertugas SAAT INI.
+        // MAP-001: lewat relasi sekolah (sumber kebenaran tunggal).
+        $jarakSaatIni = $guru->jarakKeSekolahSaatIni() ?? 0.0;
 
         $this->infoGuru = [
-            'nama'           => $guru->nama,
-            'mapel'          => $guru->mapel,
-            'domisili'       => $guru->domisili_alamat,
+            'nama' => $guru->nama,
+            'mapel' => $guru->mapel,
+            'domisili' => $guru->domisili_alamat,
             'sekolahSaatIni' => $guru->sekolah_saat_ini,
-            'jarakSaatIni'   => round($jarakSaatIni, 1),
-            'terlaluJauh'    => $jarakSaatIni > 5,
-            'lat'            => (float) $guru->domisili_lat,
-            'lng'            => (float) $guru->domisili_lng,
+            'jarakSaatIni' => round($jarakSaatIni, 1),
+            'terlaluJauh' => $jarakSaatIni > 5,
+            'lat' => (float) $guru->domisili_lat,
+            'lng' => (float) $guru->domisili_lng,
         ];
 
         // Kumpulkan kandidat: sekolah yang butuh mapel guru ini
@@ -120,14 +147,14 @@ class PetaRekomendasi extends Component
             }
             $jarak = $guru->jarakKe((float) $sekolah->lat, (float) $sekolah->lng);
             $kandidat[] = [
-                'id'      => $sekolah->id,
-                'nama'    => $sekolah->nama,
-                'alamat'  => $sekolah->alamat,
-                'lat'     => (float) $sekolah->lat,
-                'lng'     => (float) $sekolah->lng,
-                'jarak'   => round($jarak, 1),
-                'butuh'   => $butuh,
-                'hemat'   => round($jarakSaatIni - $jarak, 1),
+                'id' => $sekolah->id,
+                'nama' => $sekolah->nama,
+                'alamat' => $sekolah->alamat,
+                'lat' => (float) $sekolah->lat,
+                'lng' => (float) $sekolah->lng,
+                'jarak' => round($jarak, 1),
+                'butuh' => $butuh,
+                'hemat' => round($jarakSaatIni - $jarak, 1),
             ];
         }
 
@@ -148,11 +175,8 @@ class PetaRekomendasi extends Component
 
     public function render()
     {
-        // Dropdown guru: role guru hanya melihat dirinya sendiri
-        $queryGuru = Guru::orderBy('nama');
-        if (auth()->check() && auth()->user()->role === 'guru') {
-            $queryGuru->where('id', auth()->user()->guru_id);
-        }
+        // Dropdown guru: dibatasi scope peran (SEC-001)
+        $queryGuru = $this->scopeGuru(Guru::orderBy('nama'));
 
         return view('livewire.peta-rekomendasi', [
             'daftarGuru' => $queryGuru->get(['id', 'nama', 'mapel', 'jenjang']),
@@ -173,6 +197,7 @@ class PetaRekomendasi extends Component
         }
         if (empty($this->guruId)) {
             $this->pesanUsulan = ['tipe' => 'error', 'teks' => 'Pilih dulu gurunya sebelum mengajukan.'];
+
             return;
         }
 
@@ -182,24 +207,27 @@ class PetaRekomendasi extends Component
             $guru = Guru::findOrFail($user->guru_id);
         } elseif ($user->role === 'kepala_sekolah' && (int) $guru->sekolah_id !== (int) $user->sekolah_id) {
             $this->pesanUsulan = ['tipe' => 'error', 'teks' => 'Anda hanya boleh mengajukan guru di sekolah Anda.'];
+
             return;
         }
 
         $sekolah = Sekolah::with('kebutuhan')->findOrFail($sekolahId);
         if ($sekolah->butuhMapel($guru->mapel) <= 0) {
-            $this->pesanUsulan = ['tipe' => 'error', 'teks' => 'Sekolah ini tidak membutuhkan mapel ' . $guru->mapel . '.'];
+            $this->pesanUsulan = ['tipe' => 'error', 'teks' => 'Sekolah ini tidak membutuhkan mapel '.$guru->mapel.'.'];
+
             return;
         }
         if (UsulanPenempatan::where('guru_id', $guru->id)
-                ->whereIn('status', UsulanPenempatan::AKTIF)->exists()) {
+            ->whereIn('status', UsulanPenempatan::AKTIF)->exists()) {
             $this->pesanUsulan = ['tipe' => 'error', 'teks' => 'Guru ini masih punya usulan yang berjalan.'];
+
             return;
         }
 
         UsulanPenempatan::create([
             'guru_id' => $guru->id, 'sekolah_id' => $sekolah->id,
             'alasan' => "Diajukan dari rekomendasi peta: jarak {$guru->domisili_alamat} ke {$sekolah->nama} "
-                . round($guru->jarakKe((float) $sekolah->lat, (float) $sekolah->lng), 1) . ' km.',
+                .round($guru->jarakKe((float) $sekolah->lat, (float) $sekolah->lng), 1).' km.',
             'status' => 'diajukan', 'diajukan_oleh' => $user->id,
         ]);
 

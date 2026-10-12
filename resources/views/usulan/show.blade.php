@@ -100,4 +100,30 @@
             </div>
         </div>
     </div>
+
+    <div class="card bg-base-100 shadow mt-4">
+        <div class="card-body">
+            <h2 class="card-title text-lg">Riwayat Transisi Status</h2>
+            <ul class="timeline timeline-vertical">
+                @forelse (\App\Models\ActivityLog::riwayat($usulan)->get() as $r)
+                    <li>
+                        <div class="timeline-start text-sm opacity-60">{{ $r->waktu->format('d/m/Y H:i') }}</div>
+                        <div class="timeline-middle">📌</div>
+                        <div class="timeline-end timeline-box text-sm">
+                            <strong>{{ $r->aksi }}</strong> oleh {{ $r->user?->name ?? 'sistem' }}
+                            @if (($r->perubahan['status_sebelum'] ?? null))
+                                <div>{{ $r->perubahan['status_sebelum'] }} → {{ $r->perubahan['status_sesudah'] }}</div>
+                            @endif
+                            @if (($r->perubahan['alasan'] ?? null))
+                                <div class="italic">“{{ $r->perubahan['alasan'] }}”</div>
+                            @endif
+                        </div>
+                        <hr>
+                    </li>
+                @empty
+                    <li class="text-sm opacity-60">Belum ada riwayat tercatat.</li>
+                @endforelse
+            </ul>
+        </div>
+    </div>
 @endsection

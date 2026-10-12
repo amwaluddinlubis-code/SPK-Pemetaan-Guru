@@ -1,4 +1,5 @@
 <?php
+
 // Model Guru: merepresentasikan satu baris data guru ASN di tabel 'guru'.
 
 namespace App\Models;
@@ -18,6 +19,11 @@ class Guru extends Model
         'jenjang',
         'domisili_alamat',
         'kecamatan',
+        'desa_kelurahan',
+        'status_pernikahan',
+        'status_kepegawaian',
+        'sudah_sertifikasi',
+        'mapel_sertifikasi',
         'sekolah_id',
         'domisili_lat',
         'domisili_lng',
@@ -26,12 +32,72 @@ class Guru extends Model
         'sekolah_saat_ini_lng',
     ];
 
+    /**
+     * Status pernikahan (mengikuti kategori sipil Indonesia).
+     */
+    public const STATUS_PERNIKAHAN = [
+        'belum_kawin' => 'Belum Kawin',
+        'kawin' => 'Kawin',
+        'cerai_hidup' => 'Cerai Hidup',
+        'cerai_mati' => 'Cerai Mati',
+    ];
+
+    /**
+     * Bobot prioritas keluarga dalam pemeringkatan rekomendasi.
+     * Guru berkeluarga (kawin/cerai) diprioritaskan karena ada pasangan/anak
+     * yang terdampak bila ditempatkan jauh dari rumah. Nilai dapat diubah
+     * mengikuti kebijakan Dinas.
+     */
+    public const BOBOT_KELUARGA = 1.5;
+
+    /**
+     * Status kepegawaian.
+     */
+    public const STATUS_KEPEGAWAIAN = [
+        'pns' => 'PNS',
+        'pppk' => 'PPPK',
+        'honorer' => 'Honorer',
+    ];
+
+    /**
+     * Kategori daerah untuk rem pemerataan (sekolah 3T/terpencil).
+     */
+    public const KATEGORI_DAERAH_3T = ['terpencil', 'sangat_terpencil'];
+
+    public function labelStatusKepegawaian(): string
+    {
+        return self::STATUS_KEPEGAWAIAN[$this->status_kepegawaian] ?? '-';
+    }
+
+    /**
+     * Linearitas: bila sudah sertifikasi, mapel yang diampu harus sesuai
+     * mapel sertifikat pendidik. Guru belum sertifikasi dianggap linear
+     * terhadap mapelnya (menunggu sertifikasi).
+     */
+    public function linear(): bool
+    {
+        if (! $this->sudah_sertifikasi || ! $this->mapel_sertifikasi) {
+            return true;
+        }
+
+        return strtolower(trim($this->mapel_sertifikasi)) === strtolower(trim($this->mapel));
+    }
+
+    /**
+     * Apakah sekolah tempat bertugas termasuk daerah 3T/terpencil.
+     */
+    public function bertugasDiDaerah3T(): bool
+    {
+        return $this->sekolah
+            && in_array($this->sekolah->kategori_daerah, self::KATEGORI_DAERAH_3T, true);
+    }
+
     // Pastikan koordinat selalu dibaca sebagai angka desimal
     protected $casts = [
-        'domisili_lat'          => 'float',
-        'domisili_lng'          => 'float',
-        'sekolah_saat_ini_lat'  => 'float',
-        'sekolah_saat_ini_lng'  => 'float',
+        'domisili_lat' => 'float',
+        'domisili_lng' => 'float',
+        'sekolah_saat_ini_lat' => 'float',
+        'sekolah_saat_ini_lng' => 'float',
     ];
 
     /**
@@ -41,6 +107,63 @@ class Guru extends Model
     public function sekolah()
     {
         return $this->belongsTo(Sekolah::class);
+    }
+
+    /**
+     * Apakah guru berkeluarga (kawin/cerai) — dipakai untuk prioritas.
+     */
+    public function berkeluarga(): bool
+    {
+        return in_array($this->status_pernikahan, ['kawin', 'cerai_hidup', 'cerai_mati'], true);
+    }
+
+    /**
+     * Bobot keluarga untuk pemeringkatan: berkeluarga diprioritaskan.
+     */
+    public function bobotKeluarga(): float
+    {
+        return $this->berkeluarga() ? self::BOBOT_KELUARGA : 1.0;
+    }
+
+    public function labelStatusPernikahan(): string
+    {
+        return self::STATUS_PERNIKAHAN[$this->status_pernikahan] ?? '-';
+    }
+
+    /**
+     * MAP-001: koordinat sekolah tempat bertugas.
+     * Sumber kebenaran tunggal = relasi `sekolah` (tabel sekolah).
+     * Kolom denormalisasi `sekolah_saat_ini_lat/lng` hanya cache tampilan;
+     * semua perhitungan jarak WAJIB lewat method ini.
+     *
+     * @return array{lat: float|null, lng: float|null}
+     */
+    public function koordinatSekolah(): array
+    {
+        $sekolah = $this->relationLoaded('sekolah') ? $this->getRelation('sekolah') : $this->sekolah;
+
+        if ($sekolah && $sekolah->lat !== null && $sekolah->lng !== null) {
+            return ['lat' => (float) $sekolah->lat, 'lng' => (float) $sekolah->lng];
+        }
+
+        // Fallback: cache denormalisasi (untuk data lama yang relasinya hilang)
+        return [
+            'lat' => $this->sekolah_saat_ini_lat !== null ? (float) $this->sekolah_saat_ini_lat : null,
+            'lng' => $this->sekolah_saat_ini_lng !== null ? (float) $this->sekolah_saat_ini_lng : null,
+        ];
+    }
+
+    /**
+     * Jarak (km) dari domisili ke sekolah tempat bertugas saat ini.
+     */
+    public function jarakKeSekolahSaatIni(): ?float
+    {
+        $k = $this->koordinatSekolah();
+        if ($k['lat'] === null || $k['lng'] === null) {
+            return null;
+        }
+
+        return $this->jarakKe($k['lat'], $k['lng']);
     }
 
     /**
@@ -55,6 +178,7 @@ class Guru extends Model
         $a = sin($dLat / 2) ** 2
            + cos(deg2rad($this->domisili_lat)) * cos(deg2rad($lat))
            * sin($dLng / 2) ** 2;
+
         return 2 * $r * asin(sqrt($a));
     }
 }

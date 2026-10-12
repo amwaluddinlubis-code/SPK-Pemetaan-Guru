@@ -1,0 +1,112 @@
+# PetaPenempatan ASN — Aturan Proyek
+
+Sistem informasi pemetaan penempatan Guru ASN berbasis domisili
+(Dinas Pendidikan Kab. Mandailing Natal).
+
+## Stack
+
+- Laravel 13, Livewire v4, Tailwind CSS v3+, Alpine.js, MySQL 8, PHP 8.3
+- Selalu pakai API yang sesuai versi terinstal (cek `composer show` bila ragu).
+
+## Gaya Coding
+
+- Sintaks modern: arrow functions, PHP 8.2+ type hinting untuk semua
+  parameter dan return type, constructor property promotion.
+- Komentar kode dan dokumentasi dalam Bahasa Indonesia.
+- Sebelum membuat/mengubah file, baca file tetangga dan ikuti pola yang
+  sudah ada (struktur, penamaan, pendekatan). Jangan menciptakan pola baru
+  tanpa alasan.
+- Gunakan `php artisan make:` untuk file baru (controller, model,
+  migration, dsb.) dengan `--no-interaction`.
+- Setelah mengubah file PHP, jalankan `vendor/bin/pint` (ikuti gaya
+  yang sudah ada di repo).
+
+## Livewire v4
+
+- `wire:model` untuk pengikatan properti otomatis.
+- `#[Url]` untuk state yang perlu masuk query string.
+- `#[Validate]` untuk validasi form langsung di properti.
+- Jangan pakai vanilla JavaScript untuk manipulasi DOM mikro — pakai
+  Alpine.js di dalam komponen Blade.
+
+## Database & Eloquent
+
+- Nama tabel: singular Bahasa Indonesia (`guru`, `sekolah`,
+  `kebutuhan_guru`, `hasil_spks`, `rekomendasi_swaps`).
+- Cegah N+1: selalu eager loading dengan `with()` untuk relasi yang
+  ditampilkan di list.
+- Manfaatkan MySQL native indexing untuk kolom yang sering difilter.
+- Sebelum membuat migrasi baru, cek nomor migrasi terakhir agar tidak
+  bentrok penomoran.
+- Model `Guru` menyimpan sekolah via `sekolah_id` FK plus kolom
+  denormalisasi (`sekolah_saat_ini`, `sekolah_saat_ini_lat`,
+  `sekolah_saat_ini_lng`) — setiap mutasi wajib update keduanya dalam
+  satu transaction.
+
+## Frontend & Bahasa
+
+- Styling murni Tailwind utility classes (daisyUI tersedia).
+- Ikuti `docs/standar-gui.md`: pola tombol, tabel, form, kartu, alert,
+  warna badge status, dan checklist halaman baru.
+- Warna badge: menunggu/diajukan/rekomendasi = warning,
+  diverifikasi = info, disetujui = success, ditolak = error.
+  Definisikan via method `badgeStatus()` di Model, bukan logika warna
+  di Blade.
+- Seluruh teks antarmuka dalam Bahasa Indonesia.
+- View memakai layout `layouts.app` dengan `@section('judul')` dan
+  `@section('konten')`; judul tab mengikuti pola
+  "Nama Halaman — PetaPenempatan ASN".
+
+## Peran & Rute
+
+- 6 peran: `guru`, `kepala_sekolah`, `ketua_pgri`, `kabid_ptk`, `kadis`,
+  `pemda`. Otorisasi via middleware `role:` dan `User::hasRole()`.
+- Penamaan rute mengikuti konvensi modul yang ada
+  (`usulan.*`, `swap.*`, `spk.*`, `pemda.*`).
+
+## Testing — 1 Fitur = 1 Test
+
+- Setiap fitur baru atau perubahan perilaku wajib disertai **minimal
+  1 test** di `tests/Feature/` sebelum di-push.
+- Test memakai database MySQL `peta_asn_test` (lihat `tests/TestCase.php`),
+  bukan SQLite — query Haversine butuh fungsi MySQL (`RADIANS`, `ACOS`).
+- Penamaan: `test_<fitur>_<perilaku_yang_diuji>` (contoh:
+  `test_spk_setujui_ganda_ditolak_tanpa_efek_ganda`).
+- Uji perilaku bisnis dan keamanan: minimal 1 jalur sukses + 1 jalur
+  gagal/penolakan untuk alur persetujuan dan mutasi data.
+- Suite harus hijau sebelum push: `php artisan test`.
+- Cakupan per 11 Okt 2026: `KeamananPersetujuanTest` (14 test: SPK,
+  swap, usulan, guru, MAP-001, prioritas keluarga) +
+  `CakupanFiturTest` (19 test: tolak SPK/swap/usulan, setujui swap,
+  CRUD sekolah, import CSV, dashboard, pemda read-only, proteksi 3T,
+  peringatan dampak sekolah asal, kepegawaian/linearitas, telaahan staf,
+  isolasi SPK/swap per peran, tolak setelah disetujui) +
+  `RegressionAuditTest` (9 test: batasan akses pemda & peran, invariant
+  kapasitas generate, anti-duplikat, anti tumpang-tindih swap) +
+  `FiturDasarTest` (20 test: profil & ganti password, lupa/reset password,
+  token sekali pakai, export Excel guru/sekolah/usulan, cetak, import
+  sekolah + jalur gagal, halaman 403/404, sorting, info pagination) +
+  `OtorisasiIdorTest` (9 test negatif IDOR lintas peran) +
+  `JejakAuditTest` (6 test: pencatatan audit, alasan wajib tolak, redaksi,
+  akses halaman audit) +
+  `KualitasDataTest` (6 test: deteksi temuan, filter, akses, ekspor) +
+  `DistribusiTest` (4 test: rumus defisit/surplus, privasi, filter, akses) +
+  `AksesibilitasTest` (3 test: konsistensi Haversine, privasi, akses) +
+  `SimulasiTest` (5 test: data tak berubah, determinisme, validasi) +
+  `ProyeksiTest` (3 test: jujur data belum cukup, tanpa klaim AI).
+  Total: 98 passed, 315 assertions.
+
+## Batasan
+
+- Jangan membuat file dokumentasi kecuali diminta eksplisit.
+- Jangan mengubah dependencies tanpa persetujuan.
+
+## Alur Kerja Sebelum Commit / Push
+
+- Jalankan `php artisan test` — suite harus hijau.
+- Jalankan `vendor/bin/pint` untuk file PHP yang diubah.
+- **Update dokumentasi bila diperlukan** sebelum commit/push:
+  - `docs/panduan.md` — bila aturan bisnis / alur / status / todo berubah.
+  - `README.md` — bila cara instalasi / penggunaan berubah.
+  - `.cursorrules` (file ini) — bila ada aturan proyek baru.
+- Pesan commit dalam Bahasa Indonesia, jelas dan spesifik.

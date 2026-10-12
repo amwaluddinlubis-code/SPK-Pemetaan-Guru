@@ -1,4 +1,5 @@
 <?php
+
 // Controller Dashboard: hanya menampilkan halaman utama.
 // Peta & rekomendasi ditangani komponen Livewire PetaRekomendasi.
 
@@ -13,27 +14,35 @@ class DashboardController extends Controller
     public function index()
     {
         // Angka ringkasan untuk kartu statistik
-        $totalGuru    = Guru::count();
+        $totalGuru = Guru::count();
         $totalSekolah = Sekolah::count();
 
         // Hitung rata-rata jarak domisili → sekolah saat ini
-        $semuaGuru = Guru::all();
-        $rataJarak = $semuaGuru->isNotEmpty()
-            ? $semuaGuru->avg(fn ($g) => $g->jarakKe(
-                (float) $g->sekolah_saat_ini_lat,
-                (float) $g->sekolah_saat_ini_lng
-              ))
-            : 0;
+        // MAP-001: lewat relasi sekolah (sumber kebenaran tunggal)
+        $semuaGuru = Guru::with('sekolah')->get();
+        $jarakValid = $semuaGuru
+            ->map(fn ($guru) => $guru->jarakKeSekolahSaatIni())
+            ->filter(fn ($jarak) => $jarak !== null)
+            ->values();
 
-        // Guru yang jaraknya > 5 km (butuh perhatian)
-        $guruJauh = $semuaGuru->filter(fn ($g) => $g->jarakKe(
-            (float) $g->sekolah_saat_ini_lat,
-            (float) $g->sekolah_saat_ini_lng
-        ) > 5)->count();
+        // Jangan mengubah koordinat yang hilang menjadi 0 km: itu akan
+        // mengecilkan rata-rata dan menyembunyikan data geografis yang belum lengkap.
+        $rataJarak = $jarakValid->isNotEmpty() ? $jarakValid->avg() : null;
+        $guruDenganJarak = $jarakValid->count();
+
+        // Guru yang jaraknya > 5 km (hanya dari jarak yang valid)
+        $guruJauh = $jarakValid->filter(fn ($jarak) => $jarak > 5)->count();
 
         // Usulan yang masih menunggu diproses (untuk Kabid/Kadis)
         $usulanMenunggu = UsulanPenempatan::whereIn('status', UsulanPenempatan::AKTIF)->count();
 
-        return view('dashboard', compact('totalGuru', 'totalSekolah', 'rataJarak', 'guruJauh', 'usulanMenunggu'));
+        return view('dashboard', compact(
+            'totalGuru',
+            'totalSekolah',
+            'rataJarak',
+            'guruDenganJarak',
+            'guruJauh',
+            'usulanMenunggu'
+        ));
     }
 }

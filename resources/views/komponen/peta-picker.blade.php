@@ -7,10 +7,8 @@
        $lat, $lng → posisi awal pin (angka) --}}
 
 @pushOnce('kepala')
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-@endPushOnce
-@pushOnce('skrip')
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    {{-- Leaflet dibundle Vite — tidak tergantung CDN --}}
+    @vite('resources/js/peta.js')
     <script>
     // Inisialisasi satu pemilih koordinat:
     // klik peta / geser pin → input lat/lng terisi; ketik manual → pin ikut pindah.

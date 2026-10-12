@@ -56,6 +56,24 @@
                         </select>
                     </label>
                     <label class="form-control w-full">
+                        <span class="label-text font-semibold">Desa / Kelurahan</span>
+                        <input type="text" name="desa_kelurahan"
+                               value="{{ old('desa_kelurahan', $sekolah->desa_kelurahan) }}"
+                               class="input input-bordered w-full" placeholder="cth: Panyabungan Jae" maxlength="100">
+                    </label>
+                    <label class="form-control w-full">
+                        <span class="label-text font-semibold">Kategori Daerah</span>
+                        <select name="kategori_daerah" class="select select-bordered w-full">
+                            @foreach (\App\Models\Sekolah::KATEGORI_DAERAH as $kode => $label)
+                                <option value="{{ $kode }}"
+                                    {{ old('kategori_daerah', $sekolah->kategori_daerah ?? 'biasa') === $kode ? 'selected' : '' }}>
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <span class="label-text-alt">Guru di sekolah Terpencil/3T dilindungi dari mutasi keluar lewat SPK (rem pemerataan).</span>
+                    </label>
+                    <label class="form-control w-full">
                         <span class="label-text font-semibold">Latitude</span>
                         <input type="text" id="lat" name="lat" value="{{ old('lat', $sekolah->lat) }}" required
                                class="input input-bordered w-full" placeholder="0.7900">

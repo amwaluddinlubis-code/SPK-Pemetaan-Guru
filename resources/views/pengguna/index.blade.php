@@ -3,7 +3,7 @@
 @section('judul', 'Kelola Pengguna — PetaPenempatan ASN')
 
 @section('konten')
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
         <h1 class="text-2xl font-bold">👥 Kelola Pengguna</h1>
         <a href="{{ route('pengguna.create') }}" class="btn btn-primary">+ Tambah Pengguna</a>
     </div>
@@ -44,8 +44,8 @@
         </div>
     </div>
 
-    <div class="card bg-base-100 shadow-xl">
-        <div class="card-body p-0 overflow-x-auto">
+    <div class="card bg-base-100 shadow-xl overflow-hidden">
+        <div class="card-body p-0 overflow-x-auto min-w-0">
             <table class="table table-zebra">
                 <thead>
                     <tr>
@@ -91,11 +91,5 @@
         </div>
     </div>
 
-    <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
-        <p class="text-sm opacity-70">
-            Menampilkan {{ $daftarUser->firstItem() ?? 0 }}–{{ $daftarUser->lastItem() ?? 0 }}
-            dari {{ $daftarUser->total() }} data
-        </p>
-        {{ $daftarUser->links() }}
-    </div>
+    <div class="mt-4">{{ $daftarUser->links() }}</div>
 @endsection

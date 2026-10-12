@@ -11,9 +11,17 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            SekolahMadinaSeeder::class, // 553 sekolah asli Madina (dulu)
-            DataContohSeeder::class,    // 8 guru contoh (d-relokasi ke Madina)
-            AdminSeeder::class,         // akun 5 peran (butuh data guru/sekolah)
+            SekolahMadinaSeeder::class, // 552 sekolah asli Madina (data referensi)
         ]);
+
+        // Data contoh & akun demo HANYA untuk pengembangan lokal/testing.
+        // Di production, seeder sengaja tidak membuat akun dengan password
+        // yang diketahui publik — buat akun awal lewat prosedur operasional.
+        if (app()->environment('local', 'testing')) {
+            $this->call([
+                DataContohSeeder::class, // 8 guru contoh
+                AdminSeeder::class,      // akun demo 7 peran
+            ]);
+        }
     }
 }

@@ -20,6 +20,13 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
+        // Pengaman: akun demo dengan password berpola tidak boleh dibuat
+        // di production. DatabaseSeeder sudah membatasi pemanggilan seeder
+        // ini ke environment local/testing; guard ganda di sini untuk
+        // kasus seeder dijalankan langsung (php artisan db:seed --class=...).
+        abort_unless(app()->environment('local', 'testing'), 403,
+            'AdminSeeder hanya boleh dijalankan di environment local/testing.');
+
         // Urutan penting: DataContohSeeder harus jalan dulu (dipanggil
         // setelahnya di DatabaseSeeder) agar guru/sekolah sudah ada.
         // Karena itu relasi dicari ulang di sini dengan aman (nullable).
@@ -53,6 +60,10 @@ class AdminSeeder extends Seeder
             [
                 'name' => 'Kadis Pendidikan', 'email' => 'kadis@peta-asn.local',
                 'password' => 'kadis123', 'role' => 'kadis',
+            ],
+            [
+                'name' => 'Pemerintah Daerah', 'email' => 'pemda@peta-asn.local',
+                'password' => 'pemda123', 'role' => 'pemda',
             ],
         ];
 

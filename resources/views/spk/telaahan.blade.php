@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Telaahan Staf — {{ $guru->nama }}</title>
+    <style>
+        body { font-family: "Times New Roman", Times, serif; color: #111; margin: 0; padding: 24px; }
+        .kertas { max-width: 720px; margin: 0 auto; }
+        .kop { text-align: center; border-bottom: 3px double #111; padding-bottom: 12px; margin-bottom: 20px; }
+        .kop h1 { font-size: 16px; margin: 0; text-transform: uppercase; }
+        .kop h2 { font-size: 15px; margin: 2px 0; }
+        .kop p { font-size: 12px; margin: 2px 0; }
+        .judul { text-align: center; margin: 20px 0; }
+        .judul h3 { font-size: 15px; margin: 0; text-decoration: underline; text-transform: uppercase; }
+        .judul p { font-size: 13px; margin: 4px 0; }
+        table.data { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0 16px; }
+        table.data th, table.data td { border: 1px solid #555; padding: 6px 8px; text-align: left; vertical-align: top; }
+        table.data th { background: #eee; width: 38%; }
+        h4 { font-size: 14px; margin: 18px 0 6px; }
+        ol, ul { font-size: 13px; }
+        li { margin-bottom: 4px; }
+        .ttd { display: flex; justify-content: space-between; margin-top: 40px; font-size: 13px; }
+        .ttd div { text-align: center; width: 40%; }
+        .ttd .nama { margin-top: 70px; text-decoration: underline; font-weight: bold; }
+        .catatan { font-size: 12px; font-style: italic; color: #444; margin-top: 24px; border-top: 1px solid #999; padding-top: 8px; }
+        .toolbar { text-align: center; margin-bottom: 16px; }
+        .toolbar button { font-family: sans-serif; font-size: 14px; padding: 8px 20px; cursor: pointer; }
+        @media print {
+            .toolbar { display: none; }
+            body { padding: 0; }
+        }
+    </style>
+</head>
+<body>
+<div class="kertas">
+    <div class="toolbar">
+        <button onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+    </div>
+
+    <div class="kop">
+        <h1>Pemerintah Kabupaten Mandailing Natal</h1>
+        <h2>Dinas Pendidikan</h2>
+        <p>Jl. Willem Iskandar No. ... Panyabungan — Telp. (0636) ...</p>
+    </div>
+
+    <div class="judul">
+        <h3>Telaahan Staf</h3>
+        <p>Nomor: .../TU-Dik/{{ date('m') }}/{{ date('Y') }}</p>
+        <p>Perihal: Usulan Penempatan Guru {{ $guru->mapel }}</p>
+    </div>
+
+    <h4>I. Dasar</h4>
+    <ol>
+        <li>Undang-Undang Nomor 20 Tahun 2023 tentang Aparatur Sipil Negara.</li>
+        <li>Peraturan Pemerintah Nomor 11 Tahun 2017 jo. Nomor 17 Tahun 2020 tentang Manajemen PNS.</li>
+        <li>Undang-Undang Nomor 14 Tahun 2005 tentang Guru dan Dosen (linearitas sertifikasi).</li>
+        <li>Hasil analisis kebutuhan guru dan rekomendasi SPK sistem informasi pemetaan penempatan guru.</li>
+    </ol>
+
+    <h4>II. Data Guru</h4>
+    <table class="data">
+        <tr><th>Nama / NIP</th><td>{{ $guru->nama }} / {{ $guru->nip }}</td></tr>
+        <tr><th>Status Kepegawaian</th><td>{{ $guru->labelStatusKepegawaian() }}</td></tr>
+        <tr><th>Sertifikasi</th><td>
+            {{ $guru->sudah_sertifikasi ? 'Sudah sertifikasi ('.($guru->mapel_sertifikasi ?? '—').')' : 'Belum sertifikasi' }}
+            @if ($guru->sudah_sertifikasi)
+                — {{ $guru->linear() ? 'linear dengan mapel yang diampu' : 'TIDAK LINEAR dengan mapel yang diampu' }}
+            @endif
+        </td></tr>
+        <tr><th>Status Pernikahan</th><td>{{ $guru->labelStatusPernikahan() }}{{ $guru->berkeluarga() ? ' (prioritas keluarga)' : '' }}</td></tr>
+        <tr><th>Mapel / Jenjang</th><td>{{ $guru->mapel }} / {{ $guru->jenjang }}</td></tr>
+        <tr><th>Sekolah Asal</th><td>{{ $guru->sekolah->nama ?? $guru->sekolah_saat_ini ?? '—' }}</td></tr>
+        <tr><th>Sekolah Tujuan</th><td>{{ $spk->sekolahTujuan->nama ?? '—' }}</td></tr>
+    </table>
+
+    <h4>III. Analisis</h4>
+    <ol>
+        <li><strong>Kebutuhan formasi:</strong> sekolah tujuan membutuhkan guru {{ $guru->mapel }} (rekomendasi sistem, skor {{ number_format($spk->skor ?? 0, 2) }}).</li>
+        <li><strong>Jarak domisili:</strong> saat ini {{ number_format($spk->jarak_sekarang_km, 1, ',', '.') }} km (garis lurus),
+            menjadi {{ number_format($spk->jarak_km, 1, ',', '.') }} km — penghematan
+            {{ number_format($spk->hematKm(), 1, ',', '.') }} km.</li>
+        <li><strong>Dampak ke sekolah asal:</strong>
+            @if ($dampakAsal)
+                <span style="color:#b45309;">{{ $dampakAsal }}</span>
+            @else
+                tidak teridentifikasi kekurangan kritis di sekolah asal.
+            @endif
+        </li>
+        <li><strong>Kepegawaian:</strong> berstatus {{ $guru->labelStatusKepegawaian() }}.
+            @if (strtolower($guru->status_kepegawaian) === 'pppk')
+                Mutasi PPPK agar memperhatikan perjanjian kerja dengan instansi dan ketentuan PPK.
+            @endif
+        </li>
+        <li><strong>Linearitas:</strong>
+            @if (! $guru->linear())
+                <span style="color:#b91c1c;">sertifikat pendidik tidak linear dengan mapel yang diampu — perlu pertimbangan khusus.</span>
+            @else
+                memenuhi ketentuan linearitas.
+            @endif
+        </li>
+    </ol>
+
+    <h4>IV. Saran</h4>
+    <p style="font-size:13px;">
+        Berdasarkan analisis di atas, disarankan kepada Pejabat Pembina Kepegawaian untuk
+        <strong>{{ $dampakAsal || ! $guru->linear() ? 'menunda/mengkaji ulang' : 'menyetujui' }}</strong>
+        usulan penempatan {{ $guru->nama }} ke {{ $spk->sekolahTujuan->nama ?? 'sekolah tujuan' }}.
+        @if ($dampakAsal || ! $guru->linear())
+            Pertimbangan: terdapat catatan pada poin III yang perlu diselesaikan terlebih dahulu.
+        @endif
+    </p>
+
+    <div class="ttd">
+        <div>
+            Panyabungan, {{ $tanggal }}<br>
+            Kepala Bidang PTK
+            <div class="nama">( ............................................ )</div>
+            NIP. ............................................
+        </div>
+        <div>
+            Mengetahui,<br>
+            Kepala Dinas Pendidikan
+            <div class="nama">( ............................................ )</div>
+            NIP. ............................................
+        </div>
+    </div>
+
+    <p class="catatan">Dokumen ini dihasilkan otomatis oleh Sistem Informasi Pemetaan Penempatan Guru ASN
+        berdasarkan data dan rekomendasi SPK per {{ $tanggal }}. Jarak dinyatakan sebagai garis lurus
+        (bukan jarak tempuh jalan).</p>
+</div>
+</body>
+</html>

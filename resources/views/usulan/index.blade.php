@@ -3,12 +3,15 @@
 @section('judul', 'Usulan Penempatan — PetaPenempatan ASN')
 
 @section('konten')
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
         <h1 class="text-2xl font-bold">📝 Usulan Penempatan</h1>
-        <div class="flex gap-2">
-            <a href="{{ route('export.usulan') }}" class="btn btn-outline btn-sm">📤 Export CSV</a>
+        <div class="flex flex-wrap gap-2">
+            @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
+                <a href="{{ route('usulan.export', request()->only(['q', 'status'])) }}" class="btn btn-accent">📊 Export Excel</a>
+                <a href="{{ route('usulan.cetak', request()->only(['q', 'status'])) }}" target="_blank" class="btn btn-neutral">🖨️ Cetak/PDF</a>
+            @endif
             @if (auth()->user()->hasRole('guru', 'kepala_sekolah', 'kabid_ptk'))
-            <a href="{{ route('usulan.create') }}" class="btn btn-primary">+ Ajukan Usulan</a>
+                <a href="{{ route('usulan.create') }}" class="btn btn-primary">+ Ajukan Usulan</a>
             @endif
         </div>
     </div>
@@ -39,16 +42,15 @@
         </div>
     </div>
 
-    <div class="card bg-base-100 shadow-xl">
-        <div class="card-body p-0 overflow-x-auto">
+    <div class="card bg-base-100 shadow-xl overflow-hidden">
+        <div class="card-body p-0 overflow-x-auto min-w-0">
             <table class="table table-zebra">
                 <thead>
                     <tr>
                         <th>Guru</th>
                         <th>Sekolah Tujuan</th>
-                        @include('komponen.th-sort', ['kolom' => 'status', 'label' => 'Status'])
+                        <th><a href="{{ route('usulan.index', array_merge(request()->except(['sort', 'arah', 'page']), ['sort' => 'status', 'arah' => ($sortir === 'status' && $arah === 'asc') ? 'desc' : 'asc'])) }}" class="link">Status {{ $sortir === 'status' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</a></th>
                         <th>Diajukan Oleh</th>
-                        @include('komponen.th-sort', ['kolom' => 'created_at', 'label' => 'Tanggal'])
                         <th class="text-right">Aksi</th>
                     </tr>
                 </thead>
@@ -62,13 +64,12 @@
                             <td class="text-sm">{{ $u->sekolah->nama }}</td>
                             <td><span class="badge {{ $u->badgeStatus() }}">{{ $u->labelStatus() }}</span></td>
                             <td class="text-sm">{{ $u->pengaju->name ?? '—' }}</td>
-                            <td class="text-sm">{{ $u->created_at?->format('d/m/Y') }}</td>
                             <td class="text-right">
                                 <a href="{{ route('usulan.show', $u) }}" class="btn btn-sm btn-info">Lihat</a>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="text-center opacity-60 py-8">Tidak ada usulan yang cocok.</td></tr>
+                        <tr><td colspan="5" class="text-center opacity-60 py-8">Tidak ada usulan yang cocok.</td></tr>
                     @endforelse
                 </tbody>
             </table>

@@ -1,4 +1,5 @@
 <?php
+
 // Seeder: 553 sekolah asli Kab. Mandailing Natal (Sumatera Utara).
 // Sumber: referensi.data.kemendikdasmen.go.id (diakses 2026-10-10).
 // Data: NPSN, nama, alamat, kecamatan, status = ASLI.
@@ -37,12 +38,12 @@ class SekolahMadinaSeeder extends Seeder
             $npsnTerpakai[$s['npsn']] = true;
 
             $sekolah = Sekolah::create([
-                'npsn'      => $s['npsn'],
-                'nama'      => $s['nama'],
-                'alamat'    => $s['alamat'] ?: $s['kelurahan'],
+                'npsn' => $s['npsn'],
+                'nama' => $s['nama'],
+                'alamat' => $s['alamat'] ?: $s['kelurahan'],
                 'kecamatan' => $s['kecamatan'],
-                'lat'       => $s['lat'],
-                'lng'       => $s['lng'],
+                'lat' => $s['lat'],
+                'lng' => $s['lng'],
             ]);
 
             // --- Kebutuhan CONTOH (demo saja) ---
@@ -57,8 +58,8 @@ class SekolahMadinaSeeder extends Seeder
             foreach ($butuh as $mapel => $jumlah) {
                 KebutuhanGuru::create([
                     'sekolah_id' => $sekolah->id,
-                    'mapel'      => $mapel,
-                    'jumlah'     => $jumlah,
+                    'mapel' => $mapel,
+                    'jumlah' => $jumlah,
                 ]);
             }
             $i++;
@@ -71,6 +72,7 @@ class SekolahMadinaSeeder extends Seeder
         if (str_contains($n, 'SMP') || str_contains($n, 'MTS')) {
             return 'SMP';
         }
+
         return 'SD';
     }
 }

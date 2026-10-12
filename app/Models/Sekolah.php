@@ -1,4 +1,5 @@
 <?php
+
 // Model Sekolah: merepresentasikan satu sekolah di tabel 'sekolah'.
 
 namespace App\Models;
@@ -15,9 +16,30 @@ class Sekolah extends Model
         'nama',
         'alamat',
         'kecamatan',
+        'desa_kelurahan',
+        'kategori_daerah',
         'lat',
         'lng',
     ];
+
+    /**
+     * Kategori daerah sekolah.
+     */
+    public const KATEGORI_DAERAH = [
+        'biasa' => 'Biasa',
+        'terpencil' => 'Terpencil',
+        'sangat_terpencil' => 'Sangat Terpencil (3T)',
+    ];
+
+    public function labelKategoriDaerah(): string
+    {
+        return self::KATEGORI_DAERAH[$this->kategori_daerah] ?? '-';
+    }
+
+    public function isDaerah3T(): bool
+    {
+        return in_array($this->kategori_daerah, ['terpencil', 'sangat_terpencil'], true);
+    }
 
     protected $casts = [
         'lat' => 'float',

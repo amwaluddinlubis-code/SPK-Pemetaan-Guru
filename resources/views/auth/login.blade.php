@@ -106,9 +106,8 @@
                         <button type="submit" class="btn btn-primary w-full btn-lg">
                             Masuk →
                         </button>
-
                         <div class="text-center mt-3">
-                            <a href="{{ route('password.lupa') }}" class="link link-primary text-sm">Lupa password?</a>
+                            <a href="{{ route('password.request') }}" class="link link-primary text-sm">Lupa password?</a>
                         </div>
                     </form>
                 </div>

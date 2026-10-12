@@ -38,28 +38,20 @@
             </div>
         </div>
 
-        {{-- Petunjuk format --}}
+        {{-- Petunjuk kolom --}}
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body">
                 <h2 class="card-title">Format Kolom</h2>
-                <p class="text-sm opacity-70">
-                    Baris pertama <strong>wajib persis</strong> seperti template.
-                    Kolom bertanda <span class="badge badge-error badge-sm">*</span> wajib diisi.
-                    Baris valid langsung tersimpan; baris gagal dilaporkan tanpa menggagalkan yang lain.
+                <p class="text-sm opacity-70">Header harus sama persis (urutan boleh tetap). Baris kosong dilewati.</p>
+                <ol class="list-decimal list-inside text-sm space-y-1 mt-2">
+                    @foreach ($kolom as $k)
+                        <li><code>{{ $k }}</code></li>
+                    @endforeach
+                </ol>
+                <p class="text-sm mt-2 opacity-70">
+                    <code>kategori_daerah</code>: biasa / terpencil / sangat_terpencil (boleh kosong = biasa).
+                    <code>lat</code>/<code>lng</code>: angka koordinat.
                 </p>
-                <div class="overflow-x-auto">
-                    <table class="table table-sm">
-                        <thead><tr><th>Kolom</th><th>Keterangan</th></tr></thead>
-                        <tbody>
-                            <tr><td><code>npsn</code> *</td><td>Unik, 8 digit</td></tr>
-                            <tr><td><code>nama</code> *</td><td>Nama sekolah</td></tr>
-                            <tr><td><code>alamat</code></td><td>Alamat lengkap</td></tr>
-                            <tr><td><code>kecamatan</code></td><td>Nama kecamatan Madina</td></tr>
-                            <tr><td><code>lat</code></td><td>-90 s.d. 90 (boleh kosong)</td></tr>
-                            <tr><td><code>lng</code></td><td>-180 s.d. 180 (boleh kosong)</td></tr>
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
     </div>
