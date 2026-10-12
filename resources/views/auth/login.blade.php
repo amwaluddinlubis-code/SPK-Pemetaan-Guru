@@ -77,25 +77,25 @@
                     <form method="POST" action="{{ route('login.proses') }}">
                         @csrf
 
-                        <label class="form-control w-full mb-4">
-                            <span class="label-text font-semibold mb-1">📧 Email</span>
+                        <fieldset class="fieldset w-full mb-4">
+                            <legend class="fieldset-legend font-semibold mb-1">📧 Email</legend>
                             <input type="email" name="email" value="{{ old('email') }}"
                                    required autofocus placeholder="nama@contoh.id"
-                                   class="input input-bordered w-full focus:input-primary">
-                        </label>
+                                   class="input w-full focus:input-primary">
+                        </fieldset>
 
-                        <label class="form-control w-full mb-2">
-                            <span class="label-text font-semibold mb-1">🔒 Password</span>
+                        <fieldset class="fieldset w-full mb-2">
+                            <legend class="fieldset-legend font-semibold mb-1">🔒 Password</legend>
                             <div class="relative">
                                 <input type="password" id="input-password" name="password"
                                        required placeholder="••••••••"
-                                       class="input input-bordered w-full pr-12 focus:input-primary">
+                                       class="input w-full pr-12 focus:input-primary">
                                 {{-- Tombol intip password (JavaScript murni) --}}
                                 <button type="button" id="btn-intip"
                                         class="btn btn-ghost btn-sm absolute right-1 top-1/2 -translate-y-1/2"
                                         title="Tampilkan/sembunyikan password">👁️</button>
                             </div>
-                        </label>
+                        </fieldset>
 
                         <label class="label cursor-pointer justify-start gap-2 mb-5">
                             <input type="checkbox" name="remember"
