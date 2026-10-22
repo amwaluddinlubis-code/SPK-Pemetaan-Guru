@@ -113,6 +113,9 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:kabid_ptk');
     Route::post('/sekolah/import-rombel', [SekolahController::class, 'importRombel'])->name('sekolah.import-rombel.proses')
         ->middleware('role:kabid_ptk');
+    // Terapkan analisis kebutuhan guru ke semua sekolah sekaligus: khusus kabid_ptk
+    Route::post('/sekolah/analisis-massal/terapkan', [SekolahController::class, 'terapkanAnalisisMassal'])->name('sekolah.analisis.massal')
+        ->middleware('role:kabid_ptk');
     // Tambah & hapus: kabid_ptk (administrator)
     Route::get('/sekolah/create', [SekolahController::class, 'create'])->name('sekolah.create')
         ->middleware('role:kabid_ptk');

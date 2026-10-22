@@ -9,6 +9,11 @@
                 @if (auth()->user()->hasRole('kabid_ptk'))
                     <a href="{{ route('sekolah.import') }}" class="btn btn-secondary">📥 Import Excel</a>
                     <a href="{{ route('sekolah.import-rombel') }}" class="btn btn-secondary">📊 Import Rombel</a>
+                    <form method="POST" action="{{ route('sekolah.analisis.massal') }}" class="inline-flex"
+                          onsubmit="return confirm('Terapkan analisis kebutuhan guru ke SEMUA sekolah yang rombelnya terisi? Baris kebutuhan lama tiap sekolah akan diganti hasil hitungan rombel × JP.')">
+                        @csrf
+                        <button type="submit" class="btn btn-secondary">🧮 Terapkan Analisis Massal</button>
+                    </form>
                 @endif
                 <a href="{{ route('sekolah.export', request()->only(['q', 'kecamatan'])) }}" class="btn btn-accent">📊 Export Excel</a>
                 <a href="{{ route('sekolah.cetak', request()->only(['q', 'kecamatan'])) }}" target="_blank" class="btn btn-neutral">🖨️ Cetak/PDF</a>

@@ -64,7 +64,51 @@ class SekolahController extends Controller
 
         $eksisting = $this->eksistingPerLabel($sekolah, $jenjang);
         $baris = AnalisisKebutuhanGuru::hitung($jenjang, $rombel, $eksisting);
+        $this->simpanHasilAnalisis($sekolah, $baris);
 
+        return redirect()->route('sekolah.index')
+            ->with('sukses', 'Hasil analisis kebutuhan berhasil diterapkan ke '.$sekolah->nama.'.');
+    }
+
+    /**
+     * Terapkan hasil analisis ke SEMUA sekolah yang rombelnya terisi:
+     * kebutuhan guru resmi tiap sekolah diganti hasil hitungan rombel × JP.
+     * Sekolah tanpa rombel dilewati — kebutuhannya tidak diubah.
+     */
+    public function terapkanAnalisisMassal()
+    {
+        $daftar = Sekolah::with('guru')->where('rombel', '>', 0)->orderBy('nama')->get();
+
+        $diterapkan = 0;
+        foreach ($daftar as $sekolah) {
+            $jenjang = $sekolah->jenjangEfektif();
+            $eksisting = $this->eksistingPerLabel($sekolah, $jenjang);
+            $baris = AnalisisKebutuhanGuru::hitung($jenjang, (int) $sekolah->rombel, $eksisting);
+            $this->simpanHasilAnalisis($sekolah, $baris);
+            $diterapkan++;
+        }
+
+        $dilewati = Sekolah::where(function ($q) {
+            $q->whereNull('rombel')->orWhere('rombel', '<=', 0);
+        })->count();
+
+        ActivityLog::catatAman('sekolah.terapkan-analisis-massal', null, 'sukses', [
+            'diterapkan' => $diterapkan,
+            'dilewati' => $dilewati,
+        ]);
+
+        return redirect()->route('sekolah.index')
+            ->with('sukses', "Analisis kebutuhan diterapkan ke {$diterapkan} sekolah. {$dilewati} sekolah dilewati (rombel belum terisi).");
+    }
+
+    /**
+     * Simpan hasil hitungan analisis sebagai kebutuhan guru resmi sekolah
+     * (baris lama diganti) + catat audit. Dipakai jalur tunggal & massal.
+     *
+     * @param  array<int, array{label: string, kebutuhan: int}>  $baris
+     */
+    private function simpanHasilAnalisis(Sekolah $sekolah, array $baris): void
+    {
         DB::transaction(function () use ($sekolah, $baris) {
             $sekolah->kebutuhan()->delete();
             foreach ($baris as $b) {
@@ -84,9 +128,6 @@ class SekolahController extends Controller
                 'baris' => count($baris),
             ]);
         });
-
-        return redirect()->route('sekolah.index')
-            ->with('sukses', 'Hasil analisis kebutuhan berhasil diterapkan ke '.$sekolah->nama.'.');
     }
 
     /**
