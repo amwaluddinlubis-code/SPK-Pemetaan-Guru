@@ -108,6 +108,11 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:kabid_ptk');
     Route::get('/sekolah/contoh-template', [SekolahController::class, 'unduhTemplate'])->name('sekolah.template')
         ->middleware('role:kabid_ptk');
+    // Import rombel dari CSV ekspor Dapodik per kecamatan: khusus kabid_ptk (administrator)
+    Route::get('/sekolah/import-rombel', [SekolahController::class, 'importRombelForm'])->name('sekolah.import-rombel')
+        ->middleware('role:kabid_ptk');
+    Route::post('/sekolah/import-rombel', [SekolahController::class, 'importRombel'])->name('sekolah.import-rombel.proses')
+        ->middleware('role:kabid_ptk');
     // Tambah & hapus: kabid_ptk (administrator)
     Route::get('/sekolah/create', [SekolahController::class, 'create'])->name('sekolah.create')
         ->middleware('role:kabid_ptk');

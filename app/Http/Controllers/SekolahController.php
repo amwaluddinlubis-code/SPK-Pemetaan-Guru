@@ -330,6 +330,117 @@ class SekolahController extends Controller
     }
 
     /**
+     * Form import rombel dari CSV ekspor Dapodik per kecamatan.
+     */
+    public function importRombelForm()
+    {
+        return view('sekolah.import-rombel');
+    }
+
+    /**
+     * Import jumlah rombel dari CSV ekspor Dapodik (tombol "Ekspor CSV" di
+     * halaman progres per kecamatan). Kolom yang dipakai: NPSN (kunci) dan
+     * Rombel. Sekolah yang NPSN-nya tidak dikenal dilaporkan, tidak dibuat.
+     */
+    public function importRombel(Request $request)
+    {
+        $request->validate([
+            'berkas' => ['required', 'file', 'max:5120', 'mimes:csv,txt'],
+        ]);
+
+        $path = $request->file('berkas')->getRealPath();
+        try {
+            $pembaca = IOFactory::createReader('Csv');
+            $pembaca->setDelimiter($this->deteksiDelimiterCsv($path));
+            $pembaca->setEnclosure('"');
+            $lembar = $pembaca->load($path)->getActiveSheet()->toArray(null, true, true, false);
+        } catch (\Throwable $e) {
+            return back()->withErrors(['berkas' => 'File tidak bisa dibaca sebagai CSV.']);
+        }
+
+        $header = array_map(fn ($h) => strtolower(trim((string) $h)), $lembar[0] ?? []);
+        $idxNpsn = array_search('npsn', $header, true);
+        $idxRombel = array_search('rombel', $header, true);
+        if ($idxNpsn === false || $idxRombel === false) {
+            return back()->withErrors(['berkas' => 'Kolom NPSN dan Rombel tidak ditemukan. Pakai file CSV dari tombol "Ekspor CSV" di halaman progres Dapodik per kecamatan.']);
+        }
+
+        $petaSekolah = Sekolah::pluck('id', 'npsn')
+            ->mapWithKeys(fn ($id, $npsn) => [trim((string) $npsn) => $id]);
+
+        $berhasil = 0;
+        $gagal = [];
+        $npsnDiproses = [];
+
+        DB::beginTransaction();
+        try {
+            foreach (array_slice($lembar, 1) as $i => $baris) {
+                $noBaris = $i + 2;
+                if (collect($baris)->every(fn ($v) => $v === null || trim((string) $v) === '')) {
+                    continue; // lewati baris kosong
+                }
+                $npsn = trim((string) ($baris[$idxNpsn] ?? ''));
+                $rombelMentah = trim((string) ($baris[$idxRombel] ?? ''));
+
+                if ($npsn === '') {
+                    $gagal[] = "Baris {$noBaris}: NPSN kosong.";
+
+                    continue;
+                }
+                if (! ctype_digit($rombelMentah) || (int) $rombelMentah > 300) {
+                    $gagal[] = "Baris {$noBaris} (NPSN {$npsn}): jumlah rombel tidak valid.";
+
+                    continue;
+                }
+                if (isset($npsnDiproses[$npsn])) {
+                    $gagal[] = "Baris {$noBaris} (NPSN {$npsn}): duplikat di file, yang dipakai baris pertama.";
+
+                    continue;
+                }
+                $npsnDiproses[$npsn] = true;
+
+                $sekolahId = $petaSekolah[$npsn] ?? null;
+                if (! $sekolahId) {
+                    $gagal[] = "Baris {$noBaris} (NPSN {$npsn}): tidak dikenal di database.";
+
+                    continue;
+                }
+
+                Sekolah::where('id', $sekolahId)->update(['rombel' => (int) $rombelMentah]);
+                $berhasil++;
+            }
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            report($e);
+
+            // Jangan tampilkan detail exception/SQL kepada pengguna.
+            return back()->withErrors(['berkas' => 'Import dibatalkan karena terjadi kesalahan saat menyimpan data. Periksa file dan coba lagi.']);
+        }
+
+        ActivityLog::catatAman('sekolah.import-rombel', null, 'sukses', [
+            'berhasil' => $berhasil,
+            'gagal' => count($gagal),
+        ]);
+
+        return redirect()->route('sekolah.index')->with([
+            'sukses' => "Import rombel selesai: {$berhasil} sekolah diperbarui.",
+            'import_gagal' => $gagal,
+        ]);
+    }
+
+    /**
+     * Tebak delimiter CSV — ekspor Dapodik/Excel Indonesia umumnya ';'.
+     */
+    private function deteksiDelimiterCsv(string $path): string
+    {
+        $awal = (string) file_get_contents($path, false, null, 0, 4096);
+        $barisPertama = (string) strtok($awal, "\n");
+
+        return substr_count($barisPertama, ';') >= substr_count($barisPertama, ',') ? ';' : ',';
+    }
+
+    /**
      * Validasi satu baris import — setara aturan form tambah sekolah.
      */
     private function validasiBarisImport(array $data, $npsnAda, array $npsnDiBerkas, array $kategoriValid): ?string

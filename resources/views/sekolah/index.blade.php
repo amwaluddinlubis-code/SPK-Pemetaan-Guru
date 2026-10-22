@@ -8,6 +8,7 @@
             @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
                 @if (auth()->user()->hasRole('kabid_ptk'))
                     <a href="{{ route('sekolah.import') }}" class="btn btn-secondary">📥 Import Excel</a>
+                    <a href="{{ route('sekolah.import-rombel') }}" class="btn btn-secondary">📊 Import Rombel</a>
                 @endif
                 <a href="{{ route('sekolah.export', request()->only(['q', 'kecamatan'])) }}" class="btn btn-accent">📊 Export Excel</a>
                 <a href="{{ route('sekolah.cetak', request()->only(['q', 'kecamatan'])) }}" target="_blank" class="btn btn-neutral">🖨️ Cetak/PDF</a>
