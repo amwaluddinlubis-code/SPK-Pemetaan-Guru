@@ -2,13 +2,15 @@
 <div>
 <x-halaman judul="Usulan Penempatan" ikon="usulan">
     <x-slot:aksi>
+        <div class="grup-aksi grup-aksi-bungkus">
         @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
-            <a href="{{ route('usulan.export', request()->only(['q', 'status'])) }}" class="btn btn-accent"><x-ikon nama="unduh" class="h-5 w-5" /> Export Excel</a>
-            <a href="{{ route('usulan.cetak', request()->only(['q', 'status'])) }}" target="_blank" class="btn btn-neutral"><x-ikon nama="cetak" class="h-5 w-5" /> Cetak/PDF</a>
+            <a href="{{ route('usulan.export', request()->only(['q', 'status'])) }}" class="btn btn-sm btn-accent tooltip tooltip-bottom" data-tip="Export Excel" aria-label="Export Excel"><x-ikon nama="unduh" class="h-4 w-4" /></a>
+            <a href="{{ route('usulan.cetak', request()->only(['q', 'status'])) }}" target="_blank" class="btn btn-sm btn-neutral tooltip tooltip-bottom" data-tip="Cetak/PDF" aria-label="Cetak/PDF"><x-ikon nama="cetak" class="h-4 w-4" /></a>
         @endif
         @if (auth()->user()->hasRole('guru', 'kepala_sekolah', 'kabid_ptk'))
-            <a href="{{ route('usulan.create') }}" class="btn btn-primary"><x-ikon nama="tambah" class="h-5 w-5" /> Ajukan Usulan</a>
+            <a href="{{ route('usulan.create') }}" class="btn btn-sm btn-primary tooltip tooltip-bottom" data-tip="Ajukan Usulan" aria-label="Ajukan Usulan"><x-ikon nama="tambah" class="h-4 w-4" /></a>
         @endif
+        </div>
     </x-slot:aksi>
 </x-halaman>
 
@@ -61,7 +63,7 @@
                             <td><span class="badge {{ $u->badgeStatus() }}">{{ $u->labelStatus() }}</span></td>
                             <td class="text-sm">{{ $u->pengaju->name ?? '—' }}</td>
                             <td class="text-right">
-                                <a href="{{ route('usulan.show', $u) }}" class="btn btn-sm btn-info" title="Lihat & telaahan" aria-label="Lihat & telaahan"><x-ikon nama="mata" class="h-4 w-4" /></a>
+                                <a href="{{ route('usulan.show', $u) }}" class="btn btn-sm btn-info tooltip tooltip-left" data-tip="Lihat & telaahan" aria-label="Lihat & telaahan"><x-ikon nama="mata" class="h-4 w-4" /></a>
                             </td>
                         </tr>
                     @empty

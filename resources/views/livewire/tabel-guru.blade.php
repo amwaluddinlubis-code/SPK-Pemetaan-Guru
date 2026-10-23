@@ -5,12 +5,12 @@
         <div class="grup-aksi grup-aksi-bungkus">
         @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah', 'kadis'))
             @if (auth()->user()->hasRole('kabid_ptk'))
-                <a href="{{ route('guru.import') }}" class="btn btn-sm btn-secondary"><x-ikon nama="unggah" class="h-4 w-4" /> Import Excel</a>
+                <a href="{{ route('guru.import') }}" class="btn btn-sm btn-secondary tooltip tooltip-bottom" data-tip="Import Excel" aria-label="Import Excel"><x-ikon nama="unggah" class="h-4 w-4" /></a>
             @endif
-            <a href="{{ route('guru.export', request()->only(['q', 'kecamatan'])) }}" class="btn btn-sm btn-accent"><x-ikon nama="unduh" class="h-4 w-4" /> Export Excel</a>
-            <a href="{{ route('guru.cetak', request()->only(['q', 'kecamatan'])) }}" target="_blank" class="btn btn-sm btn-neutral"><x-ikon nama="cetak" class="h-4 w-4" /> Cetak/PDF</a>
+            <a href="{{ route('guru.export', request()->only(['q', 'kecamatan'])) }}" class="btn btn-sm btn-accent tooltip tooltip-bottom" data-tip="Export Excel" aria-label="Export Excel"><x-ikon nama="unduh" class="h-4 w-4" /></a>
+            <a href="{{ route('guru.cetak', request()->only(['q', 'kecamatan'])) }}" target="_blank" class="btn btn-sm btn-neutral tooltip tooltip-bottom" data-tip="Cetak/PDF" aria-label="Cetak/PDF"><x-ikon nama="cetak" class="h-4 w-4" /></a>
             @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah'))
-                <a href="{{ route('guru.create') }}" class="btn btn-sm btn-primary"><x-ikon nama="tambah" class="h-4 w-4" /> Tambah Guru</a>
+                <a href="{{ route('guru.create') }}" class="btn btn-sm btn-primary tooltip tooltip-bottom" data-tip="Tambah Guru" aria-label="Tambah Guru"><x-ikon nama="tambah" class="h-4 w-4" /></a>
             @endif
         @endif
         </div>
@@ -106,7 +106,7 @@
                             <td class="text-right whitespace-nowrap">
                                 <div class="grup-aksi">
                                     @if (auth()->user()->hasRole('guru', 'kabid_ptk', 'kepala_sekolah'))
-                                        <a href="{{ route('guru.edit', $g) }}" class="btn btn-sm btn-warning" title="Ubah" aria-label="Ubah"><x-ikon nama="pensil" class="h-4 w-4" /></a>
+                                        <a href="{{ route('guru.edit', $g) }}" class="btn btn-sm btn-warning tooltip tooltip-left" data-tip="Ubah" aria-label="Ubah"><x-ikon nama="pensil" class="h-4 w-4" /></a>
                                     @endif
                                     @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah'))
                                         <x-hapus :aksi="route('guru.destroy', $g)" tanya="Hapus data {{ $g->nama }}?" ikon-saja petunjuk="Hapus" />
@@ -155,7 +155,7 @@
                     <div class="card-actions justify-end mt-2">
                         <div class="grup-aksi">
                             @if (auth()->user()->hasRole('guru', 'kabid_ptk', 'kepala_sekolah'))
-                                <a href="{{ route('guru.edit', $g) }}" class="btn btn-sm btn-warning" title="Ubah" aria-label="Ubah"><x-ikon nama="pensil" class="h-4 w-4" /></a>
+                                <a href="{{ route('guru.edit', $g) }}" class="btn btn-sm btn-warning tooltip tooltip-left" data-tip="Ubah" aria-label="Ubah"><x-ikon nama="pensil" class="h-4 w-4" /></a>
                             @endif
                             @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah'))
                                 <x-hapus :aksi="route('guru.destroy', $g)" tanya="Hapus data {{ $g->nama }}?" ikon-saja petunjuk="Hapus" />

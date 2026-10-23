@@ -104,6 +104,13 @@ body {
     z-index: 1;
 }
 
+/* Tooltip daisyUI di dalam grup aksi: melayang di atas tombol tetangga
+   (grup memakai margin negatif 1px antar tombol). */
+.grup-aksi .tooltip::before,
+.grup-aksi .tooltip::after {
+    z-index: 30;
+}
+
 /* Menu bilah sisi (Redesign R1): status aktif jelas di atas warna aksen,
    label grup tenang — hierarki terbaca tanpa berteriak */
 .menu-kerangka li > a:hover {
@@ -128,7 +135,9 @@ body {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: rgb(255 255 255 / 0.55);
+    /* Warna font sama dengan item anak (mewarisi text-primary-content
+       bilah sisi) — bukan putih statis, agar ikut tema/branding. */
+    color: inherit;
     cursor: pointer;
     user-select: none;
 }
@@ -139,7 +148,7 @@ body {
     display: none;
 }
 .menu-kerangka .menu-grup > summary:hover {
-    color: rgb(255 255 255 / 0.9);
+    background: color-mix(in oklab, var(--color-primary-content) 10%, transparent);
 }
 .menu-kerangka .menu-grup > summary .panah {
     transition: transform 0.2s ease;

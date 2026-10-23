@@ -211,3 +211,24 @@
     sekolah terkait di peta (hover/klik). Pemilih koordinat memakai
     bingkai yang sama (`rounded-box`, border base-300, bayangan halus)
     dan petunjuk berikon — tanpa emoji.
+31. **Formulir, dokumen & halaman publik (Redesign R5).** Formulir
+    panjang dikelompokkan per bagian dengan penjelas singkat di kepala
+    grup (form guru: 3 tab; form sekolah: seksi Identitas — Lokasi &
+    Koordinat — Kebutuhan Guru). Kesalahan validasi WAJIB menempel di
+    field terkait (`@error` di bawah field), bukan hanya ringkasan di
+    atas formulir. Dokumen cetak (telaahan staf & cetak daftar) memakai
+    kop surat bersama `komponen/kop-surat`: logo pemda + nama pemda
+    konteks aktif + Dinas Pendidikan — dilarang menulis nama/alamat
+    pemda secara statis. Halaman login & pendaftaran publik mengikuti
+    branding pemda (warna aksen & logo dari Pengaturan Pemda), tanpa
+    gradasi/ikon generik dan tanpa emoji. Warna font parent grup menu
+    bilah sisi sama dengan item anaknya (mewarisi warna tema, bukan
+    putih statis).
+32. **Semua tombol menu & aksi hanya ikon + tooltip daisyUI**
+    (menyempurnakan #29). Tombol di kepala halaman dan tombol aksi di
+    semua halaman tampil HANYA ikon (horizontal, digabung `.grup-aksi`
+    bila lebih dari satu) — label menjadi tooltip daisyUI
+    (`tooltip` + `data-tip`), BUKAN tooltip bawaan peramban: kepala
+    halaman memakai `tooltip-bottom`, aksi baris tabel memakai
+    `tooltip-left` (agar tidak terpotong tepi kanan wadah tabel).
+    `aria-label` tetap wajib pada setiap tombol hanya-ikon.

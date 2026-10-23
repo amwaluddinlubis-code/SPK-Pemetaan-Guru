@@ -8,10 +8,10 @@
     <x-slot:aksi>
         {{-- Tombol generate: khusus administrator (kabid_ptk) --}}
         @if (auth()->user()->hasRole('kabid_ptk'))
-            <form method="POST" action="{{ route('swap.generate') }}"
+            <form method="POST" action="{{ route('swap.generate') }}" class="tooltip tooltip-bottom" data-tip="Generate Rekomendasi Swap"
                   data-konfirmasi data-judul="Cari Pasangan Swap" data-pesan="Jalankan pencocokan pasangan swap untuk semua guru?" data-tombol="Jalankan" data-warna="btn-primary">
                 @csrf
-                <button type="submit" class="btn btn-primary"><x-ikon nama="swap" class="h-5 w-5" /> Generate Rekomendasi</button>
+                <button type="submit" class="btn btn-sm btn-primary" aria-label="Generate Rekomendasi Swap"><x-ikon nama="swap" class="h-4 w-4" /></button>
             </form>
         @endif
     </x-slot:aksi>
@@ -115,14 +115,14 @@
                             @if ($s->status === 'menunggu')
                                 <div class="grup-aksi">
                                     @if (auth()->user()->hasRole('kadis'))
-                                        <form method="POST" action="{{ route('swap.setujui', $s) }}" class="inline" title="Setujui swap"
+                                        <form method="POST" action="{{ route('swap.setujui', $s) }}" class="inline tooltip tooltip-left" data-tip="Setujui swap"
                                               data-konfirmasi data-judul="Setujui Swap" data-pesan="Setujui swap ini? Kedua guru akan langsung dimutasi bertukar sekolah." data-tombol="Setujui" data-warna="btn-success">
                                             @csrf
                                             <button type="submit" class="btn btn-success btn-sm" aria-label="Setujui swap"><x-ikon nama="centang" class="h-4 w-4" /></button>
                                         </form>
                                     @endif
                                     @if (auth()->user()->hasRole('kabid_ptk') || auth()->user()->hasRole('kadis'))
-                                        <form method="POST" action="{{ route('swap.tolak', $s) }}" class="inline" title="Tolak swap"
+                                        <form method="POST" action="{{ route('swap.tolak', $s) }}" class="inline tooltip tooltip-left" data-tip="Tolak swap"
                                               data-konfirmasi data-alasan="catatan_admin" data-alasan-label="Alasan penolakan" data-judul="Tolak Swap" data-pesan="Swap ditolak. Alasan tercatat pada rekomendasi swap." data-tombol="Tolak" data-warna="btn-error">
                                             @csrf
                                             <input type="hidden" name="catatan_admin" value="">

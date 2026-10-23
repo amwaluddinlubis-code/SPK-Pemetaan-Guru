@@ -9,10 +9,10 @@
     <x-slot:aksi>
         {{-- Tombol generate: khusus administrator (kabid_ptk) --}}
         @if (auth()->user()->hasRole('kabid_ptk'))
-            <form method="POST" action="{{ route('spk.generate') }}"
+            <form method="POST" action="{{ route('spk.generate') }}" class="tooltip tooltip-bottom" data-tip="Generate SPK"
                   data-konfirmasi data-judul="Generate SPK" data-pesan="Jalankan SPK untuk semua guru yang jaraknya melebihi {{ \App\Http\Controllers\SpkController::AMBANG_KM }} km?" data-tombol="Jalankan SPK" data-warna="btn-primary">
                 @csrf
-                <button type="submit" class="btn btn-primary"><x-ikon nama="spk" class="h-5 w-5" /> Generate SPK</button>
+                <button type="submit" class="btn btn-sm btn-primary" aria-label="Generate SPK"><x-ikon nama="spk" class="h-4 w-4" /></button>
             </form>
         @endif
     </x-slot:aksi>
@@ -194,18 +194,18 @@
                             <div class="grup-aksi">
                             @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
                                 <a href="{{ route('spk.telaahan', $s) }}" target="_blank"
-                                   class="btn btn-info btn-sm" title="Telaahan — cetak telaahan staf untuk PPK" aria-label="Telaahan — cetak telaahan staf untuk PPK"><x-ikon nama="usulan" class="h-4 w-4" /></a>
+                                   class="btn btn-info btn-sm tooltip tooltip-left" data-tip="Telaahan — cetak telaahan staf untuk PPK" aria-label="Telaahan — cetak telaahan staf untuk PPK"><x-ikon nama="usulan" class="h-4 w-4" /></a>
                             @endif
                             @if ($s->status === 'rekomendasi')
                                 @if (auth()->user()->hasRole('kadis'))
-                                    <form method="POST" action="{{ route('spk.setujui', $s) }}" class="inline" title="Setujui penempatan"
+                                    <form method="POST" action="{{ route('spk.setujui', $s) }}" class="inline tooltip tooltip-left" data-tip="Setujui penempatan"
                                           data-konfirmasi data-judul="Setujui Penempatan" data-pesan="Setujui penempatan ini? Guru akan langsung dimutasi ke sekolah tujuan." data-tombol="Setujui" data-warna="btn-success">
                                         @csrf
                                         <button type="submit" class="btn btn-success btn-sm" aria-label="Setujui penempatan"><x-ikon nama="centang" class="h-4 w-4" /></button>
                                     </form>
                                 @endif
                                 @if (auth()->user()->hasRole('kabid_ptk') || auth()->user()->hasRole('kadis'))
-                                    <form method="POST" action="{{ route('spk.tolak', $s) }}" class="inline" title="Tolak rekomendasi"
+                                    <form method="POST" action="{{ route('spk.tolak', $s) }}" class="inline tooltip tooltip-left" data-tip="Tolak rekomendasi"
                                           data-konfirmasi data-alasan="catatan_admin" data-alasan-label="Alasan penolakan" data-judul="Tolak Rekomendasi" data-pesan="Rekomendasi ditolak dan reservasi formasinya terlepas. Alasan tercatat pada rekomendasi." data-tombol="Tolak" data-warna="btn-error">
                                         @csrf
                                         <input type="hidden" name="catatan_admin" value="">

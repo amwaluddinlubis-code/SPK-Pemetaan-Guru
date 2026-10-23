@@ -81,34 +81,40 @@
 
                 {{-- TAB 1: Data Pribadi --}}
                 <div x-show="tab === 'pribadi'" x-transition role="tabpanel">
+                    <p class="text-sm opacity-70 mb-4">Identitas guru sesuai dokumen kepegawaian. NIP menjadi username &amp; kata sandi awal akun guru.</p>
                     <div class="grid gap-4 sm:grid-cols-2">
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-nip">NIP</label>
                             <input id="f-nip" type="text" name="nip" value="{{ old('nip', $guru->nip) }}"
                                    class="input w-full" placeholder="198501012010011001">
                             <p class="text-xs opacity-70 mt-1">Boleh dikosongkan bila guru belum punya NIP (menyusul). NIP menjadi username &amp; password awal akun guru — tidak dapat diubah oleh guru.</p>
+                        @error('nip')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-nuptk">NUPTK</label>
                             <input id="f-nuptk" type="text" name="nuptk" value="{{ old('nuptk', $guru->nuptk) }}"
                                    class="input w-full" placeholder="Nomor Unik Pendidik dan Tenaga Kependidikan">
                             <p class="text-xs opacity-70 mt-1">Syarat pendukung Tambahan Penghasilan bagi guru yang belum bersertifikat.</p>
+                        @error('nuptk')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-nama">Nama Lengkap</label>
                             <input id="f-nama" type="text" name="nama" value="{{ old('nama', $guru->nama) }}" required
                                    class="input w-full" placeholder="Siti Aminah">
+                        @error('nama')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-tempat_lahir">Tempat Lahir</label>
                             <input id="f-tempat_lahir" type="text" name="tempat_lahir" value="{{ old('tempat_lahir', $guru->tempat_lahir) }}"
                                    class="input w-full" placeholder="Mandailing Natal">
+                        @error('tempat_lahir')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-tanggal_lahir">Tanggal Lahir</label>
                             <input id="f-tanggal_lahir" type="date" name="tanggal_lahir"
                                    value="{{ old('tanggal_lahir', $guru->tanggal_lahir ? \Illuminate\Support\Carbon::parse($guru->tanggal_lahir)->format('Y-m-d') : '') }}"
                                    class="input w-full">
+                        @error('tanggal_lahir')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-status_pernikahan">Status Pernikahan</label>
@@ -120,6 +126,7 @@
                                     </option>
                                 @endforeach
                             </select>
+                        @error('status_pernikahan')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                     </div>
                     <div class="flex justify-end mt-4">
@@ -129,6 +136,7 @@
 
                 {{-- TAB 2: Kepegawaian --}}
                 <div x-show="tab === 'kepegawaian'" x-transition role="tabpanel" x-cloak>
+                    <p class="text-sm opacity-70 mb-4">Mata pelajaran, jenjang, status kepegawaian, dan sertifikasi — dasar penilaian linieritas penempatan (Kepmen 222/O/2025).</p>
                     <div class="grid gap-4 sm:grid-cols-2">
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-mapel">Mata Pelajaran</label>
@@ -143,6 +151,7 @@
                                 :options="$opsiMapel->map(fn ($m) => ['value' => $m, 'label' => $m])->all()"
                                 :selected="$mapelAktif"
                                 placeholder="— Pilih Mata Pelajaran —" class="w-full" />
+                        @error('mapel')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-jenjang">Jenjang</label>
@@ -153,6 +162,7 @@
                                     </option>
                                 @endforeach
                             </select>
+                        @error('jenjang')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-status_kepegawaian">Status Kepegawaian</label>
@@ -164,6 +174,7 @@
                                     </option>
                                 @endforeach
                             </select>
+                        @error('status_kepegawaian')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-pendidikan_terakhir">Pendidikan Terakhir</label>
@@ -176,6 +187,7 @@
                                 @endforeach
                             </datalist>
                             <p class="text-xs opacity-70 mt-1">Format: Jenjang - Bidang (cth: S1 - Bahasa Inggris). Tambahan Penghasilan mensyaratkan paling rendah S-1/D-IV.</p>
+                        @error('pendidikan_terakhir')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-sudah_sertifikasi">Sertifikasi Pendidik</label>
@@ -183,6 +195,7 @@
                                 <option value="0" {{ old('sudah_sertifikasi', $guru->sudah_sertifikasi ?? 0) == 0 ? 'selected' : '' }}>Belum sertifikasi</option>
                                 <option value="1" {{ old('sudah_sertifikasi', $guru->sudah_sertifikasi ?? 0) == 1 ? 'selected' : '' }}>Sudah sertifikasi</option>
                             </select>
+                        @error('sudah_sertifikasi')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-mapel_sertifikasi">Mapel Sertifikat (bila sudah sertifikasi)</label>
@@ -197,6 +210,7 @@
                                 :options="$opsiMapelSert->map(fn ($m) => ['value' => $m, 'label' => $m])->all()"
                                 :selected="$mapelSertAktif"
                                 placeholder="— Pilih Mapel Sertifikat —" class="w-full" />
+                        @error('mapel_sertifikasi')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-bidang_studi_serdik">Bidang Studi Sertifikat Pendidik</label>
@@ -216,6 +230,7 @@
                                 Sesuai nama &amp; kode pada sertifikat pendidik (Kepmen 222/O/2025) —
                                 dasar penilaian linieritas penempatan. Kode terisi otomatis saat disimpan.
                             </p>
+                        @error('bidang_studi_serdik')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         {{-- Sekolah tempat bertugas (administratif: kabid saja) --}}
                         @if (auth()->user()->hasRole('kabid_ptk'))
@@ -225,6 +240,7 @@
                                     :options="$daftarSekolah->map(fn ($s) => ['value' => $s->id, 'label' => $s->nama])->all()"
                                     :selected="old('sekolah_id', $guru->sekolah_id)"
                                     placeholder="— Belum terdata di sistem —" class="w-full" />
+                            @error('sekolah_id')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                             </fieldset>
                         @else
                             {{-- Kepala sekolah & guru: tidak bisa mengubah relasi sekolah --}}
@@ -239,6 +255,7 @@
 
                 {{-- TAB 3: Domisili & Penempatan --}}
                 <div x-show="tab === 'domisili'" x-transition role="tabpanel" x-cloak>
+                    <p class="text-sm opacity-70 mb-4">Alamat rumah dan titik koordinat domisili — dasar perhitungan jarak ke sekolah. Tentukan lewat peta atau GPS agar akurat.</p>
                     <div class="grid gap-4 sm:grid-cols-2"
                          x-data="{
                             petaKodeKecamatan: @js($petaKodeKecamatan ?? []),
@@ -268,29 +285,34 @@
                                 :options="$opsiKec->map(fn ($k) => ['value' => $k, 'label' => $k])->all()"
                                 :selected="$kecAktif"
                                 placeholder="— Pilih Kecamatan —" class="w-full" />
+                        @error('kecamatan')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-desa_kelurahan">Desa / Kelurahan Domisili</label>
                             <x-desa-select name="desa_kelurahan"
                                    :selected="old('desa_kelurahan', $guru->desa_kelurahan)" />
+                        @error('desa_kelurahan')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full sm:col-span-2">
                             <label class="fieldset-legend font-semibold" for="f-domisili_alamat">Alamat Domisili</label>
                             <input id="f-domisili_alamat" type="text" name="domisili_alamat"
                                    value="{{ old('domisili_alamat', $guru->domisili_alamat) }}" required
                                    class="input w-full" placeholder="Jl. Mawar No.10, Kec. Sukamaju">
+                        @error('domisili_alamat')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="domisili_lat">Latitude</label>
                             <input type="text" id="domisili_lat" name="domisili_lat"
                                    value="{{ old('domisili_lat', $guru->domisili_lat) }}" required
                                    class="input w-full" placeholder="0.7900">
+                        @error('domisili_lat')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="domisili_lng">Longitude</label>
                             <input type="text" id="domisili_lng" name="domisili_lng"
                                    value="{{ old('domisili_lng', $guru->domisili_lng) }}" required
                                    class="input w-full" placeholder="99.4100">
+                        @error('domisili_lng')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                     </div>
 
@@ -305,8 +327,8 @@
                             'lng' => (float) (old('domisili_lng', $guru->domisili_lng) ?: 99.41),
                         ])
                     </div>
-                    <p class="text-xs opacity-60 mt-1">
-                        💡 Tips: buka Google Maps, klik kanan lokasi rumah → salin koordinatnya.
+                    <p class="text-xs opacity-60 mt-1 flex items-center gap-1">
+                        <x-ikon nama="info" class="h-3.5 w-3.5 shrink-0" /> Tips: buka Google Maps, klik kanan lokasi rumah → salin koordinatnya.
                     </p>
 
                     <div class="divider">Sekolah tempat bertugas saat ini</div>
@@ -329,6 +351,7 @@
                                 Cukup pilih nama sekolahnya — koordinat diambil dari data sekolah,
                                 dan jarak domisili dihitung dari sana.
                             </p>
+                        @error('sekolah_saat_ini')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                     </div>
 
@@ -338,7 +361,7 @@
                 </div>
 
                 <div class="flex gap-2 mt-6">
-                    <button type="submit" class="btn btn-primary">💾 Simpan</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
                     <a href="{{ route('guru.index') }}" class="btn btn-ghost">Batal</a>
                 </div>
             </form>

@@ -14,16 +14,20 @@
                 @csrf
                 @if ($sekolah->exists) @method('PUT') @endif
 
+                <h2 class="text-base font-bold">Identitas Sekolah</h2>
+                <p class="text-sm opacity-70 mb-3">Data pokok sekolah sesuai Dapodik. NPSN menjadi kunci pencocokan saat impor &amp; sinkronisasi.</p>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <fieldset class="fieldset w-full">
                         <label class="fieldset-legend font-semibold" for="f-npsn">NPSN</label>
                         <input id="f-npsn" type="text" name="npsn" value="{{ old('npsn', $sekolah->npsn) }}" required
                                class="input w-full" placeholder="20100001">
+                    @error('npsn')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                     </fieldset>
                     <fieldset class="fieldset w-full">
                         <label class="fieldset-legend font-semibold" for="f-nama">Nama Sekolah</label>
                         <input id="f-nama" type="text" name="nama" value="{{ old('nama', $sekolah->nama) }}" required
                                class="input w-full" placeholder="SDN 1 Sukamaju">
+                    @error('nama')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                     </fieldset>
                     <fieldset class="fieldset w-full">
                         <label class="fieldset-legend font-semibold" for="f-jenjang">Jenjang</label>
@@ -34,17 +38,25 @@
                                     {{ old('jenjang', $sekolah->jenjang) === $j ? 'selected' : '' }}>{{ $j }}</option>
                             @endforeach
                         </select>
+                    @error('jenjang')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                     </fieldset>
                     <fieldset class="fieldset w-full">
                         <label class="fieldset-legend font-semibold" for="f-rombel">Jumlah Rombel</label>
                         <input id="f-rombel" type="number" name="rombel" value="{{ old('rombel', $sekolah->rombel) }}" min="0" max="300"
                                class="input w-full" placeholder="mis. 6">
                         <legend class="fieldset-legend-alt">Dari Dapodik (kolom Rombel di CSV ekspor kecamatan) — bahan hitung analisis kebutuhan.</legend>
+                    @error('rombel')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                     </fieldset>
+                </div>
+
+                <h2 class="text-base font-bold mt-6">Lokasi &amp; Koordinat</h2>
+                <p class="text-sm opacity-70 mb-3">Alamat dan titik koordinat sekolah — dasar perhitungan jarak domisili guru. Tentukan titik lewat peta di bawah, lalu verifikasi agar sekolah dapat menjadi tujuan rekomendasi.</p>
+                <div class="grid gap-4 sm:grid-cols-2">
                     <fieldset class="fieldset w-full sm:col-span-2">
                         <label class="fieldset-legend font-semibold" for="f-alamat">Alamat</label>
                         <input id="f-alamat" type="text" name="alamat" value="{{ old('alamat', $sekolah->alamat) }}" required
                                class="input w-full" placeholder="Jl. Pendidikan No.1">
+                    @error('alamat')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                     </fieldset>
                     <div class="contents"
                          x-data="{
@@ -75,11 +87,13 @@
                             :options="$opsiKec->map(fn ($k) => ['value' => $k, 'label' => $k])->all()"
                             :selected="$kecAktif"
                             placeholder="— Pilih Kecamatan —" class="w-full" />
+                    @error('kecamatan')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                     </fieldset>
                     <fieldset class="fieldset w-full">
                         <label class="fieldset-legend font-semibold" for="f-desa_kelurahan">Desa / Kelurahan</label>
                         <x-desa-select name="desa_kelurahan"
                                :selected="old('desa_kelurahan', $sekolah->desa_kelurahan)" />
+                    @error('desa_kelurahan')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                     </fieldset>
                     </div>
                     <fieldset class="fieldset w-full">
@@ -93,16 +107,19 @@
                             @endforeach
                         </select>
                         <legend class="fieldset-legend-alt">Guru di sekolah Terpencil/3T dilindungi dari mutasi keluar lewat SPK (rem pemerataan).</legend>
+                    @error('kategori_daerah')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                     </fieldset>
                     <fieldset class="fieldset w-full">
                         <label class="fieldset-legend font-semibold" for="lat">Latitude</label>
                         <input type="text" id="lat" name="lat" value="{{ old('lat', $sekolah->lat) }}" required
                                class="input w-full" placeholder="0.7900">
+                    @error('lat')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                     </fieldset>
                     <fieldset class="fieldset w-full">
                         <label class="fieldset-legend font-semibold" for="lng">Longitude</label>
                         <input type="text" id="lng" name="lng" value="{{ old('lng', $sekolah->lng) }}" required
                                class="input w-full" placeholder="99.4100">
+                    @error('lng')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                     </fieldset>
                 </div>
 
@@ -127,7 +144,7 @@
                     @endphp
                     <div class="alert {{ $sekolah->koordinatTerverifikasi() ? 'alert-success' : 'alert-warning' }} mt-3">
                         <div class="w-full">
-                            <p class="font-semibold">📍 {{ $sekolah->labelStatusKoordinat() }}</p>
+                            <p class="font-semibold flex items-center gap-1.5"><x-ikon nama="lokasi" class="h-4 w-4 shrink-0" /> {{ $sekolah->labelStatusKoordinat() }}</p>
                             @if ($sekolah->koordinatTerverifikasi())
                                 <p class="text-sm">Diverifikasi {{ $sekolah->koordinat_terverifikasi_pada?->format('d/m/Y H:i') }}
                                     oleh {{ $sekolah->verifikatorKoordinat?->name ?? 'petugas' }}
@@ -153,7 +170,7 @@
                                             <label class="fieldset-legend" for="koordinat_catatan">Catatan (opsional)</label>
                                             <input type="text" id="koordinat_catatan" name="koordinat_catatan" class="input w-full" maxlength="255" placeholder="mis. Dicek bersama operator sekolah">
                                         </fieldset>
-                                        <button type="submit" class="btn btn-success">✅ Tandai Terverifikasi</button>
+                                        <button type="submit" class="btn btn-success"><x-ikon nama="centang" class="h-4 w-4" /> Tandai Terverifikasi</button>
                                     </form>
                                 @endif
                             @endif
@@ -161,7 +178,11 @@
                     </div>
                 @endif
 
-                <div class="divider">Kebutuhan Guru per Mata Pelajaran</div>
+                <h2 class="text-base font-bold mt-6">Kebutuhan Guru per Mata Pelajaran</h2>
+                <p class="text-sm opacity-70 mb-3">Formasi yang dibutuhkan sekolah — menjadi tujuan rekomendasi SPK &amp; Peta Rekomendasi. Kosongkan bila sudah memakai analisis massal berbasis rombel.</p>
+                @if ($errors->has('kebutuhan.*'))
+                    <p class="text-error text-xs mb-2">{{ $errors->first('kebutuhan.*') }}</p>
+                @endif
 
                 {{-- Baris kebutuhan dinamis: Alpine.js untuk tambah/hapus baris --}}
                 @php
@@ -182,15 +203,15 @@
                                    aria-label="Jumlah kebutuhan"
                                    min="1" placeholder="Jumlah" class="input w-28">
                             <button type="button" @click="baris.splice(i, 1)"
-                                    class="btn btn-error btn-outline" title="Hapus baris">✕</button>
+                                    class="btn btn-error btn-outline" title="Hapus baris" aria-label="Hapus baris"><x-ikon nama="silang" class="h-4 w-4" /></button>
                         </div>
                     </template>
                     <button type="button" @click="baris.push({mapel: '', jumlah: 1})"
-                            class="btn btn-sm btn-secondary mt-1">+ Tambah Mapel</button>
+                            class="btn btn-sm btn-secondary mt-1"><x-ikon nama="tambah" class="h-4 w-4" /> Tambah Mapel</button>
                 </div>
 
                 <div class="flex gap-2 mt-6">
-                    <button type="submit" class="btn btn-primary">💾 Simpan</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
                     <a href="{{ route('sekolah.index') }}" class="btn btn-ghost">Batal</a>
                 </div>
             </form>

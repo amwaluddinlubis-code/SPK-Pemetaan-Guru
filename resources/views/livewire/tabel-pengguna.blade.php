@@ -2,7 +2,7 @@
 <div>
 <x-halaman judul="Kelola Pengguna" ikon="pengguna">
     <x-slot:aksi>
-        <a href="{{ route('pengguna.create') }}" class="btn btn-primary"><x-ikon nama="tambah" class="h-5 w-5" /> Tambah Pengguna</a>
+        <a href="{{ route('pengguna.create') }}" class="btn btn-sm btn-primary tooltip tooltip-bottom" data-tip="Tambah Pengguna" aria-label="Tambah Pengguna"><x-ikon nama="tambah" class="h-4 w-4" /></a>
     </x-slot:aksi>
 </x-halaman>
 
@@ -64,13 +64,13 @@
                             <td class="text-right whitespace-nowrap">
                                 <div class="grup-aksi">
                                     @if ($u->role !== 'kabid_ptk' && $u->id !== auth()->id() && ! session()->has(\App\Http\Controllers\ImpersonateController::SESSION_ASAL))
-                                        <form method="POST" action="{{ route('impersonate.mulai', $u) }}" class="inline" title="Impersonate — masuk sebagai pengguna ini"
+                                        <form method="POST" action="{{ route('impersonate.mulai', $u) }}" class="inline tooltip tooltip-left" data-tip="Impersonate — masuk sebagai pengguna ini"
                                               data-konfirmasi data-judul="Impersonate Pengguna" data-pesan="Masuk sebagai {{ $u->name }}? Anda bisa kembali ke akun Anda kapan saja lewat bilah kuning di atas." data-tombol="Masuk Sebagai" data-warna="btn-info">
                                             @csrf
                                             <button type="submit" class="btn btn-sm btn-info" aria-label="Impersonate — masuk sebagai pengguna ini"><x-ikon nama="pengguna" class="h-4 w-4" /></button>
                                         </form>
                                     @endif
-                                    <a href="{{ route('pengguna.edit', $u) }}" class="btn btn-sm btn-warning" title="Ubah" aria-label="Ubah"><x-ikon nama="pensil" class="h-4 w-4" /></a>
+                                    <a href="{{ route('pengguna.edit', $u) }}" class="btn btn-sm btn-warning tooltip tooltip-left" data-tip="Ubah" aria-label="Ubah"><x-ikon nama="pensil" class="h-4 w-4" /></a>
                                     <x-hapus :aksi="route('pengguna.destroy', $u)" tanya="Hapus akun {{ $u->name }}?" ikon-saja petunjuk="Hapus" />
                                 </div>
                             </td>

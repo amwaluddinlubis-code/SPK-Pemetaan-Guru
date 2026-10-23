@@ -5,24 +5,24 @@
         <div class="grup-aksi grup-aksi-bungkus">
         @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
             @if (auth()->user()->hasRole('kabid_ptk'))
-                <a href="{{ route('sekolah.import') }}" class="btn btn-sm btn-secondary"><x-ikon nama="unggah" class="h-4 w-4" /> Import Excel</a>
-                <a href="{{ route('sekolah.import-rombel') }}" class="btn btn-sm btn-secondary"><x-ikon nama="unggah" class="h-4 w-4" /> Import Rombel</a>
-                <form method="POST" action="{{ route('sekolah.analisis.massal') }}" class="inline-flex"
+                <a href="{{ route('sekolah.import') }}" class="btn btn-sm btn-secondary tooltip tooltip-bottom" data-tip="Import Excel" aria-label="Import Excel"><x-ikon nama="unggah" class="h-4 w-4" /></a>
+                <a href="{{ route('sekolah.import-rombel') }}" class="btn btn-sm btn-secondary tooltip tooltip-bottom" data-tip="Import Rombel" aria-label="Import Rombel"><x-ikon nama="unggah" class="h-4 w-4" /></a>
+                <form method="POST" action="{{ route('sekolah.analisis.massal') }}" class="inline-flex tooltip tooltip-bottom" data-tip="Terapkan Analisis Massal"
                       data-konfirmasi data-judul="Terapkan Analisis Massal" data-pesan="Terapkan analisis kebutuhan guru ke SEMUA sekolah yang rombelnya terisi? Baris kebutuhan lama tiap sekolah akan diganti hasil hitungan rombel × JP." data-tombol="Terapkan" data-warna="btn-secondary">
                     @csrf
-                    <button type="submit" class="btn btn-sm btn-secondary"><x-ikon nama="spk" class="h-4 w-4" /> Terapkan Analisis Massal</button>
+                    <button type="submit" class="btn btn-sm btn-secondary" aria-label="Terapkan Analisis Massal"><x-ikon nama="spk" class="h-4 w-4" /></button>
                 </form>
             @endif
-            <a href="{{ route('sekolah.export', request()->only(['q', 'kecamatan'])) }}" class="btn btn-sm btn-accent"><x-ikon nama="unduh" class="h-4 w-4" /> Export Excel</a>
-            <a href="{{ route('sekolah.cetak', request()->only(['q', 'kecamatan'])) }}" target="_blank" class="btn btn-sm btn-neutral"><x-ikon nama="cetak" class="h-4 w-4" /> Cetak/PDF</a>
+            <a href="{{ route('sekolah.export', request()->only(['q', 'kecamatan'])) }}" class="btn btn-sm btn-accent tooltip tooltip-bottom" data-tip="Export Excel" aria-label="Export Excel"><x-ikon nama="unduh" class="h-4 w-4" /></a>
+            <a href="{{ route('sekolah.cetak', request()->only(['q', 'kecamatan'])) }}" target="_blank" class="btn btn-sm btn-neutral tooltip tooltip-bottom" data-tip="Cetak/PDF" aria-label="Cetak/PDF"><x-ikon nama="cetak" class="h-4 w-4" /></a>
             @if (auth()->user()->hasRole('kabid_ptk'))
-                <form method="POST" action="{{ route('sekolah.verifikasi-massal') }}" class="inline-flex"
+                <form method="POST" action="{{ route('sekolah.verifikasi-massal') }}" class="inline-flex tooltip tooltip-bottom" data-tip="Verifikasi Koordinat Massal"
                       data-konfirmasi data-judul="Verifikasi Koordinat Massal" data-pesan="Tandai SEMUA sekolah berkoordinat yang belum terverifikasi sebagai TERVERIFIKASI? Hanya lakukan setelah titik-titik koordinat dikonfirmasi. Sekolah yang belum terverifikasi tidak dapat menjadi tujuan rekomendasi SPK." data-tombol="Verifikasi Semua" data-warna="btn-secondary">
                     @csrf
                     <input type="hidden" name="koordinat_sumber" value="konfirmasi_massal">
-                    <button type="submit" class="btn btn-sm btn-secondary"><x-ikon nama="centang" class="h-4 w-4" /> Verifikasi Koordinat Massal</button>
+                    <button type="submit" class="btn btn-sm btn-secondary" aria-label="Verifikasi Koordinat Massal"><x-ikon nama="centang" class="h-4 w-4" /></button>
                 </form>
-                <a href="{{ route('sekolah.create') }}" class="btn btn-sm btn-primary"><x-ikon nama="tambah" class="h-4 w-4" /> Tambah Sekolah</a>
+                <a href="{{ route('sekolah.create') }}" class="btn btn-sm btn-primary tooltip tooltip-bottom" data-tip="Tambah Sekolah" aria-label="Tambah Sekolah"><x-ikon nama="tambah" class="h-4 w-4" /></a>
             @endif
         @endif
         </div>
@@ -118,9 +118,9 @@
                             </td>
                             <td class="text-right whitespace-nowrap">
                                 <div class="grup-aksi">
-                                    <a href="{{ route('sekolah.analisis', $s) }}" class="btn btn-sm btn-info" title="Analisis kebutuhan guru" aria-label="Analisis kebutuhan guru"><x-ikon nama="kualitas" class="h-4 w-4" /></a>
+                                    <a href="{{ route('sekolah.analisis', $s) }}" class="btn btn-sm btn-info tooltip tooltip-left" data-tip="Analisis kebutuhan guru" aria-label="Analisis kebutuhan guru"><x-ikon nama="kualitas" class="h-4 w-4" /></a>
                                     @if (auth()->user()->hasRole('kepala_sekolah', 'kabid_ptk'))
-                                        <a href="{{ route('sekolah.edit', $s) }}" class="btn btn-sm btn-warning" title="Ubah" aria-label="Ubah"><x-ikon nama="pensil" class="h-4 w-4" /></a>
+                                        <a href="{{ route('sekolah.edit', $s) }}" class="btn btn-sm btn-warning tooltip tooltip-left" data-tip="Ubah" aria-label="Ubah"><x-ikon nama="pensil" class="h-4 w-4" /></a>
                                     @endif
                                     @if (auth()->user()->hasRole('kabid_ptk'))
                                         <x-hapus :aksi="route('sekolah.destroy', $s)" tanya="Hapus {{ $s->nama }} beserta kebutuhan gurunya?" ikon-saja petunjuk="Hapus" />

@@ -62,10 +62,10 @@
                                         <div class="grup-aksi">
                                             <button type="button" data-pesan="Setujui pendaftaran {{ $p->nama }}? Data guru & akun (username = NIP) akan dibuat."
                                                     x-on:click="konfirmasiDariData($el, {judul: 'Setujui Pendaftaran', tombol: 'Setujui', warna: 'btn-success'}).then(function (v) { if (v) $wire.setujui({{ $p->id }}); })"
-                                                    class="btn btn-success btn-sm" title="Setujui" aria-label="Setujui"><x-ikon nama="centang" class="h-4 w-4" /></button>
+                                                    class="btn btn-success btn-sm tooltip tooltip-left" data-tip="Setujui" aria-label="Setujui"><x-ikon nama="centang" class="h-4 w-4" /></button>
                                             <button type="button" data-pesan="Tolak pendaftaran {{ $p->nama }}?"
                                                     x-on:click="konfirmasiDariData($el, {judul: 'Tolak Pendaftaran', tombol: 'Tolak', warna: 'btn-error'}).then(function (v) { if (v) $wire.tolak({{ $p->id }}); })"
-                                                    class="btn btn-error btn-sm" title="Tolak" aria-label="Tolak"><x-ikon nama="silang" class="h-4 w-4" /></button>
+                                                    class="btn btn-error btn-sm tooltip tooltip-left" data-tip="Tolak" aria-label="Tolak"><x-ikon nama="silang" class="h-4 w-4" /></button>
                                         </div>
                                     </td>
                                 @else

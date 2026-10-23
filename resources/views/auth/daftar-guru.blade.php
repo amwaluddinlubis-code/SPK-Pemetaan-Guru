@@ -3,16 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Akun Guru — PetaPenempatan ASN</title>
+    @php
+        $namaPemdaDaftar = \App\Services\KonteksPemda::namaPemda();
+        $logoDaftar = \App\Services\Branding::logoUrl();
+    @endphp
+    <title>Daftar Akun Guru — {{ $namaPemdaDaftar ?? 'PetaPenempatan ASN' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Branding pemda: warna aksen menimpa variabel tema daisyUI (R0) -->
+    <style>{!! \App\Services\Branding::gayaTema() !!}</style>
 </head>
 <body class="min-h-screen bg-base-200">
 
 <div class="min-h-screen flex items-center justify-center p-6">
     <div class="w-full max-w-lg">
         <div class="text-center mb-6">
-            <div class="text-5xl">🗺️</div>
+            @if ($logoDaftar)
+                <img src="{{ $logoDaftar }}" alt="Logo pemda" class="h-16 w-16 mx-auto rounded-2xl bg-white object-contain p-1 shadow">
+            @else
+                <div class="mx-auto inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-content"><x-ikon nama="peta" class="h-9 w-9" /></div>
+            @endif
             <h1 class="text-2xl font-extrabold mt-3">Daftar Akun Guru</h1>
+            @if ($namaPemdaDaftar)
+                <p class="text-sm font-semibold mt-1">{{ $namaPemdaDaftar }}</p>
+            @endif
             <p class="text-sm opacity-60 mt-1">
                 Untuk guru yang belum punya akun. Pendaftaran diperiksa &amp; disetujui
                 operator dinas sebelum akun aktif.

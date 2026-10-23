@@ -16,7 +16,8 @@
     </style>
 </head>
 <body>
-    <div class="toolbar"><button onclick="window.print()">🖨️ Cetak / Simpan PDF</button></div>
+    <div class="toolbar"><button onclick="window.print()">Cetak / Simpan PDF</button></div>
+    @include('komponen.kop-surat')
     <h1>Data Guru</h1>
     <p class="sub">Dicetak {{ now()->locale('id')->translatedFormat('d F Y H:i') }} — {{ $data->count() }} guru</p>
     <table>

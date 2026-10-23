@@ -2,7 +2,7 @@
 <div>
 <x-halaman judul="Pusat Kualitas Data" ikon="kualitas">
     <x-slot:aksi>
-        <a href="{{ route('kualitas-data.export') }}" class="btn btn-outline btn-sm"><x-ikon nama="unduh" class="h-4 w-4" /> Ekspor Laporan</a>
+        <a href="{{ route('kualitas-data.export') }}" class="btn btn-outline btn-sm tooltip tooltip-bottom" data-tip="Ekspor Laporan" aria-label="Ekspor Laporan"><x-ikon nama="unduh" class="h-4 w-4" /></a>
     </x-slot:aksi>
 </x-halaman>
 

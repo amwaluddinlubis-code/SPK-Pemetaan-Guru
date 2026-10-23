@@ -7,10 +7,8 @@
     <style>
         body { font-family: "Times New Roman", Times, serif; color: #111; margin: 0; padding: 24px; }
         .kertas { max-width: 720px; margin: 0 auto; }
-        .kop { text-align: center; border-bottom: 3px double #111; padding-bottom: 12px; margin-bottom: 20px; }
-        .kop h1 { font-size: 16px; margin: 0; text-transform: uppercase; }
-        .kop h2 { font-size: 15px; margin: 2px 0; }
-        .kop p { font-size: 12px; margin: 2px 0; }
+        p, li { line-height: 1.55; }
+        .saran { text-align: justify; }
         .judul { text-align: center; margin: 20px 0; }
         .judul h3 { font-size: 15px; margin: 0; text-decoration: underline; text-transform: uppercase; }
         .judul p { font-size: 13px; margin: 4px 0; }
@@ -29,20 +27,18 @@
         @media print {
             .toolbar { display: none; }
             body { padding: 0; }
+            .ttd { page-break-inside: avoid; }
+            @page { size: A4; margin: 18mm 16mm; }
         }
     </style>
 </head>
 <body>
 <div class="kertas">
     <div class="toolbar">
-        <button onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+        <button onclick="window.print()">Cetak / Simpan PDF</button>
     </div>
 
-    <div class="kop">
-        <h1>Pemerintah Kabupaten Mandailing Natal</h1>
-        <h2>Dinas Pendidikan</h2>
-        <p>Jl. Willem Iskandar No. ... Panyabungan — Telp. (0636) ...</p>
-    </div>
+    @include('komponen.kop-surat')
 
     <div class="judul">
         <h3>Telaahan Staf</h3>
@@ -134,7 +130,7 @@
     </ol>
 
     <h4>IV. Saran</h4>
-    <p style="font-size:13px;">
+    <p class="saran" style="font-size:13px;">
         Berdasarkan analisis di atas, disarankan kepada Pejabat Pembina Kepegawaian untuk
         <strong>{{ $dampakAsal || ! $guru->linear() ? 'menunda/mengkaji ulang' : 'menyetujui' }}</strong>
         usulan penempatan {{ $guru->nama }} ke {{ $spk->sekolahTujuan->nama ?? 'sekolah tujuan' }}.
