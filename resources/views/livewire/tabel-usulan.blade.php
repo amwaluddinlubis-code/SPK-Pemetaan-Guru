@@ -1,6 +1,6 @@
 {{-- Tabel Usulan Penempatan (Livewire): pencarian, filter, sorting, pagination tanpa reload. --}}
 <div>
-<x-halaman judul="📝 Usulan Penempatan">
+<x-halaman judul="Usulan Penempatan" ikon="usulan">
     <x-slot:aksi>
         @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
             <a href="{{ route('usulan.export', request()->only(['q', 'status'])) }}" class="btn btn-accent">📊 Export Excel</a>

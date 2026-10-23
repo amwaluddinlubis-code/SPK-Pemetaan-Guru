@@ -1,6 +1,6 @@
 {{-- Tabel Data Guru (Livewire): pencarian, filter, sorting, pagination tanpa reload. --}}
 <div>
-<x-halaman judul="👩‍🏫 Data Guru">
+<x-halaman judul="Data Guru" ikon="guru">
     <x-slot:aksi>
         @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah', 'kadis'))
             @if (auth()->user()->hasRole('kabid_ptk'))

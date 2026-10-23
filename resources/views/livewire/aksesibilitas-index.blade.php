@@ -1,13 +1,12 @@
 
 <div>
-<div class="mb-4">
-    <h1 class="text-2xl font-bold">Analisis Jarak & Aksesibilitas</h1>
-    <p class="text-sm opacity-70 mt-1">
+<x-halaman judul="Analisis Jarak & Aksesibilitas" ikon="akses">
+    <x-slot:deskripsi>
         Jarak dihitung dengan <strong>Haversine (garis lurus)</strong>, konsisten dengan mesin SPK.
         Ini <strong>bukan</strong> waktu tempuh perjalanan darat — jangan gunakan sebagai dasar klaim waktu tempuh.
         Data agregat per kecamatan; tanpa identitas guru.
-    </p>
-</div>
+    </x-slot:deskripsi>
+</x-halaman>
 
 <div class="flex gap-2 mb-4">
     <select aria-label="kategori daerah" wire:model.live="kategori_daerah" class="select select-sm">

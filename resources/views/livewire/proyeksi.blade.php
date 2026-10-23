@@ -1,8 +1,6 @@
 
 <div>
-<div class="mb-4">
-    <h1 class="text-2xl font-bold">Proyeksi Kebutuhan Guru 1–5 Tahun</h1>
-</div>
+<x-halaman judul="Proyeksi Kebutuhan Guru 1–5 Tahun" ikon="proyeksi" />
 
 @if (! $dataCukup)
     <div class="alert alert-warning mb-4">

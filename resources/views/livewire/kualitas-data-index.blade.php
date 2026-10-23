@@ -1,9 +1,10 @@
 
 <div>
-<div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-    <h1 class="text-2xl font-bold">Pusat Kualitas Data</h1>
-    <a href="{{ route('kualitas-data.export') }}" class="btn btn-outline btn-sm">📥 Ekspor Laporan</a>
-</div>
+<x-halaman judul="Pusat Kualitas Data" ikon="kualitas">
+    <x-slot:aksi>
+        <a href="{{ route('kualitas-data.export') }}" class="btn btn-outline btn-sm"><x-ikon nama="unduh" class="h-4 w-4" /> Ekspor Laporan</a>
+    </x-slot:aksi>
+</x-halaman>
 
 <p class="text-sm opacity-70 mb-4">Pemeriksaan bersifat read-only — tidak mengubah data. Klik tautan perbaikan untuk mengedit record yang bermasalah.</p>
 

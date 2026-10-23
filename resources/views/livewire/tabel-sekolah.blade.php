@@ -1,6 +1,6 @@
 {{-- Tabel Data Sekolah (Livewire): pencarian, filter, sorting, pagination tanpa reload. --}}
 <div>
-<x-halaman judul="🏫 Data Sekolah">
+<x-halaman judul="Data Sekolah" ikon="sekolah">
     <x-slot:aksi>
         @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
             @if (auth()->user()->hasRole('kabid_ptk'))

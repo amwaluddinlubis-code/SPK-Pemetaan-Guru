@@ -43,6 +43,17 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
+/* Menu bilah sisi (Redesign R1): status aktif jelas di atas warna aksen,
+   label grup tenang — hierarki terbaca tanpa berteriak */
+.menu-kerangka li > a:hover {
+    background: rgb(255 255 255 / 0.1);
+}
+.menu-kerangka li > a.active {
+    background: rgb(255 255 255 / 0.16);
+    font-weight: 700;
+    box-shadow: inset 3px 0 0 rgb(255 255 255 / 0.9);
+}
+
 /* 4. Aksesibilitas: indikator fokus keyboard yang jelas,
       mengikuti warna aksen aktif */
 :focus-visible {

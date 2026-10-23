@@ -1,13 +1,12 @@
 <div>
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div>
-            <h1 class="text-2xl font-bold">Pendaftaran Guru</h1>
-            <p class="text-sm opacity-60">Pendaftaran akun mandiri guru — wajib persetujuan operator dinas sebelum akun aktif.</p>
-        </div>
-        @if ($jumlahMenunggu > 0)
-            <span class="badge badge-warning badge-lg">{{ $jumlahMenunggu }} menunggu</span>
-        @endif
-    </div>
+    <x-halaman judul="Pendaftaran Guru" ikon="guru">
+        <x-slot:deskripsi>Pendaftaran akun mandiri guru — wajib persetujuan operator dinas sebelum akun aktif.</x-slot:deskripsi>
+        <x-slot:aksi>
+            @if ($jumlahMenunggu > 0)
+                <span class="badge badge-warning badge-lg">{{ $jumlahMenunggu }} menunggu</span>
+            @endif
+        </x-slot:aksi>
+    </x-halaman>
 
     @if (session('sukses'))
         <div class="alert alert-success text-sm mb-4">{{ session('sukses') }}</div>

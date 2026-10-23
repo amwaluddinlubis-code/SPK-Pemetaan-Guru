@@ -1,6 +1,6 @@
 {{-- Tabel Kelola Pengguna (Livewire): pencarian, filter peran, pagination tanpa reload. --}}
 <div>
-<x-halaman judul="👥 Kelola Pengguna">
+<x-halaman judul="Kelola Pengguna" ikon="pengguna">
     <x-slot:aksi>
         <a href="{{ route('pengguna.create') }}" class="btn btn-primary">+ Tambah Pengguna</a>
     </x-slot:aksi>

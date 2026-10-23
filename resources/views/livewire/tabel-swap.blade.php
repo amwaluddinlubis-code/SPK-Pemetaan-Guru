@@ -1,6 +1,6 @@
 {{-- Tabel Mutasi Silang (Livewire): filter status + pagination tanpa reload. --}}
 <div>
-<x-halaman judul="🔄 Mutasi Silang (Swap)">
+<x-halaman judul="Mutasi Silang (Swap)" ikon="swap">
     <x-slot:deskripsi>
         Rekomendasi pertukaran dua guru bermapel sama: keduanya menjadi
         lebih dekat ke domisili setelah bertukar sekolah.

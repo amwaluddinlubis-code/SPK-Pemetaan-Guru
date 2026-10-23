@@ -3,7 +3,7 @@
 @section('judul', 'Import Guru — PetaPenempatan ASN')
 
 @section('konten')
-    <h1 class="text-2xl font-bold mb-4">📥 Import Data Guru</h1>
+    <h1 class="text-2xl font-bold tracking-tight flex items-center gap-2.5 mb-4"><x-ikon nama="unggah" class="h-7 w-7 text-primary" /> Import Data Guru</h1>
 
     <div class="grid gap-4 lg:grid-cols-2">
         {{-- Form unggah --}}

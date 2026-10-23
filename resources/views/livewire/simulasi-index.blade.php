@@ -1,9 +1,8 @@
 
 <div>
-<div class="mb-4">
-    <h1 class="text-2xl font-bold">Simulasi Kebijakan “What-If”</h1>
-    <p class="text-sm opacity-70 mt-1">Uji skenario parameter tanpa mengubah data operasional. Hasil bersifat hipotetis, bukan keputusan resmi.</p>
-</div>
+<x-halaman judul="Simulasi Kebijakan “What-If”" ikon="simulasi">
+    <x-slot:deskripsi>Uji skenario parameter tanpa mengubah data operasional. Hasil bersifat hipotetis, bukan keputusan resmi.</x-slot:deskripsi>
+</x-halaman>
 
 <form wire:submit="hitung" class="card bg-base-100 shadow p-6 w-full max-w-xl min-w-0">
     <div class="grid grid-cols-1 gap-4 min-w-0">

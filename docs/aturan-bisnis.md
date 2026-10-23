@@ -158,3 +158,11 @@
     Mengganti keduanya tidak memerlukan perubahan kode; tanpa pengaturan,
     berlaku warna bawaan #2563eb dan ikon bawaan. Judul tab mengikuti
     nama pemda konteks aktif.
+25. **Kerangka & header baku (Redesign R1).** Bilah atas hanya memuat
+    nama aplikasi, lencana konteks pemda, dan pemilih tema; profil &
+    keluar tinggal di kaki bilah sisi. Kerangka (layout, bilah sisi,
+    bilah atas, spanduk) bebas emoji — semua ikon memakai komponen
+    `x-ikon`. Setiap halaman memakai header `x-halaman` dengan prop
+    `judul` (tanpa emoji) dan `ikon` yang sama dengan ikon menunya di
+    RegistriMenu; deskripsi lewat slot `deskripsi`, tombol lewat slot
+    `aksi`. Status menu aktif ditandai latar + garis tepi di bilah sisi.

@@ -1,6 +1,6 @@
 {{-- Tabel referensi Desa/Kelurahan (Livewire): wajib pilih kecamatan dulu. --}}
 <div>
-<x-halaman judul="🏡 Referensi Desa/Kelurahan">
+<x-halaman judul="Referensi Desa/Kelurahan" ikon="peta">
     <x-slot:deskripsi>83.761 desa/kelurahan se-Indonesia.</x-slot:deskripsi>
 </x-halaman>
 

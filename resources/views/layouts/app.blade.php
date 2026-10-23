@@ -53,9 +53,9 @@
                         <span class="text-lg font-bold sm:hidden">@if ($logoBranding)<img src="{{ $logoBranding }}" alt="Logo pemda" class="h-6 w-6 inline rounded bg-white object-contain p-0.5 align-[-4px]">@else<x-ikon nama="peta" class="h-5 w-5 inline" />@endif Peta ASN</span>
                         @if (! empty($konteksPemdaWilayah))
                             @if (auth()->user()->hasRole('kabid_ptk'))
-                                <a href="{{ route('pengaturan.pemda') }}" class="badge badge-secondary badge-sm mt-0.5 h-6 max-w-36 truncate sm:max-w-none" title="Konteks Pemda aktif — klik untuk mengatur">📍 {{ $konteksPemdaWilayah }}</a>
+                                <a href="{{ route('pengaturan.pemda') }}" class="badge badge-secondary badge-sm mt-0.5 h-6 max-w-36 truncate sm:max-w-none" title="Konteks Pemda aktif — klik untuk mengatur"><x-ikon nama="peta" class="h-3 w-3 inline align-[-2px]" /> {{ $konteksPemdaWilayah }}</a>
                             @else
-                                <span class="badge badge-secondary badge-sm mt-0.5 h-6 max-w-36 truncate sm:max-w-none" title="Konteks Pemda aktif">📍 {{ $konteksPemdaWilayah }}</span>
+                                <span class="badge badge-secondary badge-sm mt-0.5 h-6 max-w-36 truncate sm:max-w-none" title="Konteks Pemda aktif"><x-ikon nama="peta" class="h-3 w-3 inline align-[-2px]" /> {{ $konteksPemdaWilayah }}</span>
                             @endif
                         @endif
                     </div>
@@ -67,29 +67,22 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                         </button>
                         <ul tabindex="0" class="dropdown-content menu bg-base-100 text-base-content rounded-box z-50 w-40 p-2 shadow-xl">
-                            <li><button data-tema="light">☀️ Terang</button></li>
-                            <li><button data-tema="dark">🌙 Gelap</button></li>
-                            <li><button data-tema="system">💻 Sistem</button></li>
+                            <li><button data-tema="light"><x-ikon nama="matahari" class="h-4 w-4 inline align-[-2px]" /> Terang</button></li>
+                            <li><button data-tema="dark"><x-ikon nama="bulan" class="h-4 w-4 inline align-[-2px]" /> Gelap</button></li>
+                            <li><button data-tema="system"><x-ikon nama="komputer" class="h-4 w-4 inline align-[-2px]" /> Sistem</button></li>
                         </ul>
                     </div>
-                    <a href="{{ route('profil.show') }}" class="btn btn-ghost btn-sm" aria-label="Profil">
-                        <span class="hidden md:inline">👤 {{ auth()->user()->name }}</span>
-                        <span class="md:hidden">👤</span>
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="btn btn-ghost btn-sm">Keluar</button>
-                    </form>
+                    {{-- Profil & Keluar tinggal di kaki bilah sisi (Redesign R1) --}}
                 </div>
             </div>
 
             @if (! empty($impersonateAsal))
                 {{-- Bilah mode impersonate: selalu tampil selama admin menyamar --}}
                 <div class="bg-warning text-warning-content px-4 py-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm font-semibold" data-testid="bilah-impersonate">
-                    <span>🎭 Mode impersonate: Anda masuk sebagai {{ auth()->user()->name }} ({{ auth()->user()->labelRole() }}), menyamar dari akun {{ $impersonateAsal->name }}.</span>
+                    <span><x-ikon nama="peringatan" class="h-5 w-5 inline align-[-3px]" /> Mode impersonate: Anda masuk sebagai {{ auth()->user()->name }} ({{ auth()->user()->labelRole() }}), menyamar dari akun {{ $impersonateAsal->name }}.</span>
                     <form method="POST" action="{{ route('impersonate.berhenti') }}">
                         @csrf
-                        <button type="submit" class="btn btn-xs btn-neutral">↩ Kembali ke akun saya</button>
+                        <button type="submit" class="btn btn-xs btn-neutral"><x-ikon nama="kembali" class="h-4 w-4 inline align-[-2px]" /> Kembali ke akun saya</button>
                     </form>
                 </div>
             @endif
@@ -100,7 +93,7 @@
                     <div class="alert alert-warning mb-4" role="alert"
                          x-data="{ tampil: localStorage.getItem('spandukKonteksPemda') !== 'tutup' }"
                          x-show="tampil" style="display: none;">
-                        <span>⚠️ Aplikasi <strong>belum berkonteks Pemda</strong> — data semua wilayah masih tampil. <a href="{{ route('pengaturan.pemda') }}" class="link font-semibold">Atur sekarang</a></span>
+                        <span><x-ikon nama="peringatan" class="h-5 w-5 inline align-[-3px]" /> Aplikasi <strong>belum berkonteks Pemda</strong> — data semua wilayah masih tampil. <a href="{{ route('pengaturan.pemda') }}" class="link font-semibold">Atur sekarang</a></span>
                         <button class="btn btn-sm btn-ghost" aria-label="Tutup pengingat"
                                 @click="tampil = false; localStorage.setItem('spandukKonteksPemda', 'tutup')">✕</button>
                     </div>
@@ -146,7 +139,7 @@
                 </div>
 
                 <!-- Menu navigasi -->
-                <ul class="menu p-4 flex-1 w-full font-semibold" data-testid="menu-sidebar">
+                <ul class="menu menu-kerangka p-4 flex-1 w-full font-semibold" data-testid="menu-sidebar">
                     <li><a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"><x-ikon nama="dashboard" class="h-5 w-5" /> Dashboard</a></li>
                     {{-- Item menu dari RegistriMenu: tampil bila peran pengguna
                          diizinkan Pengaturan Akses ($menuTerlihat dari composer). --}}
@@ -154,7 +147,7 @@
                         @php $itemsTerlihat = array_filter($itemsGrup, fn ($item, $kunci) => $menuTerlihat[$kunci] ?? false, ARRAY_FILTER_USE_BOTH); @endphp
                         @if (count($itemsTerlihat) > 0)
                             @if ($namaGrup !== '')
-                                <li class="menu-title mt-2"><span>{{ $namaGrup }}</span></li>
+                                <li class="menu-title mt-3 text-[11px] uppercase tracking-wider text-primary-content/50"><span>{{ $namaGrup }}</span></li>
                             @endif
                             @foreach ($itemsTerlihat as $item)
                                 <li><a href="{{ route($item['rute']) }}" class="{{ request()->routeIs($item['pola']) ? 'active' : '' }}"><x-ikon :nama="$item['ikon']" class="h-5 w-5" /> {{ $item['label'] }}</a></li>
@@ -176,10 +169,10 @@
                             <span class="badge badge-accent badge-sm">{{ auth()->user()->labelRole() }}</span>
                         </div>
                     </div>
+                    <a href="{{ route('profil.show') }}" class="btn btn-ghost btn-sm w-full mb-1"><x-ikon nama="pengguna" class="h-4 w-4" /> Profil Saya</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <a href="{{ route('profil.show') }}" class="btn btn-ghost btn-sm w-full mb-1">👤 Profil Saya</a>
-                        <button type="submit" class="btn btn-ghost btn-sm w-full">🚪 Keluar</button>
+                        <button type="submit" class="btn btn-ghost btn-sm w-full"><x-ikon nama="keluar" class="h-4 w-4" /> Keluar</button>
                     </form>
                 </div>
             </aside>

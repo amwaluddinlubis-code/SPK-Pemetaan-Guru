@@ -1,6 +1,6 @@
 {{-- Tabel SPK Penempatan (Livewire): filter status + pagination tanpa reload. --}}
 <div>
-<x-halaman judul="🎯 SPK Penempatan">
+<x-halaman judul="SPK Penempatan" ikon="spk">
     <x-slot:deskripsi>
         Rekomendasi pengisian formasi: guru dengan jarak tugas &gt; {{ \App\Http\Controllers\SpkController::AMBANG_KM }} km
         dipasangkan ke sekolah yang kekurangan mapelnya. Kelayakan disaring secara greedy,

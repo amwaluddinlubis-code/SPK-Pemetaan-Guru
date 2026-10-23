@@ -1,6 +1,6 @@
 {{-- Tabel referensi Kecamatan (Livewire): filter berjenjang provinsi → kabupaten. --}}
 <div>
-<x-halaman judul="🏘️ Referensi Kecamatan">
+<x-halaman judul="Referensi Kecamatan" ikon="peta">
     <x-slot:deskripsi>7.277 kecamatan se-Indonesia. Klik nama untuk melihat desa/kelurahan.</x-slot:deskripsi>
 </x-halaman>
 

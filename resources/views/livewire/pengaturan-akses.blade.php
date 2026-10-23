@@ -2,7 +2,7 @@
      Menutup akses menyembunyikan menu dari bilah sisi DAN menolak rutenya
      (403) lewat middleware PastikanAksesMenu. --}}
 <div>
-<h1 class="text-2xl font-bold mb-4">Pengaturan Akses</h1>
+<x-halaman judul="Pengaturan Akses" ikon="akses" />
 
 <div>
     <div class="alert alert-info mb-4">

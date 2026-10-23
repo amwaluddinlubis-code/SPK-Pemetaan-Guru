@@ -1,6 +1,6 @@
 {{-- Pengaturan Pemda (komponen Livewire penuh): pilih wilayah kerja resmi aplikasi (konteks ketat). --}}
 <div>
-    <h1 class="text-2xl font-bold mb-4">Pengaturan Pemda</h1>
+    <x-halaman judul="Pengaturan Pemda" ikon="peta" />
 
     @if ($konteksAktif)
         <div class="alert alert-success mb-4">
