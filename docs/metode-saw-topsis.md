@@ -74,6 +74,25 @@ B menang walau jaraknya kalah dari A, karena sisa formasi dan prioritas
 daerah mengunggulinya — inilah beda peringkat multikriteria terhadap
 urutan penghematan murni.
 
+## Faktor tingkat kelayakan linieritas (fase 2)
+
+Sejak linieritas fase 2, kolam kandidat seorang guru juga memuat formasi
+mapel **linier kelompok** dari bidang studi sertifikasinya (Kepmen
+222/O/2025): tingkat 1 = mapel persis guru, tingkat 2 = linier kelompok.
+Skor akhir setiap alternatif adalah:
+
+```
+skor akhir = skor hibrida mentah × faktor tingkat
+             (tingkat 1 → 1,00; tingkat 2 → 0,85)
+```
+
+Bobot dan rumus SAW/TOPSIS **tidak berubah**; faktor tingkat hanya
+menyesuaikan skor akhir agar penempatan mapel persis didahulukan pada
+skor yang sebanding, tanpa menutup peluang penempatan linier kelompok
+yang jauh lebih dekat. Tingkat, faktor, dan skor mentah tersimpan di
+`detail_skor` setiap rekomendasi, dan formasi yang diisi tercatat di
+kolom `mapel_tujuan` + `tingkat_linieritas` pada `hasil_spks`.
+
 ## Batasan & catatan kebijakan
 
 - Normalisasi bersifat **relatif terhadap kolam alternatif guru itu

@@ -1,9 +1,11 @@
 <?php
+
 // Model KebutuhanGuru: satu baris = "sekolah X butuh N guru mapel Y".
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class KebutuhanGuru extends Model
 {
@@ -35,7 +37,7 @@ class KebutuhanGuru extends Model
             ->lockForUpdate()
             ->first();
 
-        if (!$butuh) {
+        if (! $butuh) {
             return 0;
         }
 
@@ -57,17 +59,19 @@ class KebutuhanGuru extends Model
     {
         $sisa = [];
         foreach (self::all() as $k) {
-            $sisa[$k->sekolah_id . '|' . strtolower(trim($k->mapel))] = (int) $k->jumlah;
+            $sisa[$k->sekolah_id.'|'.strtolower(trim($k->mapel))] = (int) $k->jumlah;
         }
 
+        // Alokasi mengurangi formasi yang benar-benar diisi (mapel_tujuan;
+        // rekomendasi lama memakai mapel guru).
         $alokasi = HasilSpk::where('status', 'rekomendasi')
             ->join('guru', 'guru.id', '=', 'hasil_spks.guru_id')
-            ->selectRaw('hasil_spks.sekolah_tujuan_id, guru.mapel, COUNT(*) as jml')
-            ->groupBy('hasil_spks.sekolah_tujuan_id', 'guru.mapel')
+            ->selectRaw('hasil_spks.sekolah_tujuan_id, COALESCE(hasil_spks.mapel_tujuan, guru.mapel) as mapel, COUNT(*) as jml')
+            ->groupBy('hasil_spks.sekolah_tujuan_id', DB::raw('COALESCE(hasil_spks.mapel_tujuan, guru.mapel)'))
             ->get();
 
         foreach ($alokasi as $a) {
-            $kunci = $a->sekolah_tujuan_id . '|' . strtolower(trim($a->mapel));
+            $kunci = $a->sekolah_tujuan_id.'|'.strtolower(trim($a->mapel));
             $sisa[$kunci] = ($sisa[$kunci] ?? 0) - (int) $a->jml;
         }
 

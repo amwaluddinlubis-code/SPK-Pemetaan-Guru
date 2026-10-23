@@ -16,6 +16,8 @@ class HasilSpk extends Model
         'guru_id',
         'sekolah_asal_id',
         'sekolah_tujuan_id',
+        'mapel_tujuan',
+        'tingkat_linieritas',
         'jarak_km',
         'jarak_sekarang_km',
         'hemat_km',
@@ -100,5 +102,18 @@ class HasilSpk extends Model
     public function skorPersen(): ?float
     {
         return $this->skor === null ? null : (float) $this->skor * 100;
+    }
+
+    // Formasi yang diisi rekomendasi ini. Rekomendasi lama (sebelum
+    // linieritas fase 2) tidak mencatatnya — selalu mapel guru sendiri.
+    public function mapelTujuan(): string
+    {
+        return $this->mapel_tujuan ?: (string) ($this->guru?->mapel ?? '');
+    }
+
+    // Tingkat kelayakan Kepmen 222: 1 = mapel persis, 2 = linier kelompok.
+    public function tingkatLinieritas(): int
+    {
+        return (int) ($this->tingkat_linieritas ?? 1);
     }
 }

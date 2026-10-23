@@ -118,11 +118,15 @@
                         {{-- Kelayakan: penjelasan mengapa kandidat ini lolos (SPK-003) --}}
                         <td>
                             @php
-                                $kunciKuota = $s->sekolah_tujuan_id . '|' . strtolower(trim($s->guru->mapel));
+                                $kunciKuota = $s->sekolah_tujuan_id . '|' . strtolower(trim($s->mapelTujuan()));
                                 $sisa = $sisaKuota[$kunciKuota] ?? 0;
                             @endphp
                             <ul class="text-xs space-y-1 list-none p-0 m-0">
-                                <li>✅ Mapel <strong>{{ $s->guru->mapel }}</strong> dibutuhkan sekolah tujuan</li>
+                                <li>✅ Mapel <strong>{{ $s->mapelTujuan() }}</strong> dibutuhkan sekolah tujuan</li>
+                                @if ($s->tingkatLinieritas() === 2)
+                                    <li>🔀 Mengisi formasi <strong>{{ $s->mapelTujuan() }}</strong> lewat linier kelompok
+                                        (mapel guru: {{ $s->guru->mapel }}{{ $s->guru->bidang_studi_serdik ? '; serdik '.$s->guru->bidang_studi_serdik : '' }})</li>
+                                @endif
                                 <li>
                                     @if ($sisa > 0)
                                         ✅ Sisa formasi: <strong>{{ $sisa }}</strong>
@@ -148,7 +152,7 @@
                                         <span class="badge {{ $s->guru->linear() ? 'badge-success' : 'badge-error' }} badge-xs">
                                             Serdik{{ $s->guru->linear() ? '' : ' tidak linear' }}
                                         </span>
-                                        <x-lencana-linieritas :guru="$s->guru" :jenjang="$s->sekolahTujuan->jenjang" :mapel="$s->guru->mapel" />
+                                        <x-lencana-linieritas :guru="$s->guru" :jenjang="$s->sekolahTujuan->jenjang" :mapel="$s->mapelTujuan()" />
                                     @endif
                                 </li>
                                 @if (! empty($dampakAsal[$s->id]))

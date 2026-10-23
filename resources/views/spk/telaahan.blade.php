@@ -69,7 +69,7 @@
             @endif
         </td></tr>
         @php
-            $statusKepmen = \App\Services\Linieritas::statusUntuk($guru, $spk->sekolahTujuan->jenjang ?? $guru->jenjang, (string) $guru->mapel);
+            $statusKepmen = \App\Services\Linieritas::statusUntuk($guru, $spk->sekolahTujuan->jenjang ?? $guru->jenjang, $spk->mapelTujuan());
         @endphp
         <tr><th>Linieritas Penempatan (Kepmen 222/O/2025)</th><td>
             @if ($guru->bidang_studi_serdik)
@@ -85,7 +85,7 @@
 
     <h4>III. Analisis</h4>
     <ol>
-        <li><strong>Kebutuhan formasi:</strong> sekolah tujuan membutuhkan guru {{ $guru->mapel }} (rekomendasi sistem).</li>
+        <li><strong>Kebutuhan formasi:</strong> sekolah tujuan membutuhkan guru {{ $spk->mapelTujuan() }} (rekomendasi sistem)@if ($spk->tingkatLinieritas() === 2) — diisi lewat <strong>linier kelompok</strong> dari bidang studi sertifikasi guru (mapel guru saat ini: {{ $guru->mapel }})@endif.</li>
         <li><strong>Skor peringkat hibrida (Greedy + SAW–TOPSIS):</strong>
             @if ($spk->sudahDinilai())
                 <strong>{{ number_format($spk->skorPersen(), 1, ',', '.') }}/100</strong>

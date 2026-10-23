@@ -58,7 +58,7 @@
     tanpa skor tidak dianggap bernilai 0. Bobot adalah parameter
     kebijakan di `App\Services\MesinSawTopsis` — perubahannya perlu
     penetapan tertulis Dinas. Rumus lengkap: `docs/metode-saw-topsis.md`.
-19. **Linieritas penempatan (Kepmen 222/O/2025) — fase 1, peringatan**:
+19. **Linieritas penempatan (Kepmen 222/O/2025)**:
     kesesuaian bidang tugas tujuan dinilai dari **bidang studi sertifikat
     pendidik** guru (nama + kode, disimpan di data guru; kode diturunkan
     otomatis dari daftar Kepmen di `App\Services\Linieritas`), bukan dari
@@ -66,6 +66,12 @@
     telaahan, dan usulan: Linier / Tidak linier — risiko tunjangan profesi
     (Permendikdasmen 10/2026 Pasal 4 ayat (2) huruf e) / Di luar cakupan
     Kepmen. Mapel **Agama selalu di luar cakupan** karena Kepmen 222 tidak
-    memuat baris Pendidikan Agama. Status bersifat peringatan informatif:
-    tidak mengubah mesin pencocokan dan tidak menghalangi penetapan;
-    guru belum bersertifikat tidak diberi label.
+    memuat baris Pendidikan Agama; guru belum bersertifikat tidak diberi
+    label. **Fase 2 (mesin)**: guru bersertifikat dengan bidang studi
+    terisi juga menjadi kandidat formasi mapel linier kelompoknya
+    (tingkat 2) dengan faktor penyesuai skor 0,85 di belakang mapel
+    persis (tingkat 1); formasi yang diisi tercatat sebagai
+    `mapel_tujuan` rekomendasi dan — bila disetujui — menjadi bidang
+    tugas guru di sekolah baru, sementara bidang studi sertifikasinya
+    tidak berubah. Linieritas tetap kelayakan + peringatan, bukan
+    penolakan otomatis; keputusan akhir tetap pejabat berwenang.

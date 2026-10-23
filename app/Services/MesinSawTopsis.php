@@ -56,6 +56,18 @@ class MesinSawTopsis
         'sangat_terpencil' => 3,
     ];
 
+    /**
+     * Faktor penyesuai tingkat kelayakan linieritas (Kepmen 222/O/2025,
+     * fase 2) yang dikalikan ke skor hibrida mentah: penempatan mapel
+     * persis (tingkat 1) bernilai penuh; penempatan linier kelompok
+     * (tingkat 2) tetap layak tetapi didahulukan setelah yang persis
+     * pada skor yang sebanding. Bobot kriteria SAW/TOPSIS tidak berubah.
+     */
+    public const FAKTOR_TINGKAT = [
+        1 => 1.0,
+        2 => 0.85,
+    ];
+
     public static function nilaiDaerah(?string $kategoriDaerah): int
     {
         return self::NILAI_DAERAH[strtolower(trim((string) $kategoriDaerah))] ?? 1;
@@ -157,14 +169,20 @@ class MesinSawTopsis
 
             $skorSaw = $this->batasiSkor($skorSaw);
             $skorTopsis = $this->batasiSkor($skorTopsis);
-            $skorHybrid = $this->batasiSkor(($skorSaw + $skorTopsis) / 2);
+            $skorHybridMentah = $this->batasiSkor(($skorSaw + $skorTopsis) / 2);
+
+            // Penyesuai tingkat kelayakan linieritas (fase 2): alternatif
+            // tanpa keterangan tingkat dianggap tingkat 1 (faktor penuh).
+            $tingkat = (int) ($item['tingkat_linieritas'] ?? 1);
+            $faktorTingkat = self::FAKTOR_TINGKAT[$tingkat] ?? 1.0;
+            $skorHybrid = $this->batasiSkor($skorHybridMentah * $faktorTingkat);
 
             $item['skor_saw'] = $skorSaw;
             $item['skor_topsis'] = $skorTopsis;
             $item['skor_hybrid'] = $skorHybrid;
             $item['detail_skor'] = [
                 'versi' => 'greedy-saw-topsis-v1',
-                'metode' => 'Skor akhir = (SAW + TOPSIS) / 2',
+                'metode' => 'Skor akhir = (SAW + TOPSIS) / 2 × faktor tingkat kelayakan linieritas',
                 'kriteria' => $nilai[$i],
                 'bobot' => array_map(
                     fn (array $definisi) => $definisi['bobot'],
@@ -180,6 +198,9 @@ class MesinSawTopsis
                     'jarak_ideal_negatif' => $jarakNegatif,
                     'skor' => $skorTopsis,
                 ],
+                'tingkat_linieritas' => $tingkat,
+                'faktor_tingkat' => $faktorTingkat,
+                'skor_hybrid_mentah' => $skorHybridMentah,
                 'skor_hybrid' => $skorHybrid,
             ];
         }

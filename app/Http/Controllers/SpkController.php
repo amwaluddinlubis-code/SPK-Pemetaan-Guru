@@ -18,6 +18,8 @@ use App\Models\Guru;
 use App\Models\HasilSpk;
 use App\Models\KebutuhanGuru;
 use App\Models\Sekolah;
+use App\Services\AnalisisKebutuhanGuru;
+use App\Services\Linieritas;
 use App\Services\MesinSawTopsis;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -134,30 +136,30 @@ class SpkController extends Controller
                         continue;
                     }
 
-                    // Cari kandidat sekolah yang kekurangan formasi mapel guru ini.
-                    // Haversine dihitung langsung di MySQL (lebih cepat untuk data besar).
-                    // LEAST/GREATEST menjaga argumen acos tetap dalam [-1, 1].
-                    // Ambil lebih banyak dulu; filter hemat & kapasitas di bawah.
-                    $kandidat = Sekolah::select('sekolah.*')
-                        ->selectRaw(
-                            '6371 * acos(LEAST(1, GREATEST(-1, '.
-                            'cos(radians(?)) * cos(radians(sekolah.lat)) * cos(radians(sekolah.lng) - radians(?)) + '.
-                            'sin(radians(?)) * sin(radians(sekolah.lat))'.
-                            '))) AS jarak_km',
-                            [$guru->domisili_lat, $guru->domisili_lng, $guru->domisili_lat]
-                        )
-                        ->join('kebutuhan_guru', 'kebutuhan_guru.sekolah_id', '=', 'sekolah.id')
-                        ->where('kebutuhan_guru.mapel', $guru->mapel)
-                        ->where('kebutuhan_guru.jumlah', '>', 0)
-                        ->where('sekolah.id', '!=', $guru->sekolah_id)
-                        ->whereNotNull('sekolah.lat')
-                        ->whereNotNull('sekolah.lng')
-                        ->orderBy('jarak_km')
-                        ->limit(20)
-                        ->get();
+                    // Formasi yang dapat diisi guru ini (linieritas fase 2,
+                    // Kepmen 222/O/2025): mapelnya sendiri (tingkat 1) dan —
+                    // bila ia bersertifikat serta bidang studi serdiknya
+                    // terisi — mapel linier kelompok dari serdiknya
+                    // (tingkat 2). Mapel Agama tidak pernah masuk tingkat 2
+                    // karena peta linieritas tidak memuatnya.
+                    $mapelTier2 = [];
+                    if ($guru->sudah_sertifikasi && ! empty($guru->bidang_studi_serdik)) {
+                        $linier = Linieritas::mapelLinier($guru->bidang_studi_serdik, $guru->jenjang) ?? [];
+                        $mapelTier2 = array_values(array_filter(
+                            array_intersect($linier, AnalisisKebutuhanGuru::daftarKanonis()),
+                            fn ($m) => strcasecmp((string) $m, (string) $guru->mapel) !== 0
+                        ));
+                    }
+
+                    $kandidat = $this->kandidatSekolah($guru, [(string) $guru->mapel]);
+                    if ($mapelTier2 !== []) {
+                        $kandidat = $kandidat->concat($this->kandidatSekolah($guru, $mapelTier2));
+                    }
 
                     $layak = [];
+                    $duplikatDicek = [];
                     foreach ($kandidat as $sek) {
+                        $mapelTujuan = (string) $sek->mapel_kebutuhan;
                         $jarakTujuan = (float) $sek->jarak_km;
                         $hemat = $jarakSekarang - $jarakTujuan;
 
@@ -166,18 +168,23 @@ class SpkController extends Controller
                             continue;
                         }
 
-                        // Hindari duplikat: rekomendasi aktif untuk pasangan ini sudah ada
-                        $sudahAda = HasilSpk::whereIn('status', ['rekomendasi', 'disetujui'])
-                            ->where('guru_id', $guru->id)
-                            ->where('sekolah_tujuan_id', $sek->id)
-                            ->exists();
-                        if ($sudahAda) {
+                        // Hindari duplikat: rekomendasi aktif untuk pasangan
+                        // guru-sekolah ini sudah ada (satu penempatan per
+                        // sekolah per guru, lintas mapel).
+                        if (! array_key_exists($sek->id, $duplikatDicek)) {
+                            $duplikatDicek[$sek->id] = HasilSpk::whereIn('status', ['rekomendasi', 'disetujui'])
+                                ->where('guru_id', $guru->id)
+                                ->where('sekolah_tujuan_id', $sek->id)
+                                ->exists();
+                        }
+                        if ($duplikatDicek[$sek->id]) {
                             continue;
                         }
 
                         // Sisa formasi pada saat penilaian menjadi salah
                         // satu kriteria; slot yang sudah habis gugur dulu.
-                        $kunci = $sek->id.'|'.strtolower(trim($guru->mapel));
+                        // Kuncinya formasi yang diisi (mapel tujuan).
+                        $kunci = $sek->id.'|'.strtolower(trim($mapelTujuan));
                         $sisaFormasi = (int) ($sisaKebutuhan[$kunci] ?? 0);
                         if ($sisaFormasi <= 0) {
                             continue;
@@ -187,6 +194,8 @@ class SpkController extends Controller
                             'sekolah' => $sek,
                             'jarak_tujuan' => $jarakTujuan,
                             'hemat' => $hemat,
+                            'mapel_tujuan' => $mapelTujuan,
+                            'tingkat_linieritas' => strcasecmp($mapelTujuan, (string) $guru->mapel) === 0 ? 1 : 2,
                             // Kriteria MesinSawTopsis
                             'hemat_km' => $hemat,
                             'jarak_tujuan_km' => $jarakTujuan,
@@ -206,20 +215,30 @@ class SpkController extends Controller
                     // Slot yang terpakai langsung dicadangkan agar guru berikutnya
                     // tidak memakai formasi yang sama (tidak over-booking).
                     $terpilih = 0;
+                    $sekolahTerpilih = [];
                     foreach ($layak as $item) {
                         if ($terpilih >= self::MAKS_REKOMENDASI) {
                             break;
                         }
-                        $kunci = $item['sekolah']->id.'|'.strtolower(trim($guru->mapel));
+                        // Satu penempatan per sekolah per guru dalam sekali
+                        // generate, walau sekolah punya dua formasi yang
+                        // sama-sama dapat diisi guru ini.
+                        if (isset($sekolahTerpilih[$item['sekolah']->id])) {
+                            continue;
+                        }
+                        $kunci = $item['sekolah']->id.'|'.strtolower(trim($item['mapel_tujuan']));
                         if (($sisaKebutuhan[$kunci] ?? 0) <= 0) {
                             continue;
                         }
                         $sisaKebutuhan[$kunci]--;
+                        $sekolahTerpilih[$item['sekolah']->id] = true;
 
                         HasilSpk::create([
                             'guru_id' => $guru->id,
                             'sekolah_asal_id' => $guru->sekolah_id,
                             'sekolah_tujuan_id' => $item['sekolah']->id,
+                            'mapel_tujuan' => $item['mapel_tujuan'],
+                            'tingkat_linieritas' => $item['tingkat_linieritas'],
                             'jarak_km' => round($item['jarak_tujuan'], 2),
                             'jarak_sekarang_km' => round($jarakSekarang, 2),
                             'hemat_km' => round($item['hemat'], 2),
@@ -251,6 +270,35 @@ class SpkController extends Controller
     }
 
     /**
+     * Kandidat sekolah untuk satu guru pada daftar mapel tertentu: sekolah
+     * (selain sekolah asal) yang kekurangan formasi mapel-mapel itu, 20
+     * terdekat dari domisili guru. Setiap baris membawa atribut
+     * `mapel_kebutuhan` (formasi yang akan diisi) dan `jarak_km` (Haversine
+     * dihitung di MySQL; LEAST/GREATEST menjaga argumen acos dalam [-1, 1]).
+     */
+    private function kandidatSekolah(Guru $guru, array $daftarMapel)
+    {
+        return Sekolah::select('sekolah.*')
+            ->selectRaw('kebutuhan_guru.mapel AS mapel_kebutuhan')
+            ->selectRaw(
+                '6371 * acos(LEAST(1, GREATEST(-1, '.
+                'cos(radians(?)) * cos(radians(sekolah.lat)) * cos(radians(sekolah.lng) - radians(?)) + '.
+                'sin(radians(?)) * sin(radians(sekolah.lat))'.
+                '))) AS jarak_km',
+                [$guru->domisili_lat, $guru->domisili_lng, $guru->domisili_lat]
+            )
+            ->join('kebutuhan_guru', 'kebutuhan_guru.sekolah_id', '=', 'sekolah.id')
+            ->whereIn('kebutuhan_guru.mapel', $daftarMapel)
+            ->where('kebutuhan_guru.jumlah', '>', 0)
+            ->where('sekolah.id', '!=', $guru->sekolah_id)
+            ->whereNotNull('sekolah.lat')
+            ->whereNotNull('sekolah.lng')
+            ->orderBy('jarak_km')
+            ->limit(20)
+            ->get();
+    }
+
+    /**
      * Hitung sisa kebutuhan per (sekolah, mapel) dari data terkini DI DALAM
      * transaksi: kunci baris kebutuhan yang relevan (urutan id konsisten),
      * lalu kurangi dengan alokasi aktif (rekomendasi berstatus 'rekomendasi').
@@ -260,7 +308,19 @@ class SpkController extends Controller
      */
     private function sisaKebutuhanTerkunci($gurus): array
     {
-        $mapelKandidat = $gurus->map(fn ($g) => $g->mapel)->unique()->values();
+        $mapelKandidat = $gurus->map(fn ($g) => $g->mapel)->unique();
+        // Sertakan mapel tingkat 2 (linier kelompok) yang dapat diisi guru
+        // kandidat — sisa formasinya ikut dikunci & dihitung.
+        foreach ($gurus as $g) {
+            if ($g->sudah_sertifikasi && ! empty($g->bidang_studi_serdik)) {
+                foreach (Linieritas::mapelLinier($g->bidang_studi_serdik, $g->jenjang) ?? [] as $m) {
+                    if (in_array($m, AnalisisKebutuhanGuru::daftarKanonis(), true)) {
+                        $mapelKandidat->push($m);
+                    }
+                }
+            }
+        }
+        $mapelKandidat = $mapelKandidat->unique()->values();
 
         $sisa = [];
         $terkunci = KebutuhanGuru::whereIn('mapel', $mapelKandidat)
@@ -271,10 +331,12 @@ class SpkController extends Controller
             $sisa[$k->sekolah_id.'|'.strtolower(trim($k->mapel))] = (int) $k->jumlah;
         }
 
+        // Alokasi aktif mengurangi formasi yang benar-benar diisi
+        // (mapel_tujuan; rekomendasi lama memakai mapel guru).
         $alokasi = HasilSpk::where('status', 'rekomendasi')
             ->join('guru', 'guru.id', '=', 'hasil_spks.guru_id')
-            ->selectRaw('hasil_spks.sekolah_tujuan_id, guru.mapel, COUNT(*) as jml')
-            ->groupBy('hasil_spks.sekolah_tujuan_id', 'guru.mapel')
+            ->selectRaw('hasil_spks.sekolah_tujuan_id, COALESCE(hasil_spks.mapel_tujuan, guru.mapel) as mapel, COUNT(*) as jml')
+            ->groupBy('hasil_spks.sekolah_tujuan_id', DB::raw('COALESCE(hasil_spks.mapel_tujuan, guru.mapel)'))
             ->get();
         foreach ($alokasi as $a) {
             $kunci = $a->sekolah_tujuan_id.'|'.strtolower(trim($a->mapel));
@@ -312,9 +374,13 @@ class SpkController extends Controller
                     );
                 }
 
+                // Formasi yang diisi: mapel_tujuan rekomendasi (pada
+                // penempatan tingkat 2 berbeda dari mapel guru saat ini).
+                $mapelIsi = $spk->mapel_tujuan ?: (string) $guru->mapel;
+
                 // Validasi ulang: sisa formasi masih tersedia
                 $sisa = KebutuhanGuru::where('sekolah_id', $tujuan->id)
-                    ->where('mapel', $guru->mapel)
+                    ->where('mapel', $mapelIsi)
                     ->lockForUpdate()
                     ->value('jumlah') ?? 0;
                 if ($sisa < 1) {
@@ -323,16 +389,23 @@ class SpkController extends Controller
                     );
                 }
 
-                // Mutasi guru ke sekolah tujuan
-                $guru->update([
+                // Mutasi guru ke sekolah tujuan. Pada penempatan linier
+                // kelompok (tingkat 2), bidang tugas guru di sekolah baru
+                // menjadi mapel yang diisi — bidang studi sertifikasinya
+                // tidak berubah.
+                $mutasi = [
                     'sekolah_id' => $tujuan->id,
                     'sekolah_saat_ini' => $tujuan->nama,
                     'sekolah_saat_ini_lat' => $tujuan->lat,
                     'sekolah_saat_ini_lng' => $tujuan->lng,
-                ]);
+                ];
+                if (strcasecmp($mapelIsi, (string) $guru->mapel) !== 0) {
+                    $mutasi['mapel'] = $mapelIsi;
+                }
+                $guru->update($mutasi);
 
                 // Catat berkurangnya kebutuhan formasi
-                KebutuhanGuru::kurangi($tujuan->id, $guru->mapel);
+                KebutuhanGuru::kurangi($tujuan->id, $mapelIsi);
 
                 $spk->update([
                     'status' => 'disetujui',
@@ -356,6 +429,8 @@ class SpkController extends Controller
                     'status_sesudah' => 'disetujui',
                     'guru_id' => $guru->id,
                     'sekolah_tujuan_id' => $tujuan->id,
+                    'mapel_tujuan' => $mapelIsi,
+                    'tingkat_linieritas' => $spk->tingkatLinieritas(),
                 ]);
             }, 3);
         } catch (\RuntimeException $e) {
@@ -368,7 +443,12 @@ class SpkController extends Controller
             return back()->with('gagal', 'Persetujuan gagal karena kendala teknis — silakan coba lagi.');
         }
 
-        return back()->with('sukses', 'Penempatan disetujui — guru sudah dimutasi ke sekolah tujuan.');
+        $pesan = 'Penempatan disetujui — guru sudah dimutasi ke sekolah tujuan.';
+        if ($spk->mapel_tujuan && strcasecmp($spk->mapel_tujuan, (string) $spk->guru->mapel) !== 0) {
+            $pesan .= ' Bidang tugas guru di sekolah baru menjadi '.$spk->mapel_tujuan.' (linier kelompok).';
+        }
+
+        return back()->with('sukses', $pesan);
     }
 
     // Tolak rekomendasi (kabid_ptk / kadis)
