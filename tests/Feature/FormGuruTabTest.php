@@ -65,7 +65,7 @@ class FormGuruTabTest extends TestCase
         $res = $this->get('/guru/create');
         $html = $res->getContent();
         foreach (['nip', 'nama', 'status_pernikahan', 'mapel', 'jenjang', 'kecamatan',
-            'domisili_alamat', 'domisili_lat', 'sekolah_saat_ini'] as $field) {
+            'domisili_alamat', 'domisili_lat', 'sekolah_id'] as $field) {
             $this->assertStringContainsString('name="'.$field.'"', $html);
         }
     }

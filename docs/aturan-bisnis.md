@@ -232,3 +232,16 @@
     halaman memakai `tooltip-bottom`, aksi baris tabel memakai
     `tooltip-left` (agar tidak terpotong tepi kanan wadah tabel).
     `aria-label` tetap wajib pada setiap tombol hanya-ikon.
+33. **Form guru: sumber tunggal & kunci per peran** — Pilihan Mapel
+    Sertifikat DIHAPUS dari form guru; dasar linieritas hanya Bidang
+    Studi Serdik (Kepmen 222/O/2025), kolom lama dipertahankan untuk
+    data historis. Pilihan Nama Sekolah di tab Domisili DIHAPUS:
+    `sekolah_saat_ini` (teks) selalu diturunkan server dari relasi
+    `sekolah_id` ("Sekolah Tempat Bertugas") saat simpan/ubah.
+    Jenjang form hanya TK/SD/SMP (cakupan dinas kab/kota); nilai lama
+    di luar daftar tetap ditampilkan sebagai opsi "(data lama)" agar
+    tidak bergeser diam-diam. Kolom `pendidikan_terakhir` varchar(60)
+    menyamai validasi. Field administratif nonaktif mengikuti peran:
+    NIP terkunci untuk guru & kepala sekolah; tab Kepegawaian dan
+    NUPTK/tempat/tanggal lahir terkunci untuk peran guru (sejalan
+    SEC-002 di server).

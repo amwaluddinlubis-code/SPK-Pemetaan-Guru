@@ -9,12 +9,17 @@
         'nip' => 'pribadi', 'nama' => 'pribadi', 'status_pernikahan' => 'pribadi',
         'mapel' => 'kepegawaian', 'jenjang' => 'kepegawaian',
         'status_kepegawaian' => 'kepegawaian', 'sudah_sertifikasi' => 'kepegawaian',
-        'mapel_sertifikasi' => 'kepegawaian', 'sekolah_id' => 'kepegawaian',
+        'sekolah_id' => 'kepegawaian', 'pendidikan_terakhir' => 'kepegawaian',
+        'bidang_studi_serdik' => 'kepegawaian', 'nuptk' => 'pribadi',
+        'tempat_lahir' => 'pribadi', 'tanggal_lahir' => 'pribadi',
         'kecamatan' => 'domisili', 'desa_kelurahan' => 'domisili',
         'domisili_alamat' => 'domisili', 'domisili_lat' => 'domisili', 'domisili_lng' => 'domisili',
-        'sekolah_saat_ini' => 'domisili',
     ];
     $tabAktif = 'pribadi';
+    $peranSaya = auth()->user()->role;
+    $nipTerkunci = in_array($peranSaya, ['guru', 'kepala_sekolah'], true);
+    $pribadiTerkunci = $peranSaya === 'guru';
+    $kepegawaianTerkunci = $peranSaya === 'guru';
     $hitungError = ['pribadi' => 0, 'kepegawaian' => 0, 'domisili' => 0];
     foreach ($errors->keys() as $f) {
         $t = $petaTab[$f] ?? null;
@@ -86,14 +91,14 @@
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-nip">NIP</label>
                             <input id="f-nip" type="text" name="nip" value="{{ old('nip', $guru->nip) }}"
-                                   class="input w-full" placeholder="198501012010011001">
+                                   class="input w-full" placeholder="198501012010011001" @if ($nipTerkunci) disabled @endif>
                             <p class="text-xs opacity-70 mt-1">Boleh dikosongkan bila guru belum punya NIP (menyusul). NIP menjadi username &amp; password awal akun guru — tidak dapat diubah oleh guru.</p>
                         @error('nip')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-nuptk">NUPTK</label>
                             <input id="f-nuptk" type="text" name="nuptk" value="{{ old('nuptk', $guru->nuptk) }}"
-                                   class="input w-full" placeholder="Nomor Unik Pendidik dan Tenaga Kependidikan">
+                                   class="input w-full" placeholder="Nomor Unik Pendidik dan Tenaga Kependidikan" @if ($pribadiTerkunci) disabled @endif>
                             <p class="text-xs opacity-70 mt-1">Syarat pendukung Tambahan Penghasilan bagi guru yang belum bersertifikat.</p>
                         @error('nuptk')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
@@ -106,12 +111,12 @@
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-tempat_lahir">Tempat Lahir</label>
                             <input id="f-tempat_lahir" type="text" name="tempat_lahir" value="{{ old('tempat_lahir', $guru->tempat_lahir) }}"
-                                   class="input w-full" placeholder="Mandailing Natal">
+                                   class="input w-full" placeholder="Mandailing Natal" @if ($pribadiTerkunci) disabled @endif>
                         @error('tempat_lahir')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-tanggal_lahir">Tanggal Lahir</label>
-                            <input id="f-tanggal_lahir" type="date" name="tanggal_lahir"
+                            <input id="f-tanggal_lahir" type="date" name="tanggal_lahir" @if ($pribadiTerkunci) disabled @endif
                                    value="{{ old('tanggal_lahir', $guru->tanggal_lahir ? \Illuminate\Support\Carbon::parse($guru->tanggal_lahir)->format('Y-m-d') : '') }}"
                                    class="input w-full">
                         @error('tanggal_lahir')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
@@ -137,6 +142,10 @@
                 {{-- TAB 2: Kepegawaian --}}
                 <div x-show="tab === 'kepegawaian'" x-transition role="tabpanel" x-cloak>
                     <p class="text-sm opacity-70 mb-4">Mata pelajaran, jenjang, status kepegawaian, dan sertifikasi — dasar penilaian linieritas penempatan (Kepmen 222/O/2025).</p>
+                    @if ($kepegawaianTerkunci)
+                        <div class="alert alert-info text-sm mb-4">Data kepegawaian hanya dapat diubah oleh Kabid PTK atau Kepala Sekolah — bagian ini ditampilkan untuk dibaca saja.</div>
+                    @endif
+                    <fieldset @if ($kepegawaianTerkunci) disabled @endif class="contents">
                     <div class="grid gap-4 sm:grid-cols-2">
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-mapel">Mata Pelajaran</label>
@@ -156,11 +165,14 @@
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-jenjang">Jenjang</label>
                             <select id="f-jenjang" name="jenjang" class="select w-full" required>
-                                @foreach (['SD', 'SMP', 'SMA'] as $j)
+                                @foreach (['TK', 'SD', 'SMP'] as $j)
                                     <option value="{{ $j }}" {{ old('jenjang', $guru->jenjang) == $j ? 'selected' : '' }}>
                                         {{ $j }}
                                     </option>
                                 @endforeach
+                                @if ($guru->jenjang && ! in_array($guru->jenjang, ['TK', 'SD', 'SMP']))
+                                    <option value="{{ $guru->jenjang }}" selected>{{ $guru->jenjang }} (data lama)</option>
+                                @endif
                             </select>
                         @error('jenjang')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
@@ -197,21 +209,7 @@
                             </select>
                         @error('sudah_sertifikasi')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
-                        <fieldset class="fieldset w-full">
-                            <label class="fieldset-legend font-semibold" for="f-mapel_sertifikasi">Mapel Sertifikat (bila sudah sertifikasi)</label>
-                            @php
-                                $mapelSertAktif = old('mapel_sertifikasi', $guru->mapel_sertifikasi);
-                                $opsiMapelSert = collect($daftarMapel);
-                                if ($mapelSertAktif && ! $opsiMapelSert->contains($mapelSertAktif)) {
-                                    $opsiMapelSert = $opsiMapelSert->push($mapelSertAktif);
-                                }
-                            @endphp
-                            <x-searchable-select name="mapel_sertifikasi"
-                                :options="$opsiMapelSert->map(fn ($m) => ['value' => $m, 'label' => $m])->all()"
-                                :selected="$mapelSertAktif"
-                                placeholder="— Pilih Mapel Sertifikat —" class="w-full" />
-                        @error('mapel_sertifikasi')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
-                        </fieldset>
+                        
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-bidang_studi_serdik">Bidang Studi Sertifikat Pendidik</label>
                             @php
@@ -247,6 +245,11 @@
                             <input type="hidden" name="sekolah_id" value="{{ $guru->sekolah_id }}">
                         @endif
                     </div>
+                    </fieldset>
+                    @if ($kepegawaianTerkunci)
+                        <input type="hidden" name="mapel" value="{{ old('mapel', $guru->mapel) }}">
+                        <input type="hidden" name="jenjang" value="{{ old('jenjang', $guru->jenjang) }}">
+                    @endif
                     <div class="flex justify-between mt-4">
                         <button type="button" class="btn btn-ghost" @click="tab = 'pribadi'">← Kembali</button>
                         <button type="button" class="btn btn-primary" @click="tab = 'domisili'; $nextTick(() => Object.values(window.petaPickers || {}).forEach(m => m.invalidateSize()))">Lanjut →</button>
@@ -331,29 +334,9 @@
                         <x-ikon nama="info" class="h-3.5 w-3.5 shrink-0" /> Tips: buka Google Maps, klik kanan lokasi rumah → salin koordinatnya.
                     </p>
 
-                    <div class="divider">Sekolah tempat bertugas saat ini</div>
-
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <fieldset class="fieldset w-full sm:col-span-2">
-                            <label class="fieldset-legend font-semibold" for="f-sekolah_saat_ini">Nama Sekolah</label>
-                            @php
-                                $sekolahAktif = old('sekolah_saat_ini', $guru->sekolah_saat_ini);
-                                $namaSekolah = $daftarSekolah->pluck('nama')->unique()->sort()->values();
-                                $opsiSekolahIni = $namaSekolah->contains($sekolahAktif) || empty($sekolahAktif)
-                                    ? $namaSekolah
-                                    : $namaSekolah->concat([$sekolahAktif])->sort()->values();
-                            @endphp
-                            <x-searchable-select name="sekolah_saat_ini"
-                                :options="$opsiSekolahIni->map(fn ($n) => ['value' => $n, 'label' => $n])->all()"
-                                :selected="$sekolahAktif"
-                                placeholder="— Pilih Sekolah —" class="w-full" />
-                            <p class="text-xs opacity-60 mt-1">
-                                Cukup pilih nama sekolahnya — koordinat diambil dari data sekolah,
-                                dan jarak domisili dihitung dari sana.
-                            </p>
-                        @error('sekolah_saat_ini')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
-                        </fieldset>
-                    </div>
+                    <p class="text-xs opacity-60 mt-2 flex items-center gap-1">
+                        <x-ikon nama="info" class="h-3.5 w-3.5 shrink-0" /> Sekolah tempat bertugas diatur lewat "Sekolah Tempat Bertugas" di tab Kepegawaian — nama dan jarak mengikuti data sekolah tersebut.
+                    </p>
 
                     <div class="flex justify-between mt-4">
                         <button type="button" class="btn btn-ghost" @click="tab = 'kepegawaian'">← Kembali</button>

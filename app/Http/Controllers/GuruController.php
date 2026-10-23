@@ -52,7 +52,7 @@ class GuruController extends Controller
             'sekolah_id' => ['nullable', 'exists:sekolah,id'],
             'domisili_lat' => ['required', 'numeric', 'between:-90,90'],
             'domisili_lng' => ['required', 'numeric', 'between:-180,180'],
-            'sekolah_saat_ini' => ['required', 'string', 'max:100'],
+            'sekolah_saat_ini' => ['nullable', 'string', 'max:100'],
             // Koordinat sekolah tidak lagi diisi manual lewat form: jarak
             // dihitung dari relasi sekolah_id; kolom sekolah_saat_ini_lat/lng
             // hanya cache yang diperbarui otomatis saat mutasi disetujui.
@@ -141,6 +141,15 @@ class GuruController extends Controller
 
         $data['nip'] = trim((string) ($data['nip'] ?? '')) ?: null;
 
+        // Nama sekolah (teks) adalah label/cache tampilan yang SELALU
+        // diturunkan dari relasi sekolah_id — sumber tunggal kebenaran
+        // sejak pilihan nama sekolah dihapus dari form guru.
+        if (! empty($data['sekolah_id'])) {
+            $data['sekolah_saat_ini'] = Sekolah::find($data['sekolah_id'])?->nama
+                ?? ($data['sekolah_saat_ini'] ?? '');
+        }
+        $data['sekolah_saat_ini'] ??= '';
+
         $guru = Guru::create($data);
 
         // Akun login guru dibuatkan otomatis: username & password bawaan
@@ -211,6 +220,14 @@ class GuruController extends Controller
 
         if (array_key_exists('nip', $data)) {
             $data['nip'] = trim((string) $data['nip']) ?: null;
+        }
+
+        // Selaraskan label nama sekolah dengan relasi sekolah_id efektif
+        // (sumber tunggal — lihat store()).
+        $sekolahIdEfektif = $data['sekolah_id'] ?? $guru->sekolah_id;
+        if ($sekolahIdEfektif) {
+            $data['sekolah_saat_ini'] = Sekolah::find($sekolahIdEfektif)?->nama
+                ?? ($data['sekolah_saat_ini'] ?? $guru->sekolah_saat_ini);
         }
 
         $guru->update($data);
