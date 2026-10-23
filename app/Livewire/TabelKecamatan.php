@@ -9,10 +9,12 @@ use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\WilayahKabupaten;
 use App\Models\WilayahKecamatan;
 use App\Models\WilayahProvinsi;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Title('Referensi Kecamatan — PetaPenempatan ASN')]
 class TabelKecamatan extends Component
 {
     use DenganPerHalaman, WithPagination;

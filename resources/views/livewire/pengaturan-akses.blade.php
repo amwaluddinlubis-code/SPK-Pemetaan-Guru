@@ -2,6 +2,9 @@
      Menutup akses menyembunyikan menu dari bilah sisi DAN menolak rutenya
      (403) lewat middleware PastikanAksesMenu. --}}
 <div>
+<h1 class="text-2xl font-bold mb-4">Pengaturan Akses</h1>
+
+<div>
     <div class="alert alert-info mb-4">
         <span>
             Atur menu/modul apa saja yang boleh dibuka setiap peran. Perubahan langsung berlaku:
@@ -77,4 +80,6 @@
         </button>
         <span class="text-sm opacity-60">Setiap perubahan tercatat di Jejak Audit.</span>
     </div>
+</div>
+
 </div>

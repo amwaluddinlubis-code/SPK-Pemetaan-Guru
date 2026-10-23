@@ -1,5 +1,10 @@
 {{-- Tabel Jejak Audit (Livewire): filter + pagination tanpa reload. --}}
 <div>
+<x-halaman judul="Jejak Audit Operasional">
+    <x-slot:deskripsi>Append-only: catatan tidak bisa diubah/dihapus lewat aplikasi.</x-slot:deskripsi>
+</x-halaman>
+
+<div>
     <x-kartu class="mb-4 p-4">
         <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
             <div>
@@ -83,4 +88,6 @@
             <x-per-halaman />
         </div>
     </div>
+</div>
+
 </div>

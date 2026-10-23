@@ -47,11 +47,6 @@ class UsulanController extends Controller
      * Halaman index dirender komponen Livewire TabelUsulan
      * (pencarian, filter status, sorting, pagination tanpa reload).
      */
-    public function index()
-    {
-        return view('usulan.index');
-    }
-
     /**
      * Export Excel usulan penempatan (mengikuti filter & scope yang aktif).
      */

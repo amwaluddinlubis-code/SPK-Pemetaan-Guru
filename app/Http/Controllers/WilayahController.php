@@ -14,26 +14,6 @@ use Illuminate\Http\Request;
 
 class WilayahController extends Controller
 {
-    public function provinsi()
-    {
-        return view('wilayah.provinsi');
-    }
-
-    public function kabupaten()
-    {
-        return view('wilayah.kabupaten');
-    }
-
-    public function kecamatan()
-    {
-        return view('wilayah.kecamatan');
-    }
-
-    public function desa()
-    {
-        return view('wilayah.desa');
-    }
-
     /**
      * Daftar provinsi untuk dropdown (kode + nama, urut nama).
      */

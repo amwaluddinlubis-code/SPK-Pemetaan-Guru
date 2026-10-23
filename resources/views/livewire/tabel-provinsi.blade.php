@@ -1,5 +1,10 @@
 {{-- Tabel referensi Provinsi (Livewire): pencarian, sortir, pagination tanpa reload. --}}
 <div>
+<x-halaman judul="🗺️ Referensi Provinsi">
+    <x-slot:deskripsi>37 provinsi se-Indonesia (Kepmendagri 100.1.1-6117/2022). Klik nama untuk melihat kabupaten/kota.</x-slot:deskripsi>
+</x-halaman>
+
+<div>
     <x-kartu class="mb-4">
         <div class="card-body py-3">
             <div class="flex flex-wrap gap-2">
@@ -53,4 +58,6 @@
             <x-per-halaman />
         </div>
     </div>
+</div>
+
 </div>

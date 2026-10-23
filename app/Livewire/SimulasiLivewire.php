@@ -1,63 +1,47 @@
 <?php
 
-// Komponen Livewire: Halaman Simulasi "What-If" Policy — read-only,
-// interaktif tanpa reload halaman. Parameter (ambang, mapel, kecamatan,
-// sertakan_3t) disinkronkan ke URL via #[Url] dan state Livewire.
+// Komponen Livewire halaman penuh: Simulasi Kebijakan "What-If" —
+// read-only, tidak mengubah data operasional. Parameter disubmit via
+// wire:submit dan hasil tampil seketika di halaman yang sama.
+// (Route POST /simulasi lama dipertahankan untuk kompatibilitas.)
 
 namespace App\Livewire;
 
 use App\Models\Guru;
-use App\Models\HasilSpk;
-use App\Models\KebutuhanGuru;
-use App\Models\Sekolah;
 use App\Services\SimulasiKebijakan;
-use Livewire\Attributes\Url;
+use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\WithPagination;
 
+#[Title('Simulasi Kebijakan — PetaPenempatan ASN')]
 class SimulasiLivewire extends Component
 {
-    use WithPagination;
+    public float $ambang_km = 15;
 
-    #[Url]
-    public int $perPage = 15;
+    public string $mapel = '';
 
-    #[Url]
-    public ?string $ambang_km = null;
+    public string $kecamatan = '';
 
-    #[Url]
-    public ?string $mapel = null;
-
-    #[Url]
-    public ?string $kecamatan = null;
-
-    #[Url]
-    public ?bool $sertakan_3t = null;
+    public bool $sertakan_3t = false;
 
     public ?array $hasil = null;
 
-    public function mount(): void
+    public function hitung(SimulasiKebijakan $simulasi): void
     {
-        // Inisialisasi dari query string jika ada (akan terisi oleh #[Url] attribute)
+        $data = $this->validate([
+            'ambang_km' => ['required', 'numeric', 'min:1', 'max:500'],
+            'mapel' => ['nullable', 'string', 'max:50'],
+            'kecamatan' => ['nullable', 'string', 'max:100'],
+            'sertakan_3t' => ['nullable', 'boolean'],
+        ]);
+
+        $this->hasil = $simulasi->jalankan($data);
     }
 
     public function render()
     {
-        $this->hasil = null; // reset per render
-
-        // Ambil parameter dari query string / state Livewire
-        $param = [
-            'ambang_km' => $this->ambang_km ?? 15,
-            'mapel' => $this->mapel,
-            'kecamatan' => $this->kecamatan,
-            'sertakan_3t' => $this->sertikan_3t ?? false,
-        ];
-
-        // Jalankan simulasi via service
-        $service = new SimulasiKebijakan;
-        $this->hasil = $service->jalankan($param);
-
         return view('livewire.simulasi-index', [
+            'daftarMapel' => Guru::distinct()->orderBy('mapel')->pluck('mapel'),
+            'daftarKecamatan' => Guru::distinct()->orderBy('kecamatan')->pluck('kecamatan'),
             'hasil' => $this->hasil,
         ]);
     }

@@ -12,10 +12,12 @@ use App\Models\Guru;
 use App\Models\HasilSpk;
 use App\Models\KebutuhanGuru;
 use App\Services\RoutingJalan;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Title('SPK Penempatan — PetaPenempatan ASN')]
 class TabelSpk extends Component
 {
     use DenganPerHalaman, WithPagination;

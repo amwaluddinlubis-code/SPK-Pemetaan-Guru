@@ -1,11 +1,8 @@
-@extends('layouts.app')
 
-@section('judul', 'Kualitas Data — PetaPenempatan ASN')
-
-@section('konten')
+<div>
 <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
     <h1 class="text-2xl font-bold">Pusat Kualitas Data</h1>
-    <a href="#" class="btn btn-outline btn-sm">📥 Ekspor Laporan</a>
+    <a href="{{ route('kualitas-data.export') }}" class="btn btn-outline btn-sm">📥 Ekspor Laporan</a>
 </div>
 
 <p class="text-sm opacity-70 mb-4">Pemeriksaan bersifat read-only — tidak mengubah data. Klik tautan perbaikan untuk mengedit record yang bermasalah.</p>
@@ -15,44 +12,38 @@
         <div class="stat-title">Total Temuan</div>
         <div class="stat-value">{{ $total }}</div>
     </div>
-    @foreach ($ringkasan as $status => $jml)
     <div class="stat bg-base-100 shadow rounded">
-        <div class="stat-title">{{ ucfirst($status) }}</div>
-        <div class="stat-value {{ $status === 'tinggi' ? 'text-error' : ($status === 'sedang' ? 'text-warning' : 'text-info') }}">{{ $jml }}</div>
+        <div class="stat-title">Dampak Tinggi</div>
+        <div class="stat-value text-error">{{ $ringkasan['tinggi'] }}</div>
     </div>
-    @endforeach
+    <div class="stat bg-base-100 shadow rounded">
+        <div class="stat-title">Dampak Sedang</div>
+        <div class="stat-value text-warning">{{ $ringkasan['sedang'] }}</div>
+    </div>
+    <div class="stat bg-base-100 shadow rounded">
+        <div class="stat-title">Dampak Rendah</div>
+        <div class="stat-value text-info">{{ $ringkasan['rendah'] }}</div>
+    </div>
 </div>
 
-<form wire:submit.prevent="filter">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <div>
-            <label class="label"><span class="label-text font-semibold">Dampak</span></label>
-            <select wire:model="dampak" class="select select-sm">
-                <option value="">Semua dampak</option>
-                @foreach (['tinggi', 'sedang', 'rendah'] as $d)
-                    <option value="{{ $d }}" @if($d === $dampak) selected @endif>
-                        {{ ucfirst($d) }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-        <div>
-            <label class="label"><span class="label-text font-semibold">Jenis</span></label>
-            <select wire:model="jenis" class="select select-sm">
-                <option value="">Semua jenis</option>
-                @foreach ($daftarJenis as $j)
-                    <option value="{{ $j }}">{{ $j }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div>
-            <button type="submit" class="btn btn-primary">Filter</button>
-            <a href="#" wire:click="resetFilter" class="btn btn-ghost ml-2">Reset</a>
-        </div>
-    </div>
-</form>
+<div class="flex gap-2 mb-4">
+    <select aria-label="dampak" wire:model.live="dampak" class="select select-sm">
+        <option value="">Semua dampak</option>
+        @foreach (['tinggi', 'sedang', 'rendah'] as $d)
+            <option value="{{ $d }}">{{ ucfirst($d) }}</option>
+        @endforeach
+    </select>
+    <select aria-label="jenis" wire:model.live="jenis" class="select select-sm">
+        <option value="">Semua jenis</option>
+        @foreach ($daftarJenis as $j)
+            <option value="{{ $j }}">{{ $j }}</option>
+        @endforeach
+    </select>
+    @if ($dampak !== '' || $jenis !== '')
+        <button wire:click="resetFilter" class="btn btn-ghost btn-sm">Reset</button>
+    @endif
+</div>
 
-@if ($temuan)
 <div class="card bg-base-100 shadow overflow-x-auto">
     <table class="table table-zebra table-sm">
         <thead>
@@ -86,9 +77,4 @@
     </table>
 </div>
 
-@if (count($temuan) > 0)
-<div class="alert alert-info mt-4">
-    <span class="text-sm">Menampilkan <strong>{{ count($temuan) }}</strong> temuan dari total.</span>
 </div>
-@endif
-@endsection

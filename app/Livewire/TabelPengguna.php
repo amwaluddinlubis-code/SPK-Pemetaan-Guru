@@ -7,10 +7,12 @@ namespace App\Livewire;
 
 use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\User;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Title('Kelola Pengguna — PetaPenempatan ASN')]
 class TabelPengguna extends Component
 {
     use DenganPerHalaman, WithPagination;

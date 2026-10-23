@@ -1,5 +1,14 @@
 {{-- Tabel Kelola Pengguna (Livewire): pencarian, filter peran, pagination tanpa reload. --}}
 <div>
+<x-halaman judul="👥 Kelola Pengguna">
+    <x-slot:aksi>
+        <a href="{{ route('pengguna.create') }}" class="btn btn-primary">+ Tambah Pengguna</a>
+    </x-slot:aksi>
+</x-halaman>
+
+<x-galat />
+
+<div>
     <x-kartu class="mb-4">
         <div class="card-body py-3">
             <div class="flex flex-wrap gap-2">
@@ -79,4 +88,6 @@
             <x-per-halaman />
         </div>
     </div>
+</div>
+
 </div>

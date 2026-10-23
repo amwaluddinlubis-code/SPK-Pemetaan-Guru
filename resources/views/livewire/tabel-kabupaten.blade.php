@@ -1,5 +1,10 @@
 {{-- Tabel referensi Kabupaten/Kota (Livewire): pencarian + filter provinsi. --}}
 <div>
+<x-halaman judul="🏙️ Referensi Kabupaten/Kota">
+    <x-slot:deskripsi>514 kabupaten/kota se-Indonesia. Klik nama untuk melihat kecamatan.</x-slot:deskripsi>
+</x-halaman>
+
+<div>
     <x-kartu class="mb-4">
         <div class="card-body py-3">
             <div class="flex flex-wrap gap-2">
@@ -56,4 +61,6 @@
             <x-per-halaman />
         </div>
     </div>
+</div>
+
 </div>

@@ -1,5 +1,10 @@
 {{-- Tabel referensi Desa/Kelurahan (Livewire): wajib pilih kecamatan dulu. --}}
 <div>
+<x-halaman judul="🏡 Referensi Desa/Kelurahan">
+    <x-slot:deskripsi>83.761 desa/kelurahan se-Indonesia.</x-slot:deskripsi>
+</x-halaman>
+
+<div>
     <x-kartu class="mb-4">
         <div class="card-body py-3">
             <div class="flex flex-wrap gap-2">
@@ -68,4 +73,6 @@
         </div>
         </div>
     @endif
+</div>
+
 </div>

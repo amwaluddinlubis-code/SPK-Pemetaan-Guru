@@ -1,5 +1,16 @@
 {{-- Tabel Distribusi defisit/surplus (Livewire): kartu ringkasan + filter terpencarian + tabel berpaginasi. --}}
 <div>
+<div class="mb-4">
+    <h1 class="text-2xl font-bold">Distribusi Defisit & Surplus Guru</h1>
+    <p class="text-sm opacity-70 mt-1">
+        Rumus: <code>defisit = max(kebutuhan − tersedia, 0)</code>,
+        <code>surplus = max(tersedia − kebutuhan, 0)</code>.
+        Guru dalam proses mutasi (rekomendasi aktif) dihitung sekali di sekolah asal.
+        Hanya data agregat — tanpa identitas guru.
+    </p>
+</div>
+
+<div>
     <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
         <div class="stat bg-base-100 shadow rounded"><div class="stat-title">Tersedia</div><div class="stat-value">{{ $total['tersedia'] }}</div></div>
         <div class="stat bg-base-100 shadow rounded"><div class="stat-title">Kebutuhan</div><div class="stat-value">{{ $total['kebutuhan'] }}</div></div>
@@ -67,4 +78,6 @@
             <x-per-halaman />
         </div>
     </div>
+</div>
+
 </div>

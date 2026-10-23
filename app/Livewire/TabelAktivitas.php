@@ -8,10 +8,12 @@ namespace App\Livewire;
 use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\ActivityLog;
 use App\Models\User;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Title('Jejak Audit — PetaPenempatan ASN')]
 class TabelAktivitas extends Component
 {
     use DenganPerHalaman, WithPagination;

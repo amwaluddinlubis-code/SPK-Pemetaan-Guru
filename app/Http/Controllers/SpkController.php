@@ -37,11 +37,6 @@ class SpkController extends Controller
     //
     // Halaman index dirender komponen Livewire TabelSpk
     // (filter status, pagination tanpa reload + data kelayakan per halaman).
-    public function index()
-    {
-        return view('spk.index');
-    }
-
     /**
      * Hitung dampak ke sekolah asal per rekomendasi.
      * Kembali: [hasil_spk_id => 'kurang N guru Mapel di sekolah asal', ...]

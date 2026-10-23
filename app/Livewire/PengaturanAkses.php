@@ -10,8 +10,10 @@ namespace App\Livewire;
 use App\Models\User;
 use App\Services\AksesMenu;
 use App\Services\RegistriMenu;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
+#[Title('Pengaturan Akses — PetaPenempatan ASN')]
 class PengaturanAkses extends Component
 {
     /** Menu yang rutenya tetap dijaga middleware role khusus administrator. */

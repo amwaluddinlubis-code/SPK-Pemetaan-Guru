@@ -1,5 +1,23 @@
 {{-- Tabel Mutasi Silang (Livewire): filter status + pagination tanpa reload. --}}
 <div>
+<x-halaman judul="🔄 Mutasi Silang (Swap)">
+    <x-slot:deskripsi>
+        Rekomendasi pertukaran dua guru bermapel sama: keduanya menjadi
+        lebih dekat ke domisili setelah bertukar sekolah.
+    </x-slot:deskripsi>
+    <x-slot:aksi>
+        {{-- Tombol generate: khusus administrator (kabid_ptk) --}}
+        @if (auth()->user()->hasRole('kabid_ptk'))
+            <form method="POST" action="{{ route('swap.generate') }}"
+                  onsubmit="return confirm('Jalankan pencocokan pasangan swap untuk semua guru?')">
+                @csrf
+                <button type="submit" class="btn btn-primary">⚙️ Generate Rekomendasi</button>
+            </form>
+        @endif
+    </x-slot:aksi>
+</x-halaman>
+
+<div>
     {{-- Pencarian teks --}}
     <div class="flex flex-wrap gap-2 mb-4">
         <input aria-label="Cari nama guru A atau guru B…" type="text" wire:model.live.debounce.500ms="q"
@@ -136,4 +154,6 @@
             <x-per-halaman />
         </div>
     </div>
+</div>
+
 </div>

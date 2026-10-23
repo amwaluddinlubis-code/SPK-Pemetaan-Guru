@@ -6,6 +6,7 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\PengaturanPemdaLivewire;
 use App\Models\Guru;
 use App\Models\Sekolah;
 use App\Models\User;
@@ -15,6 +16,7 @@ use App\Models\WilayahProvinsi;
 use App\Services\KonteksPemda;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class PengaturanPemdaTest extends TestCase
@@ -86,9 +88,11 @@ class PengaturanPemdaTest extends TestCase
         $this->assertFalse(KonteksPemda::aktif());
         $this->assertSame(3, Sekolah::count());
 
-        $this->actingAs($f['kabid'])->put('/pengaturan/pemda', [
-            'level' => 'kabupaten', 'kode_provinsi' => '12', 'kode_kabupaten' => '1213',
-        ])->assertRedirect(route('pengaturan.pemda'));
+        $this->actingAs($f['kabid']);
+        Livewire::test(PengaturanPemdaLivewire::class)
+            ->set('level', 'kabupaten')->set('kodeProvinsi', '12')->set('kodeKabupaten', '1213')
+            ->call('simpan')
+            ->assertRedirect(route('pengaturan.pemda'));
 
         $this->assertTrue(KonteksPemda::aktif());
         $this->assertSame('Pemerintah Kabupaten Mandailing Natal', KonteksPemda::namaPemda());
@@ -107,14 +111,17 @@ class PengaturanPemdaTest extends TestCase
         $this->buatSekolah('SD A', 'Panyabungan');
         $this->buatSekolah('SD C', 'Sipirok');
 
-        $this->actingAs($f['kabid'])->put('/pengaturan/pemda', [
-            'level' => 'provinsi', 'kode_provinsi' => '12',
-        ])->assertRedirect(route('pengaturan.pemda'));
+        $this->actingAs($f['kabid']);
+        Livewire::test(PengaturanPemdaLivewire::class)
+            ->set('level', 'provinsi')->set('kodeProvinsi', '12')
+            ->call('simpan')
+            ->assertRedirect(route('pengaturan.pemda'));
 
         $this->assertSame('Pemerintah Provinsi Sumatera Utara', KonteksPemda::namaPemda());
         $this->assertSame(2, Sekolah::count()); // dua kabupaten, satu provinsi
 
-        $this->actingAs($f['kabid'])->delete('/pengaturan/pemda')
+        Livewire::test(PengaturanPemdaLivewire::class)
+            ->call('lepas')
             ->assertRedirect(route('pengaturan.pemda'));
         $this->assertFalse(KonteksPemda::aktif());
         $this->assertSame(2, Sekolah::count());
@@ -127,14 +134,17 @@ class PengaturanPemdaTest extends TestCase
         WilayahKabupaten::create(['kode' => '1101', 'provinsi_kode' => '11', 'nama' => 'KAB. SIMEULUE']);
 
         // Kabupaten bukan anak provinsi terpilih → ditolak.
-        $this->actingAs($f['kabid'])->put('/pengaturan/pemda', [
-            'level' => 'kabupaten', 'kode_provinsi' => '12', 'kode_kabupaten' => '1101',
-        ])->assertSessionHasErrors('kode_kabupaten');
+        $this->actingAs($f['kabid']);
+        Livewire::test(PengaturanPemdaLivewire::class)
+            ->set('level', 'kabupaten')->set('kodeProvinsi', '12')->set('kodeKabupaten', '1101')
+            ->call('simpan')
+            ->assertHasErrors('kodeKabupaten');
         $this->assertFalse(KonteksPemda::aktif());
 
         // Level kabupaten tanpa kabupaten → ditolak.
-        $this->actingAs($f['kabid'])->put('/pengaturan/pemda', [
-            'level' => 'kabupaten', 'kode_provinsi' => '12',
-        ])->assertSessionHasErrors('kode_kabupaten');
+        Livewire::test(PengaturanPemdaLivewire::class)
+            ->set('level', 'kabupaten')->set('kodeProvinsi', '12')->set('kodeKabupaten', '')
+            ->call('simpan')
+            ->assertHasErrors('kodeKabupaten');
     }
 }

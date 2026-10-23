@@ -70,11 +70,6 @@ class GuruController extends Controller
      * Halaman index dirender komponen Livewire TabelGuru
      * (pencarian, filter, sorting, pagination tanpa reload).
      */
-    public function index()
-    {
-        return view('guru.index');
-    }
-
     /**
      * Daftar kecamatan unik dari data sekolah (untuk filter & dropdown form).
      */

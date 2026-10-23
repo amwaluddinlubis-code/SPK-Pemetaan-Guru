@@ -7,10 +7,12 @@ namespace App\Livewire;
 use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\WilayahKabupaten;
 use App\Models\WilayahProvinsi;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Title('Referensi Kabupaten/Kota — PetaPenempatan ASN')]
 class TabelKabupaten extends Component
 {
     use DenganPerHalaman, WithPagination;

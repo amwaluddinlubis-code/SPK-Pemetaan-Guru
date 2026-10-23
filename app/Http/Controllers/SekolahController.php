@@ -178,11 +178,6 @@ class SekolahController extends Controller
      * Halaman index dirender komponen Livewire TabelSekolah
      * (pencarian, filter, sorting, pagination tanpa reload).
      */
-    public function index()
-    {
-        return view('sekolah.index');
-    }
-
     public function create()
     {
         return view('sekolah.form', [

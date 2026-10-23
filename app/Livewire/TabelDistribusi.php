@@ -9,10 +9,12 @@ namespace App\Livewire;
 use App\Livewire\Concerns\DenganPerHalaman;
 use App\Services\AgregatKebutuhan;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Title('Distribusi Defisit & Surplus — PetaPenempatan ASN')]
 class TabelDistribusi extends Component
 {
     use DenganPerHalaman, WithPagination;

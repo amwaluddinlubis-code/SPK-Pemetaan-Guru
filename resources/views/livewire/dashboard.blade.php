@@ -1,0 +1,48 @@
+{{-- Halaman Dashboard (komponen Livewire penuh): kartu statistik + peta --}}
+@push('kepala')
+    @vite('resources/js/peta.js')
+@endpush
+<div>
+    <h1 class="text-2xl font-bold mb-4"><x-ikon nama="dashboard" class="h-7 w-7 inline" /> Dashboard Pemetaan</h1>
+
+    {{-- Kartu statistik (daisyUI stats) --}}
+    <div class="stats stats-vertical sm:stats-horizontal shadow w-full mb-6">
+        <div class="stat">
+            <div class="stat-title">Total Guru</div>
+            <div class="stat-value text-primary">{{ $totalGuru }}</div>
+            <div class="stat-desc">terdata di sistem</div>
+        </div>
+        <div class="stat">
+            <div class="stat-title">Total Sekolah</div>
+            <div class="stat-value text-secondary">{{ $totalSekolah }}</div>
+            <div class="stat-desc">terdata di sistem</div>
+        </div>
+        <div class="stat">
+            <div class="stat-title">Rata-rata Jarak</div>
+            <div class="stat-value">
+                @if ($rataJarak !== null)
+                    {{ number_format($rataJarak, 1) }} km
+                @else
+                    —
+                @endif
+            </div>
+            <div class="stat-desc">{{ $guruDenganJarak }} dari {{ $totalGuru }} guru memiliki koordinat valid</div>
+        </div>
+        <div class="stat">
+            <div class="stat-title">Butuh Perhatian ⚠️</div>
+            <div class="stat-value text-error">{{ $guruJauh }}</div>
+            <div class="stat-desc">guru berjarak &gt; 5 km</div>
+        </div>
+        @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
+            <div class="stat">
+                <div class="stat-title">Usulan Menunggu 📝</div>
+                <div class="stat-value text-warning">{{ $usulanMenunggu }}</div>
+                <div class="stat-desc"><a href="{{ route('usulan.index') }}" class="link">proses sekarang</a></div>
+            </div>
+        @endif
+    </div>
+
+    {{-- Komponen Livewire: peta + rekomendasi (interaktif tanpa reload) --}}
+    @livewire('peta-rekomendasi')
+
+</div>

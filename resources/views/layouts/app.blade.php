@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('judul', 'PetaPenempatan ASN')</title>
+    <title>@yield('judul', $title ?? 'PetaPenempatan ASN')</title>
 
     <!-- Aset Vite: Tailwind + daisyUI (resources/css/app.css) & JS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -111,7 +111,9 @@
                     </div>
                 @endif
 
-                @yield('konten')
+                {{-- Halaman klasik memakai @section('konten'); halaman penuh
+                     Livewire dirender sebagai $slot oleh komponen rutenya. --}}
+                {{ $slot ?? '' }}@yield('konten')
             </main>
 
             <footer class="text-center text-sm opacity-60 pb-6">

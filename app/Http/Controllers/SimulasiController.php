@@ -5,20 +5,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Guru;
 use App\Services\SimulasiKebijakan;
 use Illuminate\Http\Request;
 
 class SimulasiController extends Controller
 {
-    public function index()
-    {
-        return view('simulasi.index', [
-            'daftarMapel' => Guru::distinct()->orderBy('mapel')->pluck('mapel'),
-            'daftarKecamatan' => Guru::distinct()->orderBy('kecamatan')->pluck('kecamatan'),
-        ]);
-    }
-
     public function jalankan(Request $request, SimulasiKebijakan $simulasi)
     {
         $data = $request->validate([

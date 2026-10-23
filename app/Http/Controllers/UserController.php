@@ -19,11 +19,6 @@ class UserController extends Controller
      * Halaman index dirender komponen Livewire TabelPengguna
      * (pencarian, filter peran, pagination tanpa reload).
      */
-    public function index()
-    {
-        return view('pengguna.index');
-    }
-
     public function create()
     {
         return view('pengguna.form', [

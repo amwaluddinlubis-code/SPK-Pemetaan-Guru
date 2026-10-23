@@ -161,7 +161,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 2. Properti filter sinkron ke URL via #[Url]; input teks pakai wire:model.live.debounce.500ms; select/date pakai wire:model.live.
 3. Kolom sortir WAJIB whitelist di konstanta KOLOM_SORTIR + method urutkan(); setiap filter berubah WAJIB resetPage(); sediakan resetFilter().
 4. Scope peran + otorisasi (SEC-001/SEC-003) ditegakkan di dalam komponen, bukan di Blade. Jangan andalkan sembunyi tombol.
-5. Controller index() hanya return view (header + tombol aksi tetap Blade). Logika query daftar tidak boleh di controller (kecuali dipakai ulang export/cetak).
+5. Halaman indeks/dashboard adalah komponen Livewire HALAMAN PENUH: route GET menunjuk langsung ke kelas komponen (App\Livewire\Tabel* untuk daftar; komponen halaman untuk dashboard/simulasi/kualitas-data/aksesibilitas/pengaturan) dengan #[Title] dan SATU elemen akar di view; header + tombol aksi menyatu di view komponen. Controller hanya untuk aksi (store/update/destroy/generate/setujui/ekspor/cetak/API). Logika query daftar tidak boleh di controller (kecuali dipakai ulang export/cetak).
 6. Alpine.js hanya untuk interaksi trivial tanpa state server (dropdown, toggle, confirm). Peta memakai wire:ignore.
 7. Setiap tabel Livewire WAJIB diuji: render awal + filter + scope peran via Livewire::test().
 

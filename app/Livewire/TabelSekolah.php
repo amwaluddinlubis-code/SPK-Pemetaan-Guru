@@ -8,10 +8,12 @@ namespace App\Livewire;
 use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\Sekolah;
 use App\Services\KonteksPemda;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Title('Data Sekolah — PetaPenempatan ASN')]
 class TabelSekolah extends Component
 {
     use DenganPerHalaman, WithPagination;

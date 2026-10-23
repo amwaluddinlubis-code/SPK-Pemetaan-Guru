@@ -26,11 +26,6 @@ class SwapController extends Controller
      * Halaman index dirender komponen Livewire TabelSwap
      * (filter status, pagination tanpa reload).
      */
-    public function index()
-    {
-        return view('swap.index');
-    }
-
     // Generate rekomendasi (kabid_ptk): cocokkan semua pasangan guru O(N^2)
     public function generate()
     {

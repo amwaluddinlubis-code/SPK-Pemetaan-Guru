@@ -7,10 +7,12 @@ namespace App\Livewire;
 
 use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\RekomendasiSwap;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Title('Mutasi Silang — PetaPenempatan ASN')]
 class TabelSwap extends Component
 {
     use DenganPerHalaman, WithPagination;
