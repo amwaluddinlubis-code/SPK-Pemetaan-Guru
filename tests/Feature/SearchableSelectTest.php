@@ -6,6 +6,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Sekolah;
 use App\Models\User;
 use App\Models\WilayahKabupaten;
 use App\Models\WilayahKecamatan;
@@ -23,6 +24,12 @@ class SearchableSelectTest extends TestCase
         WilayahProvinsi::create(['kode' => '12', 'nama' => 'SUMATERA UTARA']);
         WilayahKabupaten::create(['kode' => '1213', 'provinsi_kode' => '12', 'nama' => 'KAB. MANDAILING NATAL']);
         WilayahKecamatan::create(['kode' => '121301', 'kabupaten_kode' => '1213', 'nama' => 'PANYABUNGAN']);
+        // Satu sekolah agar peta kode kecamatan (diturunkan dari kecamatan
+        // yang dipakai data sekolah) memuat Panyabungan.
+        Sekolah::create([
+            'npsn' => '10000001', 'nama' => 'SD Uji', 'alamat' => 'Jl Tes',
+            'kecamatan' => 'Panyabungan', 'lat' => 0.86, 'lng' => 99.56,
+        ]);
         $kabid = User::create([
             'name' => 'Kabid', 'email' => 'kabid@t.local',
             'password' => Hash::make('rahasia'), 'role' => 'kabid_ptk',

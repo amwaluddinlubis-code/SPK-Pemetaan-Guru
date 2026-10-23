@@ -96,6 +96,9 @@
                 <div class="p-4 border-b border-primary-content/20">
                     <a href="{{ route('dashboard') }}" class="text-xl font-bold"><x-ikon nama="peta" class="h-6 w-6 inline" /> PetaPenempatan ASN</a>
                     <p class="text-xs opacity-70 mt-1">Sistem Informasi Penempatan Guru</p>
+                    @if (! empty($konteksPemdaNama))
+                        <p class="text-xs font-semibold mt-1">{{ $konteksPemdaNama }}</p>
+                    @endif
                 </div>
 
                 <!-- Menu navigasi -->
@@ -140,6 +143,7 @@
                     <li class="menu-title mt-2"><span>Sistem</span></li>
                         <li><a href="{{ route('pengguna.index') }}" class="{{ request()->routeIs('pengguna.*') ? 'active' : '' }}"><x-ikon nama="pengguna" class="h-5 w-5" /> Kelola Pengguna</a></li>
                         <li><a href="{{ route('aktivitas.index') }}" class="{{ request()->routeIs('aktivitas.*') ? 'active' : '' }}"><x-ikon nama="audit" class="h-5 w-5" /> Jejak Audit</a></li>
+                        <li><a href="{{ route('pengaturan.pemda') }}" class="{{ request()->routeIs('pengaturan.*') ? 'active' : '' }}"><x-ikon nama="peta" class="h-5 w-5" /> Pengaturan Pemda</a></li>
                     @endif
                 </ul>
 

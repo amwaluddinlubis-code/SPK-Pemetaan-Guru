@@ -17,6 +17,7 @@ use App\Http\Controllers\DistribusiController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\KualitasDataController;
 use App\Http\Controllers\PemdaController;
+use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\ProyeksiController;
 use App\Http\Controllers\SekolahController;
@@ -152,6 +153,14 @@ Route::middleware('auth')->group(function () {
     // --- Kelola Pengguna: kabid_ptk (administrator) ---
     Route::resource('pengguna', UserController::class)
         ->except(['show'])
+        ->middleware('role:kabid_ptk');
+
+    // --- Pengaturan Pemda: konteks wilayah kerja aplikasi (kabid_ptk) ---
+    Route::get('/pengaturan/pemda', [PengaturanController::class, 'edit'])->name('pengaturan.pemda')
+        ->middleware('role:kabid_ptk');
+    Route::put('/pengaturan/pemda', [PengaturanController::class, 'update'])->name('pengaturan.pemda.update')
+        ->middleware('role:kabid_ptk');
+    Route::delete('/pengaturan/pemda', [PengaturanController::class, 'destroy'])->name('pengaturan.pemda.destroy')
         ->middleware('role:kabid_ptk');
 
     // --- Jejak Audit: kabid_ptk (append-only, tanpa edit/hapus) ---

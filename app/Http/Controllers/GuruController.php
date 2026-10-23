@@ -12,7 +12,7 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\Guru;
 use App\Models\Sekolah;
-use App\Models\WilayahKecamatan;
+use App\Services\KonteksPemda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -91,9 +91,7 @@ class GuruController extends Controller
      */
     private function petaKodeKecamatan()
     {
-        return WilayahKecamatan::where('kabupaten_kode', '1213')
-            ->orderBy('nama')
-            ->pluck('kode', 'nama');
+        return KonteksPemda::petaKodeKecamatan();
     }
 
     public function create()
