@@ -11,7 +11,7 @@
 | akses_menu | Penyimpangan akses menu per peran dari bawaan registri (Pengaturan Akses) |
 | jarak_jalan_cache | Cache jarak jalan (routing) per pasangan koordinat |
 | usulan_penempatan | Usulan pindah + status alur |
-| hasil_spks | Rekomendasi SPK + status |
+| hasil_spks | Rekomendasi SPK + status + skor hibrida SAW–TOPSIS (`skor_saw`, `skor_topsis`, `skor`, `detail_skor` JSON; NULL untuk rekomendasi lama) |
 | rekomendasi_swaps | Rekomendasi tukar + status |
 | activity_logs | Jejak audit operasional (append-only) |
 

@@ -76,7 +76,20 @@
 
     <h4>III. Analisis</h4>
     <ol>
-        <li><strong>Kebutuhan formasi:</strong> sekolah tujuan membutuhkan guru {{ $guru->mapel }} (rekomendasi sistem, skor {{ number_format($spk->skor ?? 0, 2) }}).</li>
+        <li><strong>Kebutuhan formasi:</strong> sekolah tujuan membutuhkan guru {{ $guru->mapel }} (rekomendasi sistem).</li>
+        <li><strong>Skor peringkat hibrida (Greedy + SAW–TOPSIS):</strong>
+            @if ($spk->sudahDinilai())
+                <strong>{{ number_format($spk->skorPersen(), 1, ',', '.') }}/100</strong>
+                (SAW {{ number_format($spk->skor_saw * 100, 1, ',', '.') }} · TOPSIS {{ number_format($spk->skor_topsis * 100, 1, ',', '.') }}) —
+                peringkat ke-{{ data_get($spk->detail_skor, 'peringkat_ke', '—') }} di antara alternatif layak bagi guru ini.
+                Kriteria saat penilaian: penghematan {{ number_format((float) data_get($spk->detail_skor, 'kriteria.hemat_km', $spk->hematKm()), 1, ',', '.') }} km (bobot 40%),
+                jarak tujuan {{ number_format((float) data_get($spk->detail_skor, 'kriteria.jarak_tujuan_km', $spk->jarak_km), 1, ',', '.') }} km (25%),
+                sisa formasi {{ (int) data_get($spk->detail_skor, 'kriteria.sisa_formasi', 0) }} (25%),
+                prioritas daerah tujuan {{ $spk->sekolahTujuan->labelKategoriDaerah() }} (10%).
+            @else
+                belum tersedia — rekomendasi ini dibuat sebelum metode SAW–TOPSIS diterapkan.
+            @endif
+        </li>
         <li><strong>Jarak domisili:</strong> saat ini {{ number_format($spk->jarak_sekarang_km, 1, ',', '.') }} km (garis lurus),
             menjadi {{ number_format($spk->jarak_km, 1, ',', '.') }} km — penghematan
             {{ number_format($spk->hematKm(), 1, ',', '.') }} km.</li>

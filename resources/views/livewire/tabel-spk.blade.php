@@ -2,7 +2,7 @@
 <div>
     {{-- Pencarian teks --}}
     <div class="flex flex-wrap gap-2 mb-4">
-        <input type="text" wire:model.live.debounce.500ms="q"
+        <input aria-label="Cari nama guru atau sekolah tujuan…" type="text" wire:model.live.debounce.500ms="q"
                placeholder="Cari nama guru atau sekolah tujuan…"
                class="input flex-1 min-w-52">
         @if ($q !== '' || $status !== '')
@@ -65,13 +65,23 @@
                             </div>
                         </td>
 
-                        {{-- Penghematan --}}
+                        {{-- Penghematan + skor hibrida SAW-TOPSIS --}}
                         <td class="whitespace-nowrap">
                             <div class="font-bold text-success text-lg">
                                 −{{ number_format($s->hematKm(), 1, ',', '.') }} km
                             </div>
                             <div class="text-xs opacity-70">lebih dekat</div>
                             <div class="text-xs opacity-50">(garis lurus)</div>
+                            @if ($s->sudahDinilai())
+                                <div class="mt-2 rounded bg-base-200 px-2 py-1">
+                                    <div class="text-xs">🏅 Skor hibrida <strong>{{ number_format($s->skorPersen(), 1, ',', '.') }}/100</strong></div>
+                                    <div class="text-xs opacity-70">
+                                        SAW {{ number_format($s->skor_saw * 100, 1, ',', '.') }} · TOPSIS {{ number_format($s->skor_topsis * 100, 1, ',', '.') }}
+                                    </div>
+                                </div>
+                            @else
+                                <div class="mt-2 text-xs opacity-50">Skor hibrida belum tersedia<br>(rekomendasi lama)</div>
+                            @endif
                         </td>
 
                         {{-- Kelayakan: penjelasan mengapa kandidat ini lolos (SPK-003) --}}

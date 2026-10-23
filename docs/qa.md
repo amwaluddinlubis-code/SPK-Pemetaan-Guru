@@ -32,7 +32,9 @@ lolos lokal 12 Okt 2026: total suite **118 test, 402 assertions, 0 gagal**
 ## Pembaruan fitur & QA (23 Okt 2026)
 
 Sejak konversi di atas, tabel interaktif menjadi **11** (ditambah 4 tabel
-referensi wilayah Kemendagri: provinsi, kabupaten, kecamatan, desa).
+referensi wilayah Kemendagri: provinsi, kabupaten, kecamatan, desa) dan
+**12** sejak Distribusi dikonversi ke Livewire pada perbaikan audit UX
+(23 Okt 2026, `TabelDistribusiTest` 4 test).
 Fitur yang ditambahkan beserta tesnya:
 
 - **Pengaturan Pemda (konteks wilayah ketat)** — `PengaturanPemdaTest`,
@@ -52,6 +54,45 @@ Verifikasi lokal 23 Okt 2026 pada commit `1341d68`: **167 passed,
 yang sebelumnya tercatat gagal pada commit modul wilayah. Sesuai aturan
 dokumen ini, status rilis tetap ditentukan run CI yang SHA-nya sama
 dengan commit yang akan dirilis.
+
+## Audit UX semua rute & perbaikan gelombang 2 (23 Okt 2026)
+
+Audit browser menyeluruh (38 rute desktop + 9 mobile + 15 cek peran,
+salinan data asli) menemukan 2 temuan tinggi, 4 sedang, 5 rendah; nol
+error JS. Laporan lengkap tersimpan di arsip QA pengguna
+(`Audit_UX_SPK_2026-10-23/Laporan_Audit_UX_SPK.md`). Ringkas pelaksanaan:
+
+- **T1** Kualitas Data 8,5 dtk → ±0,4 dtk (eager loading pulih +
+  `periksa()` sekali) — terpisah, sudah di-push pada `42d7646` bersama
+  **T2** (pagination ringkas di HP).
+- **S1** kebocoran lebar mobile tuntas (navbar + form Simulasi) — semua
+  rute mobile terverifikasi pas 375px.
+- **S2** Distribusi menjadi tabel Livewire ke-12 (`TabelDistribusi`).
+- **S3** bawaan menu Eksekutif (`/pemda`) kini termasuk `kabid_ptk`
+  (akses lihat).
+- **S4** label form terhubung `for`/`id` di semua form + aria-label
+  bilah filter — 0 input tanpa label pada verifikasi akhir.
+- **R1–R3** judul/H1 Profil konsisten, brand HP "Peta ASN", target
+  sentuh ≥24px untuk kontrol utama. **R4** ditutup tanpa perubahan kode:
+  terbukti bukan bloat aset (Leaflet hanya di halaman peta; login hangat
+  median 371 ms di sandbox). **R5** menyatu dengan S2.
+
+Verifikasi lokal gelombang 2 (belum di-push saat dicatat): **171 passed,
+740 assertions**; pint bersih; audit ulang Playwright bersih.
+
+## Metode peringkat Greedy + SAW–TOPSIS (23 Okt 2026)
+
+Generate SPK kini memeringkat alternatif layak dengan skor hibrida
+SAW + TOPSIS (`App\Services\MesinSawTopsis`; rumus, kriteria, dan bobot
+di `docs/metode-saw-topsis.md`). Skor + snapshot kriteria tersimpan di
+`hasil_spks` dan tampil di tabel SPK serta telaahan staf; swap tidak
+berubah. Tes: `MesinSawTopsisTest` (4 unit, termasuk contoh hitung
+manual), `SpkSawTopsisTest` (2 feature: peringkat + jejak skor,
+alokasi greedy & prioritas keluarga pada slot tunggal).
+
+Verifikasi lokal (belum di-push saat dicatat): **177 passed,
+784 assertions**; pint bersih; build Vite sukses; migrasi
+`add_skor_saw_topsis_to_hasil_spks` berjalan di salinan data sandbox.
 
 ## CI
 

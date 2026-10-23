@@ -19,6 +19,10 @@ class HasilSpk extends Model
         'jarak_km',
         'jarak_sekarang_km',
         'hemat_km',
+        'skor_saw',
+        'skor_topsis',
+        'skor',
+        'detail_skor',
         'status',
         'diproses_oleh',
         'catatan_admin',
@@ -29,6 +33,10 @@ class HasilSpk extends Model
         'jarak_km' => 'float',
         'jarak_sekarang_km' => 'float',
         'hemat_km' => 'float',
+        'skor_saw' => 'float',
+        'skor_topsis' => 'float',
+        'skor' => 'float',
+        'detail_skor' => 'array',
     ];
 
     // Daftar status yang sah + label bahasa Indonesia untuk tampilan
@@ -79,5 +87,18 @@ class HasilSpk extends Model
     public function hematKm(): float
     {
         return (float) ($this->hemat_km ?? ($this->jarak_sekarang_km - $this->jarak_km));
+    }
+
+    // Rekomendasi yang dibuat sebelum metode SAW+TOPSIS diterapkan
+    // belum memiliki skor (NULL) dan tidak boleh ditampilkan sebagai 0.
+    public function sudahDinilai(): bool
+    {
+        return $this->skor !== null;
+    }
+
+    // Skor hibrida dalam skala 0..100 untuk tampilan; NULL bila belum dinilai.
+    public function skorPersen(): ?float
+    {
+        return $this->skor === null ? null : (float) $this->skor * 100;
     }
 }

@@ -51,9 +51,11 @@ konsisten agar tidak terjadi perubahan status yang saling menimpa.
 
 Untuk guru berjarak > 15 km dari domisili ke sekolah saat ini, sistem mencari
 3 sekolah terbaik yang kekurangan formasi mapelnya (Haversine di MySQL).
-Aturan kelayakan: sekolah tujuan harus lebih dekat (penghematan positif),
-sisa formasi tersedia (tidak over-booking), diurutkan by penghematan
-terbesar, `hemat_km` + `sekolah_asal_id` disimpan sebagai bukti.
+Aturan kelayakan (greedy): sekolah tujuan harus lebih dekat (penghematan
+positif) dan sisa formasi tersedia (tidak over-booking). Alternatif yang
+layak kemudian **diperingkat dengan skor hibrida SAW + TOPSIS** —
+`hemat_km` + `sekolah_asal_id` + `skor_saw`/`skor_topsis`/`skor` +
+`detail_skor` disimpan sebagai bukti (lihat `docs/metode-saw-topsis.md`).
 
     rekomendasi → disetujui (Kadis) → guru otomatis dimutasi ↘ ditolak
 

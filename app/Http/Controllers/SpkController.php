@@ -18,6 +18,7 @@ use App\Models\Guru;
 use App\Models\HasilSpk;
 use App\Models\KebutuhanGuru;
 use App\Models\Sekolah;
+use App\Services\MesinSawTopsis;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -84,10 +85,12 @@ class SpkController extends Controller
     //      (penghematan S = jarak_sekarang - jarak_tujuan > 0).
     //   3. Sisa formasi (kebutuhan - alokasi rekomendasi aktif) harus > 0,
     //      agar satu formasi tidak dijanjikan ke dua guru.
-    //   4. Urutkan berdasarkan penghematan terbesar, bukan jarak tujuan.
+    //   4. Alternatif yang layak diperingkat dengan skor hibrida
+    //      SAW + TOPSIS (MesinSawTopsis): penghematan jarak, jarak tujuan,
+    //      sisa formasi, dan prioritas daerah tujuan.
     //   5. Prioritas keluarga: guru berkeluarga diproses lebih dulu
     //      (bobot 1.5×) agar tidak kehabisan formasi saat kuota terbatas.
-    public function generate()
+    public function generate(MesinSawTopsis $penilai)
     {
         $baru = 0;
 
@@ -95,7 +98,7 @@ class SpkController extends Controller
             // Upaya ulang 3x bila deadlock (MySQL 1213). Laravel hanya
             // mengulang untuk deadlock — RuntimeException aturan bisnis
             // tidak diulang.
-            DB::transaction(function () use (&$baru) {
+            DB::transaction(function () use (&$baru, $penilai) {
                 // 1. Baca kandidat & kunci SEMUA baris guru kandidat sekaligus
                 //    dengan urutan id konsisten (dua proses generate saling
                 //    menunggu — tidak ada snapshot ganda).
@@ -177,17 +180,32 @@ class SpkController extends Controller
                             continue;
                         }
 
+                        // Sisa formasi pada saat penilaian menjadi salah
+                        // satu kriteria; slot yang sudah habis gugur dulu.
+                        $kunci = $sek->id.'|'.strtolower(trim($guru->mapel));
+                        $sisaFormasi = (int) ($sisaKebutuhan[$kunci] ?? 0);
+                        if ($sisaFormasi <= 0) {
+                            continue;
+                        }
+
                         $layak[] = [
                             'sekolah' => $sek,
                             'jarak_tujuan' => $jarakTujuan,
                             'hemat' => $hemat,
+                            // Kriteria MesinSawTopsis
+                            'hemat_km' => $hemat,
+                            'jarak_tujuan_km' => $jarakTujuan,
+                            'sisa_formasi' => $sisaFormasi,
+                            'prioritas_daerah' => MesinSawTopsis::nilaiDaerah($sek->kategori_daerah),
+                            'kategori_daerah' => $sek->kategori_daerah ?? 'biasa',
                         ];
                     }
 
-                    // Urutkan berdasarkan penghematan terbesar.
-                    // (Prioritas keluarga sudah diwujudkan lewat urutan pemrosesan
-                    // guru: berkeluarga lebih dulu.)
-                    usort($layak, fn ($a, $b) => $b['hemat'] <=> $a['hemat']);
+                    // Peringkat multikriteria: skor akhir adalah rata-rata
+                    // SAW dan TOPSIS. Prioritas keluarga tetap diwujudkan
+                    // lewat urutan pemrosesan guru (berkeluarga lebih dulu),
+                    // bukan sebagai kriteria antar-sekolah bagi guru yang sama.
+                    $layak = $penilai->peringkat($layak);
 
                     // Ambil 3 teratas yang sisa formasinya masih tersedia.
                     // Slot yang terpakai langsung dicadangkan agar guru berikutnya
@@ -210,6 +228,10 @@ class SpkController extends Controller
                             'jarak_km' => round($item['jarak_tujuan'], 2),
                             'jarak_sekarang_km' => round($jarakSekarang, 2),
                             'hemat_km' => round($item['hemat'], 2),
+                            'skor_saw' => round($item['skor_saw'], 4),
+                            'skor_topsis' => round($item['skor_topsis'], 4),
+                            'skor' => round($item['skor_hybrid'], 4),
+                            'detail_skor' => $item['detail_skor'],
                         ]);
                         $terpilih++;
                         $baru++;
@@ -229,7 +251,7 @@ class SpkController extends Controller
         return back()->with(
             'sukses',
             "Generate SPK selesai — ditemukan {$baru} rekomendasi penempatan baru ".
-            '(ambang jarak > '.self::AMBANG_KM.' km, hanya yang menghemat jarak).'
+            '(ambang jarak > '.self::AMBANG_KM.' km; alternatif layak diperingkat Greedy + SAW–TOPSIS).'
         );
     }
 

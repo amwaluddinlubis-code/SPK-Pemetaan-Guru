@@ -71,6 +71,10 @@ class TabelSpk extends Component
 
         $spks = $query
             ->orderByRaw("FIELD(status, 'rekomendasi', 'disetujui', 'ditolak')")
+            // Rekomendasi dengan skor hibrida tertinggi tampil lebih dulu;
+            // baris lama tanpa skor (NULL) jatuh ke urutan jarak terdekat.
+            ->orderByRaw('skor IS NULL')
+            ->orderByDesc('skor')
             ->orderBy('jarak_km')
             ->paginate($this->perPage);
 

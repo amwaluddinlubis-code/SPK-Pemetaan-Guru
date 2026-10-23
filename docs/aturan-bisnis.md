@@ -49,3 +49,12 @@
     akun sendiri, atau berlapis. Selama menyamar tampil bilah peringatan;
     mulai dan berhenti wajib tercatat di Jejak Audit. Tindakan selama
     impersonate berlaku sebagai akun yang disamar (termasuk scope datanya).
+18. **Peringkat hibrida SAW + TOPSIS**: alternatif sekolah yang lolos
+    saringan greedy pada SPK pengisian formasi diperingkat dengan skor
+    akhir = rata-rata SAW dan TOPSIS atas kriteria penghematan jarak
+    (40%), jarak tujuan (25%), sisa formasi (25%), dan prioritas daerah
+    tujuan (10%). Skor dan snapshot kriterianya wajib tersimpan pada
+    rekomendasi (`detail_skor`) agar dapat diaudit; rekomendasi lama
+    tanpa skor tidak dianggap bernilai 0. Bobot adalah parameter
+    kebijakan di `App\Services\MesinSawTopsis` — perubahannya perlu
+    penetapan tertulis Dinas. Rumus lengkap: `docs/metode-saw-topsis.md`.

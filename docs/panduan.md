@@ -23,6 +23,7 @@ penempatan yang lebih adil dan efisien lewat tiga jalur: **usulan**,
 | `docs/aturan-bisnis.md` | 17 aturan bisnis kunci |
 | `docs/model-data.md` | Ringkasan tabel dan relasi database |
 | `docs/mesin-pemerataan.md` | Fitur tambahan: kualitas data, distribusi, simulasi, aksesibilitas, proyeksi, jejak audit |
+| `docs/metode-saw-topsis.md` | Metode peringkat SPK: greedy + SAW–TOPSIS (kriteria, bobot, rumus, contoh hitung) |
 | `docs/qa.md` | Aturan QA, hasil verifikasi, strategi locking, QA browser |
 | `docs/roadmap.md` | To-do, prioritas menuju production, risiko |
 | `docs/audit.md` | Log audit statis dan temuan keamanan (append-only) |
