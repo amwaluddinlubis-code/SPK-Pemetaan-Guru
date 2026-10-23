@@ -3,7 +3,7 @@
     <x-kartu class="mb-4">
         <div class="card-body py-3">
             <div class="flex flex-wrap gap-2">
-                <input type="text" wire:model.live.debounce.500ms="q"
+                <input aria-label="Cari nama, NIP, mapel, domisili, sekolah…" type="text" wire:model.live.debounce.500ms="q"
                        placeholder="Cari nama, NIP, mapel, domisili, sekolah…"
                        class="input flex-1 min-w-52">
                 @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
@@ -30,11 +30,11 @@
             <table class="table table-zebra">
                 <thead>
                     <tr>
-                        <th><button wire:click="urutkan('nama')" class="link">Nama / NIP {{ $sort === 'nama' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
-                        <th><button wire:click="urutkan('mapel')" class="link">Mapel {{ $sort === 'mapel' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
+                        <th><button wire:click="urutkan('nama')" class="link py-1">Nama / NIP {{ $sort === 'nama' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
+                        <th><button wire:click="urutkan('mapel')" class="link py-1">Mapel {{ $sort === 'mapel' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
                         <th>Status</th>
                         <th>Domisili</th>
-                        <th><button wire:click="urutkan('kecamatan')" class="link">Kecamatan {{ $sort === 'kecamatan' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
+                        <th><button wire:click="urutkan('kecamatan')" class="link py-1">Kecamatan {{ $sort === 'kecamatan' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
                         <th>Desa/Kelurahan</th>
                         <th>Sekolah Saat Ini</th>
                         <th class="text-right">Aksi</th>

@@ -3,7 +3,7 @@
     <x-kartu class="mb-4">
         <div class="card-body py-3">
             <div class="flex flex-wrap gap-2">
-                <input type="text" wire:model.live.debounce.500ms="q"
+                <input aria-label="Cari nama atau kode kab/kota…" type="text" wire:model.live.debounce.500ms="q"
                        placeholder="Cari nama atau kode kab/kota…"
                        class="input input-bordered flex-1 min-w-52">
                 <x-searchable-select wire-model="provinsi" :selected="$provinsi"
@@ -24,8 +24,8 @@
             <table class="table table-zebra">
                 <thead>
                     <tr>
-                        <th><button wire:click="urutkan('kode')" class="link">Kode {{ $sort === 'kode' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
-                        <th><button wire:click="urutkan('nama')" class="link">Kabupaten/Kota {{ $sort === 'nama' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
+                        <th><button wire:click="urutkan('kode')" class="link py-1">Kode {{ $sort === 'kode' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
+                        <th><button wire:click="urutkan('nama')" class="link py-1">Kabupaten/Kota {{ $sort === 'nama' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
                         <th>Provinsi</th>
                         <th class="text-right">Kecamatan</th>
                     </tr>

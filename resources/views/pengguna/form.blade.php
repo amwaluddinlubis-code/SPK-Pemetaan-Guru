@@ -16,24 +16,24 @@
 
                 <div class="grid gap-4 sm:grid-cols-2">
                     <fieldset class="fieldset w-full">
-                        <legend class="fieldset-legend font-semibold">Nama</legend>
-                        <input type="text" name="name" value="{{ old('name', $user->name) }}" required
+                        <label class="fieldset-legend font-semibold" for="f-name">Nama</label>
+                        <input id="f-name" type="text" name="name" value="{{ old('name', $user->name) }}" required
                                class="input w-full" placeholder="Nama lengkap">
                     </fieldset>
                     <fieldset class="fieldset w-full">
-                        <legend class="fieldset-legend font-semibold">Email</legend>
-                        <input type="email" name="email" value="{{ old('email', $user->email) }}" required
+                        <label class="fieldset-legend font-semibold" for="f-email">Email</label>
+                        <input id="f-email" type="email" name="email" value="{{ old('email', $user->email) }}" required
                                class="input w-full" placeholder="nama@contoh.id">
                     </fieldset>
                     <fieldset class="fieldset w-full">
-                        <legend class="fieldset-legend font-semibold">
+                        <label class="fieldset-legend font-semibold" for="f-password">
                             Password {{ $user->exists ? '(kosongkan jika tidak diganti)' : '' }}
-                        </legend>
-                        <input type="password" name="password" {{ $user->exists ? '' : 'required' }}
+                        </label>
+                        <input id="f-password" type="password" name="password" {{ $user->exists ? '' : 'required' }}
                                class="input w-full" placeholder="Minimal 6 karakter">
                     </fieldset>
                     <fieldset class="fieldset w-full">
-                        <legend class="fieldset-legend font-semibold">Peran</legend>
+                        <label class="fieldset-legend font-semibold" for="pilih-role">Peran</label>
                         <select name="role" id="pilih-role" class="select w-full" required>
                             @foreach (\App\Models\User::ROLES as $nilai => $label)
                                 <option value="{{ $nilai }}"
@@ -53,8 +53,8 @@
                 <div class="grid gap-4 sm:grid-cols-2">
                     {{-- Hanya relevan jika peran = guru --}}
                     <fieldset class="fieldset w-full" id="field-guru">
-                        <legend class="fieldset-legend font-semibold">Terhubung ke Guru</legend>
-                        <select name="guru_id" class="select w-full">
+                        <label class="fieldset-legend font-semibold" for="f-guru_id">Terhubung ke Guru</label>
+                        <select id="f-guru_id" name="guru_id" class="select w-full">
                             <option value="">— Tidak ada —</option>
                             @foreach ($daftarGuru as $g)
                                 <option value="{{ $g->id }}"
@@ -67,7 +67,7 @@
 
                     {{-- Hanya relevan jika peran = kepala_sekolah --}}
                     <fieldset class="fieldset w-full" id="field-sekolah">
-                        <legend class="fieldset-legend font-semibold">Terhubung ke Sekolah</legend>
+                        <label class="fieldset-legend font-semibold" for="f-sekolah_id">Terhubung ke Sekolah</label>
                         <x-searchable-select name="sekolah_id"
                             :options="$daftarSekolah->map(fn ($s) => ['value' => $s->id, 'label' => $s->nama])->all()"
                             :selected="old('sekolah_id', $user->sekolah_id)"
@@ -76,7 +76,7 @@
 
                     {{-- Hanya relevan jika peran = ketua_pgri --}}
                     <fieldset class="fieldset w-full sm:col-span-2" id="field-kecamatan">
-                        <legend class="fieldset-legend font-semibold">Kecamatan (untuk Ketua PGRI)</legend>
+                        <label class="fieldset-legend font-semibold" for="f-kecamatan">Kecamatan (untuk Ketua PGRI)</label>
                         @php $kecAktif = old('kecamatan', $user->kecamatan); @endphp
                         <x-searchable-select name="kecamatan"
                             :options="($kecAktif && ! $daftarKecamatan->contains($kecAktif)

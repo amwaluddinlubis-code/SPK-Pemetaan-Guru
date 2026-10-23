@@ -70,14 +70,14 @@
                         @csrf
 
                         <fieldset class="fieldset w-full mb-4">
-                            <legend class="fieldset-legend font-semibold mb-1">📧 Email</legend>
-                            <input type="email" name="email" value="{{ old('email') }}"
+                            <label class="fieldset-legend font-semibold mb-1" for="f-email">📧 Email</label>
+                            <input id="f-email" type="email" name="email" value="{{ old('email') }}"
                                    required autofocus placeholder="nama@contoh.id"
                                    class="input w-full focus:input-primary">
                         </fieldset>
 
                         <fieldset class="fieldset w-full mb-2">
-                            <legend class="fieldset-legend font-semibold mb-1">🔒 Password</legend>
+                            <label class="fieldset-legend font-semibold mb-1" for="input-password">🔒 Password</label>
                             <div class="relative">
                                 <input type="password" id="input-password" name="password"
                                        required placeholder="••••••••"

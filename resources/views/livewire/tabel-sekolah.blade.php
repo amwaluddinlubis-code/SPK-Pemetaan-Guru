@@ -3,7 +3,7 @@
     <x-kartu class="mb-4">
         <div class="card-body py-3">
             <div class="flex flex-wrap gap-2">
-                <input type="text" wire:model.live.debounce.500ms="q"
+                <input aria-label="Cari nama, NPSN, alamat…" type="text" wire:model.live.debounce.500ms="q"
                        placeholder="Cari nama, NPSN, alamat…"
                        class="input flex-1 min-w-52">
                 @if (! auth()->user()->hasRole('kepala_sekolah', 'ketua_pgri'))
@@ -30,9 +30,9 @@
             <table class="table table-zebra">
                 <thead>
                     <tr>
-                        <th><button wire:click="urutkan('nama')" class="link">Nama / NPSN {{ $sort === 'nama' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
+                        <th><button wire:click="urutkan('nama')" class="link py-1">Nama / NPSN {{ $sort === 'nama' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
                         <th>Alamat</th>
-                        <th><button wire:click="urutkan('kecamatan')" class="link">Kecamatan {{ $sort === 'kecamatan' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
+                        <th><button wire:click="urutkan('kecamatan')" class="link py-1">Kecamatan {{ $sort === 'kecamatan' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
                         <th>Desa/Kelurahan</th>
                         <th>Kategori Daerah</th>
                         <th>Kebutuhan Guru</th>

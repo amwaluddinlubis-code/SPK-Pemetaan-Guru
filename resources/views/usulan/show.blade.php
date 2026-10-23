@@ -47,8 +47,8 @@
                     <form method="POST" action="{{ route('usulan.verifikasi', $usulan) }}">
                         @csrf
                         <fieldset class="fieldset w-full">
-                            <legend class="fieldset-legend">Catatan (opsional)</legend>
-                            <textarea name="catatan" rows="2" class="textarea w-full"></textarea>
+                            <label class="fieldset-legend" for="f-catatan">Catatan (opsional)</label>
+                            <textarea id="f-catatan" name="catatan" rows="2" class="textarea w-full"></textarea>
                         </fieldset>
                         <button type="submit" class="btn btn-info w-full mt-2">✔️ Verifikasi</button>
                     </form>
@@ -59,8 +59,8 @@
                     <form method="POST" action="{{ route('usulan.setujui', $usulan) }}">
                         @csrf
                         <fieldset class="fieldset w-full">
-                            <legend class="fieldset-legend">Catatan (opsional)</legend>
-                            <textarea name="catatan" rows="2" class="textarea w-full"></textarea>
+                            <label class="fieldset-legend" for="f-catatan-2">Catatan (opsional)</label>
+                            <textarea id="f-catatan-2" name="catatan" rows="2" class="textarea w-full"></textarea>
                         </fieldset>
                         <button type="submit" class="btn btn-success w-full mt-2"
                                 onclick="return confirm('Setujui dan mutasi guru ke {{ $usulan->sekolah->nama }}?')">
@@ -75,8 +75,8 @@
                         <form method="POST" action="{{ route('usulan.tolak', $usulan) }}">
                             @csrf
                             <fieldset class="fieldset w-full">
-                                <legend class="fieldset-legend">Alasan penolakan (wajib)</legend>
-                                <textarea name="catatan" rows="2" required class="textarea w-full"></textarea>
+                                <label class="fieldset-legend" for="f-catatan-3">Alasan penolakan (wajib)</label>
+                                <textarea id="f-catatan-3" name="catatan" rows="2" required class="textarea w-full"></textarea>
                             </fieldset>
                             <button type="submit" class="btn btn-error btn-outline w-full mt-2"
                                     onclick="return confirm('Tolak usulan ini?')">✕ Tolak</button>

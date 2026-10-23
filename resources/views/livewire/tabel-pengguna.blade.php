@@ -3,10 +3,10 @@
     <x-kartu class="mb-4">
         <div class="card-body py-3">
             <div class="flex flex-wrap gap-2">
-                <input type="text" wire:model.live.debounce.500ms="q"
+                <input aria-label="Cari nama atau email…" type="text" wire:model.live.debounce.500ms="q"
                        placeholder="Cari nama atau email…"
                        class="input flex-1 min-w-52">
-                <select wire:model.live="role" class="select max-w-xs">
+                <select aria-label="Peran" wire:model.live="role" class="select max-w-xs">
                     <option value="">— Semua Peran —</option>
                     @foreach (\App\Models\User::ROLES as $nilai => $label)
                         <option value="{{ $nilai }}">{{ $label }}</option>

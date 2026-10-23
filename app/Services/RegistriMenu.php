@@ -18,7 +18,7 @@ class RegistriMenu
         'eksekutif' => [
             'label' => 'Eksekutif', 'grup' => '', 'rute' => 'pemda.dashboard',
             'pola' => 'pemda.*', 'ikon' => 'distribusi',
-            'bawaan' => ['pemda', 'kadis'],
+            'bawaan' => ['pemda', 'kadis', 'kabid_ptk'],
         ],
         'guru' => [
             'label' => 'Data Guru', 'grup' => 'Data Master', 'rute' => 'guru.index',

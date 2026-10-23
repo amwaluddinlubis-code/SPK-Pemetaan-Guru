@@ -13,7 +13,7 @@
 </div>
 
 <form method="GET" action="{{ route('aksesibilitas.index') }}" class="flex gap-2 mb-4">
-    <select name="kategori_daerah" class="select select-sm">
+    <select aria-label="kategori daerah" name="kategori_daerah" class="select select-sm">
         <option value="">Semua kategori daerah</option>
         @foreach (['biasa', 'terpencil', 'sangat_terpencil'] as $k)
             <option value="{{ $k }}" @selected(request('kategori_daerah') === $k)>{{ ucfirst(str_replace('_', ' ', $k)) }}</option>

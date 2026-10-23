@@ -3,10 +3,10 @@
     <x-kartu class="mb-4">
         <div class="card-body py-3">
             <div class="flex flex-wrap gap-2">
-                <input type="text" wire:model.live.debounce.500ms="q"
+                <input aria-label="Cari nama/NIP guru…" type="text" wire:model.live.debounce.500ms="q"
                        placeholder="Cari nama/NIP guru…"
                        class="input flex-1 min-w-52">
-                <select wire:model.live="status" class="select max-w-xs">
+                <select aria-label="Status" wire:model.live="status" class="select max-w-xs">
                     <option value="">— Semua Status —</option>
                     @foreach (\App\Models\UsulanPenempatan::STATUS as $nilai => $label)
                         <option value="{{ $nilai }}">{{ $label }}</option>
@@ -29,7 +29,7 @@
                     <tr>
                         <th>Guru</th>
                         <th>Sekolah Tujuan</th>
-                        <th><button wire:click="urutkan('status')" class="link">Status {{ $sort === 'status' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
+                        <th><button wire:click="urutkan('status')" class="link py-1">Status {{ $sort === 'status' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
                         <th>Diajukan Oleh</th>
                         <th class="text-right">Aksi</th>
                     </tr>

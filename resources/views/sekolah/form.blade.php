@@ -16,18 +16,18 @@
 
                 <div class="grid gap-4 sm:grid-cols-2">
                     <fieldset class="fieldset w-full">
-                        <legend class="fieldset-legend font-semibold">NPSN</legend>
-                        <input type="text" name="npsn" value="{{ old('npsn', $sekolah->npsn) }}" required
+                        <label class="fieldset-legend font-semibold" for="f-npsn">NPSN</label>
+                        <input id="f-npsn" type="text" name="npsn" value="{{ old('npsn', $sekolah->npsn) }}" required
                                class="input w-full" placeholder="20100001">
                     </fieldset>
                     <fieldset class="fieldset w-full">
-                        <legend class="fieldset-legend font-semibold">Nama Sekolah</legend>
-                        <input type="text" name="nama" value="{{ old('nama', $sekolah->nama) }}" required
+                        <label class="fieldset-legend font-semibold" for="f-nama">Nama Sekolah</label>
+                        <input id="f-nama" type="text" name="nama" value="{{ old('nama', $sekolah->nama) }}" required
                                class="input w-full" placeholder="SDN 1 Sukamaju">
                     </fieldset>
                     <fieldset class="fieldset w-full">
-                        <legend class="fieldset-legend font-semibold">Jenjang</legend>
-                        <select name="jenjang" class="select w-full">
+                        <label class="fieldset-legend font-semibold" for="f-jenjang">Jenjang</label>
+                        <select id="f-jenjang" name="jenjang" class="select w-full">
                             <option value="">— Otomatis dari nama —</option>
                             @foreach (['SD', 'SMP'] as $j)
                                 <option value="{{ $j }}"
@@ -36,14 +36,14 @@
                         </select>
                     </fieldset>
                     <fieldset class="fieldset w-full">
-                        <legend class="fieldset-legend font-semibold">Jumlah Rombel</legend>
-                        <input type="number" name="rombel" value="{{ old('rombel', $sekolah->rombel) }}" min="0" max="300"
+                        <label class="fieldset-legend font-semibold" for="f-rombel">Jumlah Rombel</label>
+                        <input id="f-rombel" type="number" name="rombel" value="{{ old('rombel', $sekolah->rombel) }}" min="0" max="300"
                                class="input w-full" placeholder="mis. 6">
                         <legend class="fieldset-legend-alt">Dari Dapodik (kolom Rombel di CSV ekspor kecamatan) — bahan hitung analisis kebutuhan.</legend>
                     </fieldset>
                     <fieldset class="fieldset w-full sm:col-span-2">
-                        <legend class="fieldset-legend font-semibold">Alamat</legend>
-                        <input type="text" name="alamat" value="{{ old('alamat', $sekolah->alamat) }}" required
+                        <label class="fieldset-legend font-semibold" for="f-alamat">Alamat</label>
+                        <input id="f-alamat" type="text" name="alamat" value="{{ old('alamat', $sekolah->alamat) }}" required
                                class="input w-full" placeholder="Jl. Pendidikan No.1">
                     </fieldset>
                     <div class="contents"
@@ -63,7 +63,7 @@
                          x-init="muatDesa(@js(old('kecamatan', $sekolah->kecamatan)))"
                          x-on:searchable-select-change="if ($event.detail.name === 'kecamatan') muatDesa($event.detail.value)">
                     <fieldset class="fieldset w-full sm:col-span-2">
-                        <legend class="fieldset-legend font-semibold">Kecamatan</legend>
+                        <label class="fieldset-legend font-semibold" for="f-kecamatan">Kecamatan</label>
                         @php
                             $kecAktif = old('kecamatan', $sekolah->kecamatan);
                             $opsiKec = $daftarKecamatan->contains($kecAktif) || empty($kecAktif)
@@ -76,14 +76,14 @@
                             placeholder="— Pilih Kecamatan —" class="w-full" />
                     </fieldset>
                     <fieldset class="fieldset w-full">
-                        <legend class="fieldset-legend font-semibold">Desa / Kelurahan</legend>
+                        <label class="fieldset-legend font-semibold" for="f-desa_kelurahan">Desa / Kelurahan</label>
                         <x-desa-select name="desa_kelurahan"
                                :selected="old('desa_kelurahan', $sekolah->desa_kelurahan)" />
                     </fieldset>
                     </div>
                     <fieldset class="fieldset w-full">
-                        <legend class="fieldset-legend font-semibold">Kategori Daerah</legend>
-                        <select name="kategori_daerah" class="select w-full">
+                        <label class="fieldset-legend font-semibold" for="f-kategori_daerah">Kategori Daerah</label>
+                        <select id="f-kategori_daerah" name="kategori_daerah" class="select w-full">
                             @foreach (\App\Models\Sekolah::KATEGORI_DAERAH as $kode => $label)
                                 <option value="{{ $kode }}"
                                     {{ old('kategori_daerah', $sekolah->kategori_daerah ?? 'biasa') === $kode ? 'selected' : '' }}>
@@ -94,12 +94,12 @@
                         <legend class="fieldset-legend-alt">Guru di sekolah Terpencil/3T dilindungi dari mutasi keluar lewat SPK (rem pemerataan).</legend>
                     </fieldset>
                     <fieldset class="fieldset w-full">
-                        <legend class="fieldset-legend font-semibold">Latitude</legend>
+                        <label class="fieldset-legend font-semibold" for="lat">Latitude</label>
                         <input type="text" id="lat" name="lat" value="{{ old('lat', $sekolah->lat) }}" required
                                class="input w-full" placeholder="0.7900">
                     </fieldset>
                     <fieldset class="fieldset w-full">
-                        <legend class="fieldset-legend font-semibold">Longitude</legend>
+                        <label class="fieldset-legend font-semibold" for="lng">Longitude</label>
                         <input type="text" id="lng" name="lng" value="{{ old('lng', $sekolah->lng) }}" required
                                class="input w-full" placeholder="99.4100">
                     </fieldset>
@@ -130,9 +130,11 @@
                     <template x-for="(b, i) in baris" :key="i">
                         <div class="flex gap-2 mb-2">
                             <input type="text" :name="'kebutuhan[' + i + '][mapel]'" x-model="b.mapel"
+                                   aria-label="Mata pelajaran kebutuhan"
                                    placeholder="Mata pelajaran (mis. Matematika)"
                                    class="input flex-1">
                             <input type="number" :name="'kebutuhan[' + i + '][jumlah]'" x-model="b.jumlah"
+                                   aria-label="Jumlah kebutuhan"
                                    min="1" placeholder="Jumlah" class="input w-28">
                             <button type="button" @click="baris.splice(i, 1)"
                                     class="btn btn-error btn-outline" title="Hapus baris">✕</button>

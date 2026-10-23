@@ -2,7 +2,7 @@
 <div>
     {{-- Pencarian teks --}}
     <div class="flex flex-wrap gap-2 mb-4">
-        <input type="text" wire:model.live.debounce.500ms="q"
+        <input aria-label="Cari nama guru A atau guru B…" type="text" wire:model.live.debounce.500ms="q"
                placeholder="Cari nama guru A atau guru B…"
                class="input flex-1 min-w-52">
         @if ($q !== '' || $status !== '')

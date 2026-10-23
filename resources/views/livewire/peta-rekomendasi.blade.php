@@ -38,8 +38,8 @@
                 </div>
             @else
             <fieldset class="fieldset w-full">
-                <legend class="fieldset-legend font-semibold">Pilih guru</legend>
-                <select wire:model="guruId" class="select w-full"
+                <label class="fieldset-legend font-semibold" for="f-guruId">Pilih guru</label>
+                <select id="f-guruId" wire:model="guruId" class="select w-full"
                         @if($terkunci) disabled @endif>
                     <option value="">— Pilih guru —</option>
                     @foreach ($daftarGuru as $g)

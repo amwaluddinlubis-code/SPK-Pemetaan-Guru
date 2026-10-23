@@ -30,7 +30,7 @@
         <!-- ===== Konten utama ===== -->
         <div class="drawer-content flex flex-col min-h-screen">
             <!-- Bilah atas: selalu tampil & freeze (sticky) di semua viewport -->
-            <div class="navbar bg-primary text-primary-content shadow-lg sticky top-0 z-30" data-testid="navbar-utama">
+            <div class="navbar bg-primary text-primary-content shadow-lg sticky top-0 z-30 px-2 sm:px-4" data-testid="navbar-utama">
                 <div class="navbar-start">
                     <label for="menu-sidebar" class="btn btn-ghost lg:hidden" aria-label="Buka menu">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -39,12 +39,12 @@
                 <div class="navbar-center">
                     <div class="flex flex-col items-center leading-tight">
                         <span class="text-lg font-bold hidden sm:inline"><x-ikon nama="peta" class="h-5 w-5 inline" /> PetaPenempatan ASN</span>
-                        <span class="text-lg font-bold sm:hidden"><x-ikon nama="peta" class="h-5 w-5 inline" /> PPA</span>
+                        <span class="text-lg font-bold sm:hidden"><x-ikon nama="peta" class="h-5 w-5 inline" /> Peta ASN</span>
                         @if (! empty($konteksPemdaWilayah))
                             @if (auth()->user()->hasRole('kabid_ptk'))
-                                <a href="{{ route('pengaturan.pemda') }}" class="badge badge-secondary badge-sm mt-0.5" title="Konteks Pemda aktif — klik untuk mengatur">📍 {{ $konteksPemdaWilayah }}</a>
+                                <a href="{{ route('pengaturan.pemda') }}" class="badge badge-secondary badge-sm mt-0.5 h-6 max-w-36 truncate sm:max-w-none" title="Konteks Pemda aktif — klik untuk mengatur">📍 {{ $konteksPemdaWilayah }}</a>
                             @else
-                                <span class="badge badge-secondary badge-sm mt-0.5" title="Konteks Pemda aktif">📍 {{ $konteksPemdaWilayah }}</span>
+                                <span class="badge badge-secondary badge-sm mt-0.5 h-6 max-w-36 truncate sm:max-w-none" title="Konteks Pemda aktif">📍 {{ $konteksPemdaWilayah }}</span>
                             @endif
                         @endif
                     </div>

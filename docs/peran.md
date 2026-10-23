@@ -39,6 +39,10 @@ membuka modul**, bukan hak aksi di dalamnya — aksi tetap dijaga lapisan
 halaman Pengaturan Akses (anti-terkunci); Kelola Pengguna, Pengaturan
 Pemda, dan Pengaturan Akses sendiri tetap khusus Kabid PTK. Setiap
 perubahan tercatat di Jejak Audit (`akses-menu.ubah` / `akses-menu.reset`).
+Sejak perbaikan audit UX (23 Okt 2026), bawaan menu **Eksekutif**
+(`/pemda`) juga terbuka untuk Kabid PTK (akses lihat), agar administrator
+yang mengatur konteks pemda dapat memeriksa dashboard eksekutifnya;
+matriks tetap dapat diubah seperti menu lain.
 
 ## Impersonate (23 Okt 2026)
 

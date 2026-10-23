@@ -20,17 +20,17 @@
                 @csrf
                 <input type="hidden" name="token" value="{{ $token }}">
                 <fieldset class="fieldset w-full">
-                    <legend class="fieldset-legend font-semibold">Email</legend>
-                    <input type="email" name="email" required value="{{ old('email', $email) }}"
+                    <label class="fieldset-legend font-semibold" for="f-email">Email</label>
+                    <input id="f-email" type="email" name="email" required value="{{ old('email', $email) }}"
                            class="input w-full" readonly>
                 </fieldset>
                 <fieldset class="fieldset w-full">
-                    <legend class="fieldset-legend font-semibold">Password Baru</legend>
-                    <input type="password" name="password" required class="input w-full" autofocus>
+                    <label class="fieldset-legend font-semibold" for="f-password">Password Baru</label>
+                    <input id="f-password" type="password" name="password" required class="input w-full" autofocus>
                 </fieldset>
                 <fieldset class="fieldset w-full">
-                    <legend class="fieldset-legend font-semibold">Ulangi Password Baru</legend>
-                    <input type="password" name="password_confirmation" required class="input w-full">
+                    <label class="fieldset-legend font-semibold" for="f-password_confirmation">Ulangi Password Baru</label>
+                    <input id="f-password_confirmation" type="password" name="password_confirmation" required class="input w-full">
                 </fieldset>
                 <button type="submit" class="btn btn-primary w-full">Reset Password</button>
             </form>

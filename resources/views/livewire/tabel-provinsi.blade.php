@@ -3,7 +3,7 @@
     <x-kartu class="mb-4">
         <div class="card-body py-3">
             <div class="flex flex-wrap gap-2">
-                <input type="text" wire:model.live.debounce.500ms="q"
+                <input aria-label="Cari nama atau kode provinsi…" type="text" wire:model.live.debounce.500ms="q"
                        placeholder="Cari nama atau kode provinsi…"
                        class="input input-bordered flex-1 min-w-52">
                 @if ($q !== '')
@@ -23,8 +23,8 @@
             <table class="table table-zebra">
                 <thead>
                     <tr>
-                        <th><button wire:click="urutkan('kode')" class="link">Kode {{ $sort === 'kode' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
-                        <th><button wire:click="urutkan('nama')" class="link">Provinsi {{ $sort === 'nama' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
+                        <th><button wire:click="urutkan('kode')" class="link py-1">Kode {{ $sort === 'kode' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
+                        <th><button wire:click="urutkan('nama')" class="link py-1">Provinsi {{ $sort === 'nama' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
                         <th class="text-right">Kab/Kota</th>
                     </tr>
                 </thead>

@@ -17,7 +17,8 @@
      x-data="{ open: false, nilai: @js((string) ($selected ?? '')) }"
      x-on:click.outside="open = false"
      x-on:keydown.escape="open = false">
-    <input type="text" name="{{ $name }}" x-model="nilai"
+    <input type="text" id="f-{{ $name }}" name="{{ $name }}" x-model="nilai"
+           aria-label="Desa/Kelurahan"
            class="input w-full pr-8" placeholder="{{ $placeholder }}" maxlength="100"
            autocomplete="off"
            x-on:focus="if ((opsiDesa ?? []).length) open = true"

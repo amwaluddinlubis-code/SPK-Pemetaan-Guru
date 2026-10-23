@@ -88,7 +88,7 @@
                     </fieldset>
 
                     <fieldset class="fieldset w-full">
-                        <legend class="fieldset-legend font-semibold">Provinsi</legend>
+                        <label class="fieldset-legend font-semibold" for="f-kode_provinsi">Provinsi</label>
                         <x-searchable-select name="kode_provinsi"
                             :options="$daftarProvinsi->map(fn ($p) => ['value' => $p->kode, 'label' => $p->nama])->all()"
                             :selected="$kodeProvinsi"
@@ -96,10 +96,10 @@
                     </fieldset>
 
                     <fieldset class="fieldset w-full" x-show="level === 'kabupaten'">
-                        <legend class="fieldset-legend font-semibold">Kabupaten / Kota</legend>
+                        <label class="fieldset-legend font-semibold" for="f-kode_kabupaten">Kabupaten / Kota</label>
                         <input type="hidden" name="kode_kabupaten" x-bind:value="kodeKab">
                         <div class="relative" x-on:click.outside="bukaKab = false">
-                            <input type="text" class="input w-full pr-8" role="combobox"
+                            <input type="text" id="f-kode_kabupaten" aria-label="Kabupaten/Kota" class="input w-full pr-8" role="combobox"
                                    x-bind:value="bukaKab ? cariKab : labelKab"
                                    x-on:input="cariKab = $event.target.value"
                                    x-on:focus="bukaKab = true; cariKab = ''"

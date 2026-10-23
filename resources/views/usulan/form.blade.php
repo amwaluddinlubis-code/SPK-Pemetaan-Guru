@@ -13,8 +13,8 @@
                 @csrf
                 <div class="grid gap-4 sm:grid-cols-2">
                     <fieldset class="fieldset w-full">
-                        <legend class="fieldset-legend font-semibold">Guru yang diusulkan</legend>
-                        <select name="guru_id" class="select w-full" required>
+                        <label class="fieldset-legend font-semibold" for="f-guru_id">Guru yang diusulkan</label>
+                        <select id="f-guru_id" name="guru_id" class="select w-full" required>
                             <option value="">— Pilih guru —</option>
                             @foreach ($daftarGuru as $g)
                                 <option value="{{ $g->id }}"
@@ -25,8 +25,8 @@
                         </select>
                     </fieldset>
                     <fieldset class="fieldset w-full">
-                        <legend class="fieldset-legend font-semibold">Sekolah Tujuan</legend>
-                        <select name="sekolah_id" class="select w-full" required>
+                        <label class="fieldset-legend font-semibold" for="f-sekolah_id">Sekolah Tujuan</label>
+                        <select id="f-sekolah_id" name="sekolah_id" class="select w-full" required>
                             <option value="">— Pilih sekolah —</option>
                             @foreach ($daftarSekolah as $s)
                                 <option value="{{ $s->id }}"
@@ -37,8 +37,8 @@
                         </select>
                     </fieldset>
                     <fieldset class="fieldset w-full sm:col-span-2">
-                        <legend class="fieldset-legend font-semibold">Alasan Pengajuan (min. 10 karakter)</legend>
-                        <textarea name="alasan" rows="4" required
+                        <label class="fieldset-legend font-semibold" for="f-alasan">Alasan Pengajuan (min. 10 karakter)</label>
+                        <textarea id="f-alasan" name="alasan" rows="4" required
                                   class="textarea w-full"
                                   placeholder="mis. Jarak domisili ke sekolah saat ini 12 km; sekolah tujuan butuh guru Matematika dan hanya 1,5 km dari rumah.">{{ old('alasan') }}</textarea>
                     </fieldset>

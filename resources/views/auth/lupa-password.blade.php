@@ -22,8 +22,8 @@
             <form method="POST" action="{{ route('password.email') }}" class="space-y-4 mt-2">
                 @csrf
                 <fieldset class="fieldset w-full">
-                    <legend class="fieldset-legend font-semibold">Email</legend>
-                    <input type="email" name="email" required value="{{ old('email') }}"
+                    <label class="fieldset-legend font-semibold" for="f-email">Email</label>
+                    <input id="f-email" type="email" name="email" required value="{{ old('email') }}"
                            class="input w-full" placeholder="nama@contoh.id" autofocus>
                 </fieldset>
                 <button type="submit" class="btn btn-primary w-full">Kirim Tautan Reset</button>

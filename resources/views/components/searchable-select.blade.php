@@ -33,6 +33,8 @@
         ->all();
     $nilaiAwal = (string) ($selected ?? '');
     $labelAwal = collect($opsi)->firstWhere('value', $nilaiAwal)['label'] ?? '';
+    // Id stabil untuk pasangan label form (label for="f-<name>") + nama aksesibel.
+    $idKotak = $name ? 'f-'.$name : ($wireModel ? 'f-'.str_replace('.', '-', $wireModel) : null);
 @endphp
 
 <div class="relative {{ $class }}"
@@ -99,6 +101,8 @@
            value="{{ $nilaiAwal }}">
     <div class="relative">
         <input type="text" x-ref="kotak"
+               @if ($idKotak) id="{{ $idKotak }}" @endif
+               aria-label="{{ $placeholder }}"
                class="input w-full pr-14"
                role="combobox" aria-expanded="open"
                value="{{ $labelAwal }}"
