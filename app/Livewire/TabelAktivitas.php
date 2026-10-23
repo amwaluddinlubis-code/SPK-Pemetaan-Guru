@@ -5,6 +5,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\ActivityLog;
 use App\Models\User;
 use Livewire\Attributes\Url;
@@ -13,7 +14,10 @@ use Livewire\WithPagination;
 
 class TabelAktivitas extends Component
 {
-    use WithPagination;
+    use DenganPerHalaman, WithPagination;
+
+    #[Url]
+    public int $perPage = 20;
 
     #[Url]
     public string $aksi = '';
@@ -81,7 +85,7 @@ class TabelAktivitas extends Component
             $query->whereDate('waktu', '<=', $this->sampai);
         }
 
-        $log = $query->paginate(20);
+        $log = $query->paginate($this->perPage);
         $daftarAksi = ActivityLog::distinct()->orderBy('aksi')->pluck('aksi');
         $daftarUser = User::orderBy('name')->get(['id', 'name', 'role']);
 

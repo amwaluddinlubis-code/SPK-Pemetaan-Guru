@@ -5,6 +5,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\RekomendasiSwap;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -12,10 +13,21 @@ use Livewire\WithPagination;
 
 class TabelSwap extends Component
 {
-    use WithPagination;
+    use DenganPerHalaman, WithPagination;
+
+    #[Url]
+    public int $perPage = 20;
 
     #[Url]
     public string $status = '';
+
+    #[Url]
+    public string $q = '';
+
+    public function updatedQ(): void
+    {
+        $this->resetPage();
+    }
 
     public function updatedStatus(): void
     {
@@ -24,7 +36,7 @@ class TabelSwap extends Component
 
     public function resetFilter(): void
     {
-        $this->reset(['status']);
+        $this->reset(['status', 'q']);
         $this->resetPage();
     }
 
@@ -54,10 +66,17 @@ class TabelSwap extends Component
             $query->where('status', $this->status);
         }
 
+        if ($this->q !== '') {
+            $cari = '%'.$this->q.'%';
+            $query->where(fn ($q) => $q
+                ->whereHas('guruA', fn ($g) => $g->where('nama', 'like', $cari))
+                ->orWhereHas('guruB', fn ($g) => $g->where('nama', 'like', $cari)));
+        }
+
         $swaps = $query
             ->orderByRaw("FIELD(status, 'menunggu', 'disetujui', 'ditolak', 'batal_karena_konflik')")
             ->orderByDesc('total_hemat_km')
-            ->paginate(20);
+            ->paginate($this->perPage);
 
         return view('livewire.tabel-swap', compact('swaps'));
     }

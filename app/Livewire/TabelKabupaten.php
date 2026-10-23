@@ -4,6 +4,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\WilayahKabupaten;
 use App\Models\WilayahProvinsi;
 use Livewire\Attributes\Url;
@@ -12,7 +13,10 @@ use Livewire\WithPagination;
 
 class TabelKabupaten extends Component
 {
-    use WithPagination;
+    use DenganPerHalaman, WithPagination;
+
+    #[Url]
+    public int $perPage = 20;
 
     #[Url(as: 'q')]
     public string $q = '';
@@ -79,7 +83,7 @@ class TabelKabupaten extends Component
             });
         }
 
-        $daftar = $query->orderBy($this->sort, $this->arah)->paginate(20);
+        $daftar = $query->orderBy($this->sort, $this->arah)->paginate($this->perPage);
         $daftarProvinsi = WilayahProvinsi::orderBy('nama')->get(['kode', 'nama']);
 
         return view('livewire.tabel-kabupaten', compact('daftar', 'daftarProvinsi'));

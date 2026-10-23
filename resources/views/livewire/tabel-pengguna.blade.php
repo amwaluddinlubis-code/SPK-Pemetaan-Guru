@@ -65,5 +65,11 @@
         </div>
     </x-kartu>
 
-    <div class="mt-4">{{ $daftarUser->links() }}</div>
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
+        <x-info-halaman :data="$daftarUser" />
+        <div class="flex flex-wrap items-center gap-3">
+            {{ $daftarUser->links() }}
+            <x-per-halaman />
+        </div>
+    </div>
 </div>

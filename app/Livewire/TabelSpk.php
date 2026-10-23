@@ -7,6 +7,7 @@
 namespace App\Livewire;
 
 use App\Http\Controllers\SpkController;
+use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\Guru;
 use App\Models\HasilSpk;
 use App\Models\KebutuhanGuru;
@@ -17,10 +18,21 @@ use Livewire\WithPagination;
 
 class TabelSpk extends Component
 {
-    use WithPagination;
+    use DenganPerHalaman, WithPagination;
+
+    #[Url]
+    public int $perPage = 20;
 
     #[Url]
     public string $status = '';
+
+    #[Url]
+    public string $q = '';
+
+    public function updatedQ(): void
+    {
+        $this->resetPage();
+    }
 
     public function updatedStatus(): void
     {
@@ -29,7 +41,7 @@ class TabelSpk extends Component
 
     public function resetFilter(): void
     {
-        $this->reset(['status']);
+        $this->reset(['status', 'q']);
         $this->resetPage();
     }
 
@@ -50,10 +62,17 @@ class TabelSpk extends Component
             $query->where('status', $this->status);
         }
 
+        if ($this->q !== '') {
+            $cari = '%'.$this->q.'%';
+            $query->where(fn ($q) => $q
+                ->whereHas('guru', fn ($g) => $g->where('nama', 'like', $cari))
+                ->orWhereHas('sekolahTujuan', fn ($s) => $s->where('nama', 'like', $cari)));
+        }
+
         $spks = $query
             ->orderByRaw("FIELD(status, 'rekomendasi', 'disetujui', 'ditolak')")
             ->orderBy('jarak_km')
-            ->paginate(20);
+            ->paginate($this->perPage);
 
         $koleksi = $spks->getCollection();
 

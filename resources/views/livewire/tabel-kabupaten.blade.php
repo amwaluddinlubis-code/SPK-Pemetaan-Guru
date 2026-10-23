@@ -51,6 +51,9 @@
 
     <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
         <x-info-halaman :data="$daftar" />
-        {{ $daftar->links() }}
+        <div class="flex flex-wrap items-center gap-3">
+            {{ $daftar->links() }}
+            <x-per-halaman />
+        </div>
     </div>
 </div>

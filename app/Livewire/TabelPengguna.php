@@ -5,6 +5,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\User;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -12,7 +13,10 @@ use Livewire\WithPagination;
 
 class TabelPengguna extends Component
 {
-    use WithPagination;
+    use DenganPerHalaman, WithPagination;
+
+    #[Url]
+    public int $perPage = 15;
 
     #[Url(as: 'q')]
     public string $q = '';
@@ -52,7 +56,7 @@ class TabelPengguna extends Component
             $query->where('role', $this->role);
         }
 
-        $daftarUser = $query->orderBy('name')->paginate(15);
+        $daftarUser = $query->orderBy('name')->paginate($this->perPage);
 
         return view('livewire.tabel-pengguna', compact('daftarUser'));
     }

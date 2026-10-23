@@ -1,5 +1,15 @@
 {{-- Tabel SPK Penempatan (Livewire): filter status + pagination tanpa reload. --}}
 <div>
+    {{-- Pencarian teks --}}
+    <div class="flex flex-wrap gap-2 mb-4">
+        <input type="text" wire:model.live.debounce.500ms="q"
+               placeholder="Cari nama guru atau sekolah tujuan…"
+               class="input flex-1 min-w-52">
+        @if ($q !== '' || $status !== '')
+            <button wire:click="resetFilter" class="btn btn-ghost">Reset</button>
+        @endif
+    </div>
+
     {{-- Filter status --}}
     <div class="flex flex-wrap gap-2 mb-4">
         <button wire:click="$set('status', '')"
@@ -157,7 +167,11 @@
         </table>
     </x-kartu>
 
-    <div class="mt-4">
-        {{ $spks->links() }}
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
+        <x-info-halaman :data="$spks" />
+        <div class="flex flex-wrap items-center gap-3">
+            {{ $spks->links() }}
+            <x-per-halaman />
+        </div>
     </div>
 </div>

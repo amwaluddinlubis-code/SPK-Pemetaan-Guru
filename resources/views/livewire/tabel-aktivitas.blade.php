@@ -76,5 +76,11 @@
         </table>
     </x-kartu>
 
-    <div class="mt-4">{{ $log->links() }}</div>
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
+        <x-info-halaman :data="$log" />
+        <div class="flex flex-wrap items-center gap-3">
+            {{ $log->links() }}
+            <x-per-halaman />
+        </div>
+    </div>
 </div>

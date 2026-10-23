@@ -7,6 +7,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\Guru;
 use App\Models\Sekolah;
 use App\Services\KonteksPemda;
@@ -16,7 +17,10 @@ use Livewire\WithPagination;
 
 class TabelGuru extends Component
 {
-    use WithPagination;
+    use DenganPerHalaman, WithPagination;
+
+    #[Url]
+    public int $perPage = 15;
 
     #[Url(as: 'q')]
     public string $q = '';
@@ -95,7 +99,7 @@ class TabelGuru extends Component
             $query->where('kecamatan', $this->kecamatan);
         }
 
-        $daftarGuru = $query->orderBy($this->sort, $this->arah)->paginate(15);
+        $daftarGuru = $query->orderBy($this->sort, $this->arah)->paginate($this->perPage);
         $daftarKecamatan = Sekolah::whereNotNull('kecamatan')
             ->distinct()->orderBy('kecamatan')->pluck('kecamatan');
 

@@ -6,6 +6,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\WilayahDesa;
 use App\Models\WilayahKabupaten;
 use App\Models\WilayahKecamatan;
@@ -16,7 +17,10 @@ use Livewire\WithPagination;
 
 class TabelDesa extends Component
 {
-    use WithPagination;
+    use DenganPerHalaman, WithPagination;
+
+    #[Url]
+    public int $perPage = 20;
 
     #[Url(as: 'q')]
     public string $q = '';
@@ -102,7 +106,7 @@ class TabelDesa extends Component
                 });
             }
 
-            $daftar = $query->orderBy($this->sort, $this->arah)->paginate(20);
+            $daftar = $query->orderBy($this->sort, $this->arah)->paginate($this->perPage);
             $total = $daftar->total();
         }
 

@@ -5,6 +5,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\WilayahProvinsi;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -12,7 +13,10 @@ use Livewire\WithPagination;
 
 class TabelProvinsi extends Component
 {
-    use WithPagination;
+    use DenganPerHalaman, WithPagination;
+
+    #[Url]
+    public int $perPage = 20;
 
     #[Url(as: 'q')]
     public string $q = '';
@@ -67,7 +71,7 @@ class TabelProvinsi extends Component
             });
         }
 
-        $daftar = $query->orderBy($this->sort, $this->arah)->paginate(20);
+        $daftar = $query->orderBy($this->sort, $this->arah)->paginate($this->perPage);
 
         return view('livewire.tabel-provinsi', compact('daftar'));
     }

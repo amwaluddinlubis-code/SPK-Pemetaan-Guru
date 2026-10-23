@@ -5,6 +5,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\UsulanPenempatan;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -12,7 +13,10 @@ use Livewire\WithPagination;
 
 class TabelUsulan extends Component
 {
-    use WithPagination;
+    use DenganPerHalaman, WithPagination;
+
+    #[Url]
+    public int $perPage = 15;
 
     #[Url(as: 'q')]
     public string $q = '';
@@ -88,7 +92,7 @@ class TabelUsulan extends Component
             $query->where('status', $this->status);
         }
 
-        $daftarUsulan = $query->orderBy($this->sort, $this->arah)->paginate(15);
+        $daftarUsulan = $query->orderBy($this->sort, $this->arah)->paginate($this->perPage);
 
         return view('livewire.tabel-usulan', compact('daftarUsulan'));
     }
