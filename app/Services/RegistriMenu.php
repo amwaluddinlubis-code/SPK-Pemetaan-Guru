@@ -130,6 +130,7 @@ class RegistriMenu
         'simulasi' => 'simulasi',
         'proyeksi' => 'proyeksi',
         'pengguna' => 'pengguna',
+        'pendaftaran' => 'pendaftaran-guru',
         'aktivitas' => 'aktivitas',
         'pemda' => 'eksekutif',
     ];

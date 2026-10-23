@@ -193,4 +193,30 @@ class AkunGuruTest extends TestCase
         $this->assertSame('Data tidak cocok dengan SK.', $pendaftaran->catatan_operator);
         $this->assertSame(0, Guru::count());
     }
+
+    public function test_antrean_pendaftaran_hanya_dapat_dibuka_kabid_ptk(): void
+    {
+        $guru = User::factory()->create(['role' => 'guru']);
+        $kadis = User::factory()->create(['role' => 'kadis']);
+
+        $this->actingAs($guru)->get(route('pendaftaran.index'))->assertForbidden();
+        $this->actingAs($kadis)->get(route('pendaftaran.index'))->assertForbidden();
+    }
+
+    public function test_aksi_pendaftaran_memeriksa_peran_di_dalam_komponen(): void
+    {
+        $guru = User::factory()->create(['role' => 'guru']);
+        $pendaftaran = PendaftaranGuru::create([
+            'nama' => 'PENDAFTAR UJI',
+            'no_hp' => '0812000111',
+            'status' => 'menunggu',
+        ]);
+
+        Livewire::actingAs($guru)
+            ->test(HalamanPendaftaran::class)
+            ->call('setujui', $pendaftaran->id)
+            ->assertForbidden();
+
+        $this->assertSame('menunggu', $pendaftaran->fresh()->status);
+    }
 }

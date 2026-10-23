@@ -34,6 +34,8 @@ class PendaftaranGuru extends Component
 
     public function setujui(int $id): void
     {
+        $this->otorisasiOperator();
+
         $pendaftaran = ModelPendaftaran::where('status', 'menunggu')->findOrFail($id);
 
         DB::transaction(function () use ($pendaftaran) {
@@ -76,6 +78,8 @@ class PendaftaranGuru extends Component
 
     public function tolak(int $id): void
     {
+        $this->otorisasiOperator();
+
         $pendaftaran = ModelPendaftaran::where('status', 'menunggu')->findOrFail($id);
 
         $pendaftaran->update([
@@ -93,6 +97,8 @@ class PendaftaranGuru extends Component
 
     public function render()
     {
+        $this->otorisasiOperator();
+
         $daftar = ModelPendaftaran::with(['sekolah', 'penilai'])
             ->when($this->tab === 'menunggu',
                 fn ($q) => $q->where('status', 'menunggu')->orderBy('created_at'),
@@ -103,5 +109,10 @@ class PendaftaranGuru extends Component
             'daftar' => $daftar,
             'jumlahMenunggu' => ModelPendaftaran::where('status', 'menunggu')->count(),
         ]);
+    }
+
+    private function otorisasiOperator(): void
+    {
+        abort_unless(auth()->user()?->role === 'kabid_ptk', 403);
     }
 }

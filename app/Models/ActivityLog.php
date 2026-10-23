@@ -30,7 +30,7 @@ class ActivityLog extends Model
 
     // Kunci yang tidak boleh masuk ke kolom perubahan (rahasia/PII berlebih).
     public const REDACTED = [
-        'password', 'password_confirmation', 'token', 'remember_token',
+        'password', 'password_confirmation', 'token', 'remember_token', 'username',
         'nip', 'domisili_alamat', 'domisili_lat', 'domisili_lng',
         'alamat', 'email', 'ip', 'cookie', 'authorization',
     ];

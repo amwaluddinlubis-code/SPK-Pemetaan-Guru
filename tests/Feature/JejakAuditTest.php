@@ -73,11 +73,12 @@ class JejakAuditTest extends TestCase
     public function test_redaksi_audit_mencakup_kunci_sensitif_bersarang(): void
     {
         ActivityLog::catat('uji.redaksi', null, 'sukses', [
-            'ringkasan' => ['nip' => 'RAHASIA', 'password' => 'RAHASIA'],
+            'ringkasan' => ['nip' => 'RAHASIA', 'username' => 'NIP-RAHASIA', 'password' => 'RAHASIA'],
             'status_sesudah' => 'ditolak',
         ]);
         $log = ActivityLog::where('aksi', 'uji.redaksi')->firstOrFail();
         $this->assertSame('[REDACTED]', $log->perubahan['ringkasan']['nip']);
+        $this->assertSame('[REDACTED]', $log->perubahan['ringkasan']['username']);
         $this->assertSame('[REDACTED]', $log->perubahan['ringkasan']['password']);
         $this->assertSame('ditolak', $log->perubahan['status_sesudah']);
     }
