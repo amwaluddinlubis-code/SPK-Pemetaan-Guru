@@ -77,4 +77,10 @@ class PengaturanController extends Controller
         return redirect()->route('pengaturan.pemda')
             ->with('sukses', 'Konteks Pemda dilepas. Aplikasi menampilkan semua wilayah.');
     }
+
+    /** Halaman Pengaturan Akses: matriks menu/route per peran (Livewire). */
+    public function akses()
+    {
+        return view('pengaturan.akses');
+    }
 }

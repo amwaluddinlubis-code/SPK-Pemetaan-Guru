@@ -53,6 +53,13 @@
                                 @endif
                             </td>
                             <td class="text-right whitespace-nowrap">
+                                @if ($u->role !== 'kabid_ptk' && $u->id !== auth()->id() && ! session()->has(\App\Http\Controllers\ImpersonateController::SESSION_ASAL))
+                                    <form method="POST" action="{{ route('impersonate.mulai', $u) }}" class="inline"
+                                          onsubmit="return confirm('Masuk sebagai {{ $u->name }}? Anda bisa kembali ke akun Anda kapan saja lewat bilah kuning di atas.')">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-info">🎭 Impersonate</button>
+                                    </form>
+                                @endif
                                 <a href="{{ route('pengguna.edit', $u) }}" class="btn btn-sm btn-warning">Ubah</a>
                                 <x-hapus :aksi="route('pengguna.destroy', $u)" tanya="Hapus akun {{ $u->name }}?" />
                             </td>

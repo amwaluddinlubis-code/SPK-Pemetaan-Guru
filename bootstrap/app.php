@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\PastikanAksesMenu;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -20,6 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'role' => RoleMiddleware::class,
+        ]);
+
+        // Pengaturan Akses: tolak rute modul yang tidak diizinkan untuk
+        // peran pengguna (lihat App\Services\RegistriMenu & AksesMenu).
+        $middleware->web(append: [
+            PastikanAksesMenu::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

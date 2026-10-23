@@ -72,6 +72,17 @@
                 </div>
             </div>
 
+            @if (! empty($impersonateAsal))
+                {{-- Bilah mode impersonate: selalu tampil selama admin menyamar --}}
+                <div class="bg-warning text-warning-content px-4 py-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm font-semibold" data-testid="bilah-impersonate">
+                    <span>🎭 Mode impersonate: Anda masuk sebagai {{ auth()->user()->name }} ({{ auth()->user()->labelRole() }}), menyamar dari akun {{ $impersonateAsal->name }}.</span>
+                    <form method="POST" action="{{ route('impersonate.berhenti') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-xs btn-neutral">↩ Kembali ke akun saya</button>
+                    </form>
+                </div>
+            @endif
+
             <main id="konten-utama" class="container mx-auto px-4 py-6 flex-1 w-full">
                 {{-- Spanduk konteks: admin diingatkan selama Pemda belum diatur --}}
                 @if (auth()->user()->hasRole('kabid_ptk') && empty($konteksPemdaAktif))
@@ -124,47 +135,19 @@
                 <!-- Menu navigasi -->
                 <ul class="menu p-4 flex-1 w-full font-semibold" data-testid="menu-sidebar">
                     <li><a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"><x-ikon nama="dashboard" class="h-5 w-5" /> Dashboard</a></li>
-                    @if (auth()->user()->hasRole('pemda', 'kadis'))
-                        <li><a href="{{ route('pemda.dashboard') }}" class="{{ request()->routeIs('pemda.*') ? 'active' : '' }}"><x-ikon nama="distribusi" class="h-5 w-5" /> Eksekutif</a></li>
-                    @endif
-
-                    <li class="menu-title mt-2"><span>Data Master</span></li>
-                    <li><a href="{{ route('guru.index') }}" class="{{ request()->routeIs('guru.*') ? 'active' : '' }}"><x-ikon nama="guru" class="h-5 w-5" /> Data Guru</a></li>
-                    <li><a href="{{ route('sekolah.index') }}" class="{{ request()->routeIs('sekolah.*') ? 'active' : '' }}"><x-ikon nama="sekolah" class="h-5 w-5" /> Data Sekolah</a></li>
-                    <li class="menu-title mt-2"><span>Referensi Wilayah</span></li>
-                    <li><a href="{{ route('wilayah.provinsi') }}" class="{{ request()->routeIs('wilayah.provinsi') ? 'active' : '' }}"><x-ikon nama="peta" class="h-5 w-5" /> Provinsi</a></li>
-                    <li><a href="{{ route('wilayah.kabupaten') }}" class="{{ request()->routeIs('wilayah.kabupaten') ? 'active' : '' }}"><x-ikon nama="peta" class="h-5 w-5" /> Kabupaten/Kota</a></li>
-                    <li><a href="{{ route('wilayah.kecamatan') }}" class="{{ request()->routeIs('wilayah.kecamatan') ? 'active' : '' }}"><x-ikon nama="peta" class="h-5 w-5" /> Kecamatan</a></li>
-                    <li><a href="{{ route('wilayah.desa') }}" class="{{ request()->routeIs('wilayah.desa') ? 'active' : '' }}"><x-ikon nama="peta" class="h-5 w-5" /> Desa/Kelurahan</a></li>
-
-                    @if (!auth()->user()->hasRole('pemda'))
-                    <li class="menu-title mt-2"><span>Proses Penempatan</span></li>
-                    <li><a href="{{ route('usulan.index') }}" class="{{ request()->routeIs('usulan.*') ? 'active' : '' }}"><x-ikon nama="usulan" class="h-5 w-5" /> Usulan</a></li>
-                        <li><a href="{{ route('swap.index') }}" class="{{ request()->routeIs('swap.*') ? 'active' : '' }}"><x-ikon nama="swap" class="h-5 w-5" /> Mutasi Silang</a></li>
-                        <li><a href="{{ route('spk.index') }}" class="{{ request()->routeIs('spk.*') ? 'active' : '' }}"><x-ikon nama="spk" class="h-5 w-5" /> SPK Penempatan</a></li>
-                    @endif
-
-                    @if (auth()->user()->hasRole('kabid_ptk') || auth()->user()->hasRole('kadis') || auth()->user()->hasRole('pemda'))
-                    <li class="menu-title mt-2"><span>Analisis</span></li>
-                    @endif
-                    @if (auth()->user()->hasRole('kabid_ptk') || auth()->user()->hasRole('kadis'))
-                        <li><a href="{{ route('kualitas-data.index') }}" class="{{ request()->routeIs('kualitas-data.*') ? 'active' : '' }}"><x-ikon nama="kualitas" class="h-5 w-5" /> Kualitas Data</a></li>
-                    @endif
-                    @if (auth()->user()->hasRole('kabid_ptk') || auth()->user()->hasRole('kadis') || auth()->user()->hasRole('pemda'))
-                        <li><a href="{{ route('distribusi.index') }}" class="{{ request()->routeIs('distribusi.*') ? 'active' : '' }}"><x-ikon nama="distribusi" class="h-5 w-5" /> Distribusi</a></li>
-                    @endif
-                    @if (auth()->user()->hasRole('kabid_ptk') || auth()->user()->hasRole('kadis'))
-                        <li><a href="{{ route('aksesibilitas.index') }}" class="{{ request()->routeIs('aksesibilitas.*') ? 'active' : '' }}"><x-ikon nama="akses" class="h-5 w-5" /> Aksesibilitas</a></li>
-                        <li><a href="{{ route('simulasi.index') }}" class="{{ request()->routeIs('simulasi.*') ? 'active' : '' }}"><x-ikon nama="simulasi" class="h-5 w-5" /> Simulasi</a></li>
-                        <li><a href="{{ route('proyeksi.index') }}" class="{{ request()->routeIs('proyeksi.*') ? 'active' : '' }}"><x-ikon nama="proyeksi" class="h-5 w-5" /> Proyeksi</a></li>
-                    @endif
-
-                    @if (auth()->user()->hasRole('kabid_ptk'))
-                    <li class="menu-title mt-2"><span>Sistem</span></li>
-                        <li><a href="{{ route('pengguna.index') }}" class="{{ request()->routeIs('pengguna.*') ? 'active' : '' }}"><x-ikon nama="pengguna" class="h-5 w-5" /> Kelola Pengguna</a></li>
-                        <li><a href="{{ route('aktivitas.index') }}" class="{{ request()->routeIs('aktivitas.*') ? 'active' : '' }}"><x-ikon nama="audit" class="h-5 w-5" /> Jejak Audit</a></li>
-                        <li><a href="{{ route('pengaturan.pemda') }}" class="{{ request()->routeIs('pengaturan.*') ? 'active' : '' }}"><x-ikon nama="peta" class="h-5 w-5" /> Pengaturan Pemda</a></li>
-                    @endif
+                    {{-- Item menu dari RegistriMenu: tampil bila peran pengguna
+                         diizinkan Pengaturan Akses ($menuTerlihat dari composer). --}}
+                    @foreach (\App\Services\RegistriMenu::grup() as $namaGrup => $itemsGrup)
+                        @php $itemsTerlihat = array_filter($itemsGrup, fn ($item, $kunci) => $menuTerlihat[$kunci] ?? false, ARRAY_FILTER_USE_BOTH); @endphp
+                        @if (count($itemsTerlihat) > 0)
+                            @if ($namaGrup !== '')
+                                <li class="menu-title mt-2"><span>{{ $namaGrup }}</span></li>
+                            @endif
+                            @foreach ($itemsTerlihat as $item)
+                                <li><a href="{{ route($item['rute']) }}" class="{{ request()->routeIs($item['pola']) ? 'active' : '' }}"><x-ikon :nama="$item['ikon']" class="h-5 w-5" /> {{ $item['label'] }}</a></li>
+                            @endforeach
+                        @endif
+                    @endforeach
                 </ul>
 
                 <!-- Info pengguna + keluar -->

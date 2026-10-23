@@ -15,6 +15,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DistribusiController;
 use App\Http\Controllers\GuruController;
+use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\KualitasDataController;
 use App\Http\Controllers\PemdaController;
 use App\Http\Controllers\PengaturanController;
@@ -51,6 +52,11 @@ Route::middleware('guest')->group(function () {
 });
 
 // --- Halaman dalam aplikasi (wajib login) ---
+// Gerbang halaman modul: middleware PastikanAksesMenu (grup web) menolak
+// rute modul yang tidak diizinkan Pengaturan Akses untuk peran pengguna —
+// karena itu rute indeks/halaman di bawah tidak memakai middleware 'role'.
+// Rute aksi (tambah/ubah/hapus/setujui/ekspor) TETAP memakai 'role' rinci
+// seperti sebelumnya, dan ikut tertutup bila modulnya dimatikan di matriks.
 Route::middleware('auth')->group(function () {
     // Dashboard + peta rekomendasi: semua peran
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -61,8 +67,7 @@ Route::middleware('auth')->group(function () {
 
     // --- Modul Pemda: dashboard eksekutif (ringkasan se-kabupaten, read-only) ---
     // Lihat: pemda, kadis
-    Route::get('/pemda', [PemdaController::class, 'index'])->name('pemda.dashboard')
-        ->middleware('role:pemda,kadis');
+    Route::get('/pemda', [PemdaController::class, 'index'])->name('pemda.dashboard');
 
     // --- Data Guru ---
     // Lihat: semua peran (controller membatasi cakupan data)
@@ -77,8 +82,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/wilayah/api/kecamatan', [WilayahController::class, 'apiKecamatan'])->name('wilayah.api.kecamatan');
     Route::get('/wilayah/api/desa', [WilayahController::class, 'apiDesa'])->name('wilayah.api.desa');
 
-    Route::get('/guru', [GuruController::class, 'index'])->name('guru.index')
-        ->middleware('role:guru,kepala_sekolah,ketua_pgri,kabid_ptk,kadis');
+    Route::get('/guru', [GuruController::class, 'index'])->name('guru.index');
     // Tambah: kabid_ptk, kepala_sekolah (guru baru masuk sekolahnya)
     Route::get('/guru/create', [GuruController::class, 'create'])->name('guru.create')
         ->middleware('role:kabid_ptk,kepala_sekolah');
@@ -107,8 +111,7 @@ Route::middleware('auth')->group(function () {
 
     // --- Data Sekolah ---
     // Lihat: semua peran (controller membatasi cakupan data)
-    Route::get('/sekolah', [SekolahController::class, 'index'])->name('sekolah.index')
-        ->middleware('role:guru,kepala_sekolah,ketua_pgri,kabid_ptk,kadis');
+    Route::get('/sekolah', [SekolahController::class, 'index'])->name('sekolah.index');
     // Export Excel & cetak/PDF: kabid_ptk, kadis (reviewer)
     Route::get('/sekolah/export', [SekolahController::class, 'export'])->name('sekolah.export')
         ->middleware('role:kabid_ptk,kadis');
@@ -163,37 +166,42 @@ Route::middleware('auth')->group(function () {
     Route::delete('/pengaturan/pemda', [PengaturanController::class, 'destroy'])->name('pengaturan.pemda.destroy')
         ->middleware('role:kabid_ptk');
 
-    // --- Jejak Audit: kabid_ptk (append-only, tanpa edit/hapus) ---
-    Route::get('/aktivitas', [AktivitasController::class, 'index'])->name('aktivitas.index')
+    // --- Pengaturan Akses: matriks menu/route per peran (kabid_ptk) ---
+    Route::get('/pengaturan/akses', [PengaturanController::class, 'akses'])->name('pengaturan.akses')
         ->middleware('role:kabid_ptk');
 
+    // --- Impersonate: admin masuk sebagai pengguna lain untuk membantu
+    // memeriksa tampilannya, lalu kembali ke akunnya sendiri. Rute berhenti
+    // sengaja tanpa middleware role: ia dipakai saat sedang menyamar
+    // (pengguna aktif bukan admin) dan hanya bekerja bila ada sesi asal.
+    Route::post('/impersonate/berhenti', [ImpersonateController::class, 'berhenti'])->name('impersonate.berhenti');
+    Route::post('/impersonate/{user}', [ImpersonateController::class, 'mulai'])->name('impersonate.mulai')
+        ->middleware('role:kabid_ptk');
+
+    // --- Jejak Audit: kabid_ptk (append-only, tanpa edit/hapus) ---
+    Route::get('/aktivitas', [AktivitasController::class, 'index'])->name('aktivitas.index');
+
     // --- Kualitas Data: kabid_ptk, kadis (read-only) ---
-    Route::get('/kualitas-data', [KualitasDataController::class, 'index'])->name('kualitas-data.index')
-        ->middleware('role:kabid_ptk,kadis');
+    Route::get('/kualitas-data', [KualitasDataController::class, 'index'])->name('kualitas-data.index');
     Route::get('/kualitas-data/export', [KualitasDataController::class, 'export'])->name('kualitas-data.export')
         ->middleware('role:kabid_ptk,kadis');
 
     // --- Distribusi defisit/surplus: agregat saja (kabid, kadis, pemda) ---
-    Route::get('/distribusi', [DistribusiController::class, 'index'])->name('distribusi.index')
-        ->middleware('role:kabid_ptk,kadis,pemda');
+    Route::get('/distribusi', [DistribusiController::class, 'index'])->name('distribusi.index');
 
     // --- Aksesibilitas: agregat jarak Haversine (kabid, kadis) ---
-    Route::get('/aksesibilitas', [AksesibilitasController::class, 'index'])->name('aksesibilitas.index')
-        ->middleware('role:kabid_ptk,kadis');
+    Route::get('/aksesibilitas', [AksesibilitasController::class, 'index'])->name('aksesibilitas.index');
 
     // --- Simulasi what-if: read-only, tanpa ubah data (kabid, kadis) ---
-    Route::get('/simulasi', [SimulasiController::class, 'index'])->name('simulasi.index')
-        ->middleware('role:kabid_ptk,kadis');
+    Route::get('/simulasi', [SimulasiController::class, 'index'])->name('simulasi.index');
     Route::post('/simulasi', [SimulasiController::class, 'jalankan'])->name('simulasi.jalankan')
         ->middleware('role:kabid_ptk,kadis');
 
     // --- Proyeksi: jujur tampilkan "data belum cukup" (kabid, kadis) ---
-    Route::get('/proyeksi', [ProyeksiController::class, 'index'])->name('proyeksi.index')
-        ->middleware('role:kabid_ptk,kadis');
+    Route::get('/proyeksi', [ProyeksiController::class, 'index'])->name('proyeksi.index');
     // --- Usulan Penempatan ---
     // Lihat: semua peran (controller membatasi cakupan data)
-    Route::get('/usulan', [UsulanController::class, 'index'])->name('usulan.index')
-        ->middleware('role:guru,kepala_sekolah,ketua_pgri,kabid_ptk,kadis');
+    Route::get('/usulan', [UsulanController::class, 'index'])->name('usulan.index');
     // Export Excel & cetak/PDF: kabid_ptk, kadis
     Route::get('/usulan/export', [UsulanController::class, 'export'])->name('usulan.export')
         ->middleware('role:kabid_ptk,kadis');
@@ -217,8 +225,7 @@ Route::middleware('auth')->group(function () {
     // Lihat: semua peran (seperti Usulan)
     // Daftar swap: semua peran operasional; pemda hanya lewat dashboard
     // ringkasan (/pemda) sesuai dokumentasi peran (data minimization).
-    Route::get('/swap', [SwapController::class, 'index'])->name('swap.index')
-        ->middleware('role:guru,kepala_sekolah,ketua_pgri,kabid_ptk,kadis');
+    Route::get('/swap', [SwapController::class, 'index'])->name('swap.index');
     // Generate rekomendasi: kabid_ptk (administrator)
     Route::post('/swap/generate', [SwapController::class, 'generate'])
         ->name('swap.generate')->middleware('role:kabid_ptk');
@@ -232,8 +239,7 @@ Route::middleware('auth')->group(function () {
     // Lihat: semua peran (seperti Usulan & Swap)
     // Daftar SPK: semua peran operasional; pemda hanya lewat dashboard
     // ringkasan (/pemda) sesuai dokumentasi peran (data minimization).
-    Route::get('/spk', [SpkController::class, 'index'])->name('spk.index')
-        ->middleware('role:guru,kepala_sekolah,ketua_pgri,kabid_ptk,kadis');
+    Route::get('/spk', [SpkController::class, 'index'])->name('spk.index');
     // Generate rekomendasi: kabid_ptk (administrator)
     Route::post('/spk/generate', [SpkController::class, 'generate'])
         ->name('spk.generate')->middleware('role:kabid_ptk');
