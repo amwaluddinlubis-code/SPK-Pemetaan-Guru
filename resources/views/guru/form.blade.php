@@ -114,8 +114,17 @@
                     <div class="grid gap-4 sm:grid-cols-2">
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-mapel">Mata Pelajaran</label>
-                            <input id="f-mapel" type="text" name="mapel" value="{{ old('mapel', $guru->mapel) }}" required
-                                   class="input w-full" placeholder="Matematika">
+                            @php
+                                $mapelAktif = old('mapel', $guru->mapel);
+                                $opsiMapel = collect($daftarMapel);
+                                if ($mapelAktif && ! $opsiMapel->contains($mapelAktif)) {
+                                    $opsiMapel = $opsiMapel->push($mapelAktif);
+                                }
+                            @endphp
+                            <x-searchable-select name="mapel"
+                                :options="$opsiMapel->map(fn ($m) => ['value' => $m, 'label' => $m])->all()"
+                                :selected="$mapelAktif"
+                                placeholder="— Pilih Mata Pelajaran —" class="w-full" />
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-jenjang">Jenjang</label>
@@ -147,9 +156,17 @@
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-mapel_sertifikasi">Mapel Sertifikat (bila sudah sertifikasi)</label>
-                            <input id="f-mapel_sertifikasi" type="text" name="mapel_sertifikasi"
-                                   value="{{ old('mapel_sertifikasi', $guru->mapel_sertifikasi) }}"
-                                   class="input w-full" placeholder="cth: Matematika" maxlength="50">
+                            @php
+                                $mapelSertAktif = old('mapel_sertifikasi', $guru->mapel_sertifikasi);
+                                $opsiMapelSert = collect($daftarMapel);
+                                if ($mapelSertAktif && ! $opsiMapelSert->contains($mapelSertAktif)) {
+                                    $opsiMapelSert = $opsiMapelSert->push($mapelSertAktif);
+                                }
+                            @endphp
+                            <x-searchable-select name="mapel_sertifikasi"
+                                :options="$opsiMapelSert->map(fn ($m) => ['value' => $m, 'label' => $m])->all()"
+                                :selected="$mapelSertAktif"
+                                placeholder="— Pilih Mapel Sertifikat —" class="w-full" />
                         </fieldset>
                         {{-- Sekolah tempat bertugas (administratif: kabid saja) --}}
                         @if (auth()->user()->hasRole('kabid_ptk'))

@@ -12,6 +12,7 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\Guru;
 use App\Models\Sekolah;
+use App\Services\AnalisisKebutuhanGuru;
 use App\Services\KonteksPemda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -98,6 +99,7 @@ class GuruController extends Controller
             'daftarSekolah' => Sekolah::orderBy('nama')->get(),
             'daftarKecamatan' => $this->daftarKecamatan(),
             'petaKodeKecamatan' => $this->petaKodeKecamatan(),
+            'daftarMapel' => AnalisisKebutuhanGuru::daftarKanonis(),
         ]);
     }
 
@@ -105,6 +107,14 @@ class GuruController extends Controller
     {
         $data = $request->validate($this->aturanValidasi());
         $request->validate(['nip' => ['unique:guru,nip']]);
+
+        // Mapel selalu disimpan sebagai label kanonis — varian ejaan dari
+        // isian manual (mis. "Ilmu Pengetahuan Alam", "PAI") dinormalisasi
+        // agar pencocokan kebutuhan & SPK tidak meleset.
+        $data['mapel'] = AnalisisKebutuhanGuru::kanonis($data['mapel']);
+        if (! empty($data['mapel_sertifikasi'])) {
+            $data['mapel_sertifikasi'] = AnalisisKebutuhanGuru::kanonis($data['mapel_sertifikasi']);
+        }
 
         // Kepala sekolah: guru baru otomatis masuk sekolahnya
         if (auth()->user()->role === 'kepala_sekolah') {
@@ -131,6 +141,7 @@ class GuruController extends Controller
             'daftarSekolah' => Sekolah::orderBy('nama')->get(),
             'daftarKecamatan' => $this->daftarKecamatan(),
             'petaKodeKecamatan' => $this->petaKodeKecamatan(),
+            'daftarMapel' => AnalisisKebutuhanGuru::daftarKanonis(),
         ]);
     }
 
@@ -154,6 +165,14 @@ class GuruController extends Controller
             default => array_keys($this->aturanValidasi()),
         };
         $data = array_intersect_key($data, array_flip($kolomBoleh));
+
+        // Mapel selalu disimpan sebagai label kanonis (lihat store()).
+        if (array_key_exists('mapel', $data)) {
+            $data['mapel'] = AnalisisKebutuhanGuru::kanonis($data['mapel']);
+        }
+        if (! empty($data['mapel_sertifikasi'])) {
+            $data['mapel_sertifikasi'] = AnalisisKebutuhanGuru::kanonis($data['mapel_sertifikasi']);
+        }
 
         // Kepala sekolah tidak bisa memindahkan guru ke sekolah lain
         if (auth()->user()->role === 'kepala_sekolah') {
@@ -352,7 +371,8 @@ class GuruController extends Controller
 
                 Guru::create([
                     'nip' => $data['nip'], 'nama' => $data['nama'],
-                    'mapel' => $data['mapel'], 'jenjang' => strtoupper($data['jenjang']),
+                    'mapel' => AnalisisKebutuhanGuru::kanonis($data['mapel']),
+                    'jenjang' => strtoupper($data['jenjang']),
                     'domisili_alamat' => $data['domisili_alamat'],
                     'status_pernikahan' => ($data['status_pernikahan'] ?? '') === ''
                         ? 'belum_kawin' : strtolower($data['status_pernikahan']),
@@ -360,7 +380,7 @@ class GuruController extends Controller
                         ? 'pns' : strtolower($data['status_kepegawaian']),
                     'sudah_sertifikasi' => in_array(strtolower(trim((string) ($data['sudah_sertifikasi'] ?? ''))), ['1', 'ya'], true),
                     'mapel_sertifikasi' => ($data['mapel_sertifikasi'] ?? '') === ''
-                        ? null : trim($data['mapel_sertifikasi']),
+                        ? null : AnalisisKebutuhanGuru::kanonis($data['mapel_sertifikasi']),
                     'kecamatan' => $data['kecamatan'] === ''
                         ? null : $kecamatanValid[strtolower($data['kecamatan'])],
                     'sekolah_id' => $data['npsn'] === ''

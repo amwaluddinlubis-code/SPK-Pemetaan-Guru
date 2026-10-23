@@ -116,6 +116,18 @@ class AnalisisKebutuhanGuru
     }
 
     /**
+     * Daftar label mapel kanonis untuk pilihan isian (form guru dsb.):
+     * Guru Kelas (SD) + semua mapel SMP pada JP_SMP. Satu-satunya sumber
+     * daftar mapel agar ejaan tidak menyimpang antar isian.
+     *
+     * @return array<int, string>
+     */
+    public static function daftarKanonis(): array
+    {
+        return [self::LABEL_GURU_KELAS, ...array_keys(self::JP_SMP)];
+    }
+
+    /**
      * Hitung kebutuhan guru sebuah sekolah.
      *
      * @param  string  $jenjang  'SD' atau 'SMP' (case-insensitive)
