@@ -44,16 +44,14 @@ class PemeriksaKualitasData
             ->whereNotNull('nip')->where('nip', '!=', '')
             ->groupBy('nip')->having('jml', '>', 1)->pluck('nip');
         foreach ($duplikat as $nip) {
-            $ids = Guru::where('nip', $nip)->pluck('id');
-            foreach ($ids as $id) {
-                $guru = Guru::find($id);
-                $temuan[] = $this->buat('Guru', $id, $guru->nama ?? '-', 'nip_duplikat', 'tinggi',
+            foreach (Guru::where('nip', $nip)->get() as $guru) {
+                $temuan[] = $this->buat('Guru', $guru->id, $guru->nama ?? '-', 'nip_duplikat', 'tinggi',
                     "NIP {$nip} dipakai oleh lebih dari satu guru.",
-                    route('guru.edit', $id));
+                    route('guru.edit', $guru->id));
             }
         }
 
-        foreach (Guru::with('sekolah')->cursor() as $guru) {
+        foreach (Guru::with('sekolah')->get() as $guru) {
             // Koordinat domisili
             if ($guru->domisili_lat === null || $guru->domisili_lng === null
                 || ((float) $guru->domisili_lat === 0.0 && (float) $guru->domisili_lng === 0.0)) {
@@ -93,15 +91,14 @@ class PemeriksaKualitasData
             ->whereNotNull('npsn')->where('npsn', '!=', '')
             ->groupBy('npsn')->having('jml', '>', 1)->pluck('npsn');
         foreach ($duplikat as $npsn) {
-            foreach (Sekolah::where('npsn', $npsn)->pluck('id') as $id) {
-                $sekolah = Sekolah::find($id);
-                $temuan[] = $this->buat('Sekolah', $id, $sekolah->nama ?? '-', 'npsn_duplikat', 'tinggi',
+            foreach (Sekolah::where('npsn', $npsn)->get() as $sekolah) {
+                $temuan[] = $this->buat('Sekolah', $sekolah->id, $sekolah->nama ?? '-', 'npsn_duplikat', 'tinggi',
                     "NPSN {$npsn} dipakai oleh lebih dari satu sekolah.",
-                    route('sekolah.edit', $id));
+                    route('sekolah.edit', $sekolah->id));
             }
         }
 
-        foreach (Sekolah::cursor() as $sekolah) {
+        foreach (Sekolah::get() as $sekolah) {
             if ($sekolah->lat === null || $sekolah->lng === null
                 || ((float) $sekolah->lat === 0.0 && (float) $sekolah->lng === 0.0)) {
                 $temuan[] = $this->buat('Sekolah', $sekolah->id, $sekolah->nama, 'koordinat_kosong', 'tinggi',
@@ -127,7 +124,9 @@ class PemeriksaKualitasData
     {
         $temuan = [];
 
-        foreach (KebutuhanGuru::with('sekolah')->cursor() as $butuh) {
+        // get() (bukan cursor()) agar with('sekolah') benar-benar eager loading;
+        // cursor() memuat relasi per baris (N+1: ±2.100 query untuk 1.052 baris).
+        foreach (KebutuhanGuru::with('sekolah')->get() as $butuh) {
             if ($butuh->jumlah <= 0) {
                 $temuan[] = $this->buat('Kebutuhan', $butuh->id,
                     ($butuh->sekolah->nama ?? '-').' / '.$butuh->mapel,

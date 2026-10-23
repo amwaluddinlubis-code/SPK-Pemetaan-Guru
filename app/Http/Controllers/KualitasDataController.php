@@ -14,7 +14,13 @@ class KualitasDataController extends Controller
 {
     public function index(Request $request, PemeriksaKualitasData $pemeriksa)
     {
-        $temuan = $pemeriksa->periksa();
+        // Pemeriksaan penuh dijalankan SEKALI; daftar jenis diturunkan dari
+        // hasil yang sama (sebelumnya periksa() dipanggil dua kali per muat).
+        $semua = $pemeriksa->periksa();
+        $daftarJenis = array_unique(array_column($semua, 'jenis'));
+        sort($daftarJenis);
+
+        $temuan = $semua;
 
         if ($request->filled('dampak')) {
             $temuan = array_filter($temuan, fn ($t) => $t['dampak'] === $request->dampak);
@@ -28,8 +34,6 @@ class KualitasDataController extends Controller
             'sedang' => count(array_filter($temuan, fn ($t) => $t['dampak'] === 'sedang')),
             'rendah' => count(array_filter($temuan, fn ($t) => $t['dampak'] === 'rendah')),
         ];
-        $daftarJenis = array_unique(array_column($pemeriksa->periksa(), 'jenis'));
-        sort($daftarJenis);
 
         return view('kualitas-data.index', [
             'temuan' => array_values($temuan),
