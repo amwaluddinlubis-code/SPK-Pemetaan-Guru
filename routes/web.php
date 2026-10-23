@@ -25,6 +25,7 @@ use App\Http\Controllers\SpkController;
 use App\Http\Controllers\SwapController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UsulanController;
+use App\Http\Controllers\WilayahController;
 use Illuminate\Support\Facades\Route;
 
 // --- Halaman login (hanya untuk tamu/belum login) ---
@@ -64,6 +65,17 @@ Route::middleware('auth')->group(function () {
 
     // --- Data Guru ---
     // Lihat: semua peran (controller membatasi cakupan data)
+    // Referensi wilayah administrasi (read-only, semua peran): halaman
+    // bertabel Livewire + API dropdown berjenjang untuk formulir.
+    Route::get('/wilayah/provinsi', [WilayahController::class, 'provinsi'])->name('wilayah.provinsi');
+    Route::get('/wilayah/kabupaten', [WilayahController::class, 'kabupaten'])->name('wilayah.kabupaten');
+    Route::get('/wilayah/kecamatan', [WilayahController::class, 'kecamatan'])->name('wilayah.kecamatan');
+    Route::get('/wilayah/desa', [WilayahController::class, 'desa'])->name('wilayah.desa');
+    Route::get('/wilayah/api/provinsi', [WilayahController::class, 'apiProvinsi'])->name('wilayah.api.provinsi');
+    Route::get('/wilayah/api/kabupaten', [WilayahController::class, 'apiKabupaten'])->name('wilayah.api.kabupaten');
+    Route::get('/wilayah/api/kecamatan', [WilayahController::class, 'apiKecamatan'])->name('wilayah.api.kecamatan');
+    Route::get('/wilayah/api/desa', [WilayahController::class, 'apiDesa'])->name('wilayah.api.desa');
+
     Route::get('/guru', [GuruController::class, 'index'])->name('guru.index')
         ->middleware('role:guru,kepala_sekolah,ketua_pgri,kabid_ptk,kadis');
     // Tambah: kabid_ptk, kepala_sekolah (guru baru masuk sekolahnya)

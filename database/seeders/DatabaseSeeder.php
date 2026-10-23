@@ -1,4 +1,5 @@
 <?php
+
 // Seeder utama: memanggil semua seeder lain.
 // Dijalankan dengan: php artisan db:seed
 
@@ -11,6 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            WilayahSeeder::class,       // referensi wilayah nasional (provinsi s.d. desa)
             SekolahMadinaSeeder::class, // 552 sekolah asli Madina (data referensi)
         ]);
 

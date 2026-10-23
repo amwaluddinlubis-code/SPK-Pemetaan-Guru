@@ -108,6 +108,11 @@
                     <li class="menu-title mt-2"><span>Data Master</span></li>
                     <li><a href="{{ route('guru.index') }}" class="{{ request()->routeIs('guru.*') ? 'active' : '' }}"><x-ikon nama="guru" class="h-5 w-5" /> Data Guru</a></li>
                     <li><a href="{{ route('sekolah.index') }}" class="{{ request()->routeIs('sekolah.*') ? 'active' : '' }}"><x-ikon nama="sekolah" class="h-5 w-5" /> Data Sekolah</a></li>
+                    <li class="menu-title mt-2"><span>Referensi Wilayah</span></li>
+                    <li><a href="{{ route('wilayah.provinsi') }}" class="{{ request()->routeIs('wilayah.provinsi') ? 'active' : '' }}"><x-ikon nama="peta" class="h-5 w-5" /> Provinsi</a></li>
+                    <li><a href="{{ route('wilayah.kabupaten') }}" class="{{ request()->routeIs('wilayah.kabupaten') ? 'active' : '' }}"><x-ikon nama="peta" class="h-5 w-5" /> Kabupaten/Kota</a></li>
+                    <li><a href="{{ route('wilayah.kecamatan') }}" class="{{ request()->routeIs('wilayah.kecamatan') ? 'active' : '' }}"><x-ikon nama="peta" class="h-5 w-5" /> Kecamatan</a></li>
+                    <li><a href="{{ route('wilayah.desa') }}" class="{{ request()->routeIs('wilayah.desa') ? 'active' : '' }}"><x-ikon nama="peta" class="h-5 w-5" /> Desa/Kelurahan</a></li>
 
                     @if (!auth()->user()->hasRole('pemda'))
                     <li class="menu-title mt-2"><span>Proses Penempatan</span></li>
