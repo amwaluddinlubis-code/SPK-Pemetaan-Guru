@@ -50,7 +50,7 @@
     </x-kartu>
 
     <x-kartu class="overflow-x-auto">
-        <table class="table table-zebra table-sm">
+        <table class="table table-zebra table-sm tabel-baku">
             <thead>
                 <tr><th>Waktu</th><th>Aktor</th><th>Aksi</th><th>Entitas</th><th>Hasil</th><th>Detail</th></tr>
             </thead>

@@ -2,7 +2,7 @@
 <div>
 <x-halaman judul="Kelola Pengguna" ikon="pengguna">
     <x-slot:aksi>
-        <a href="{{ route('pengguna.create') }}" class="btn btn-primary">+ Tambah Pengguna</a>
+        <a href="{{ route('pengguna.create') }}" class="btn btn-primary"><x-ikon nama="tambah" class="h-5 w-5" /> Tambah Pengguna</a>
     </x-slot:aksi>
 </x-halaman>
 
@@ -33,7 +33,7 @@
 
     <x-kartu class="overflow-hidden">
         <div class="card-body p-0 overflow-x-auto min-w-0">
-            <table class="table table-zebra">
+            <table class="table table-zebra tabel-baku">
                 <thead>
                     <tr>
                         <th>Nama / Email</th>
@@ -66,10 +66,10 @@
                                     <form method="POST" action="{{ route('impersonate.mulai', $u) }}" class="inline"
                                           onsubmit="return confirm('Masuk sebagai {{ $u->name }}? Anda bisa kembali ke akun Anda kapan saja lewat bilah kuning di atas.')">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-info">🎭 Impersonate</button>
+                                        <button type="submit" class="btn btn-sm btn-info gap-1"><x-ikon nama="pengguna" class="h-4 w-4" /> Impersonate</button>
                                     </form>
                                 @endif
-                                <a href="{{ route('pengguna.edit', $u) }}" class="btn btn-sm btn-warning">Ubah</a>
+                                <a href="{{ route('pengguna.edit', $u) }}" class="btn btn-sm btn-warning gap-1"><x-ikon nama="pensil" class="h-4 w-4" /> Ubah</a>
                                 <x-hapus :aksi="route('pengguna.destroy', $u)" tanya="Hapus akun {{ $u->name }}?" />
                             </td>
                         </tr>

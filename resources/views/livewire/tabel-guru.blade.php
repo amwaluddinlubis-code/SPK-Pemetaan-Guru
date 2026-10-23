@@ -4,12 +4,12 @@
     <x-slot:aksi>
         @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah', 'kadis'))
             @if (auth()->user()->hasRole('kabid_ptk'))
-                <a href="{{ route('guru.import') }}" class="btn btn-secondary">📥 Import Excel</a>
+                <a href="{{ route('guru.import') }}" class="btn btn-secondary"><x-ikon nama="unggah" class="h-5 w-5" /> Import Excel</a>
             @endif
-            <a href="{{ route('guru.export', request()->only(['q', 'kecamatan'])) }}" class="btn btn-accent">📊 Export Excel</a>
-            <a href="{{ route('guru.cetak', request()->only(['q', 'kecamatan'])) }}" target="_blank" class="btn btn-neutral">🖨️ Cetak/PDF</a>
+            <a href="{{ route('guru.export', request()->only(['q', 'kecamatan'])) }}" class="btn btn-accent"><x-ikon nama="unduh" class="h-5 w-5" /> Export Excel</a>
+            <a href="{{ route('guru.cetak', request()->only(['q', 'kecamatan'])) }}" target="_blank" class="btn btn-neutral"><x-ikon nama="cetak" class="h-5 w-5" /> Cetak/PDF</a>
             @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah'))
-                <a href="{{ route('guru.create') }}" class="btn btn-primary">+ Tambah Guru</a>
+                <a href="{{ route('guru.create') }}" class="btn btn-primary"><x-ikon nama="tambah" class="h-5 w-5" /> Tambah Guru</a>
             @endif
         @endif
     </x-slot:aksi>
@@ -19,7 +19,7 @@
 @if (session('import_gagal'))
     <x-alert tipe="warning" class="mb-4">
         <div class="text-sm">
-            <strong>⚠️ Baris yang gagal diimpor:</strong>
+            <strong><x-ikon nama="peringatan" class="h-5 w-5 inline align-[-3px]" /> Baris yang gagal diimpor:</strong>
             <ul class="list-disc list-inside mt-1">
                 @foreach (session('import_gagal') as $pesan)
                     <li>{{ $pesan }}</li>
@@ -59,7 +59,7 @@
 
     <x-kartu class="overflow-hidden hidden md:block" data-testid="tabel-guru-desktop">
         <div class="card-body p-0 overflow-x-auto min-w-0">
-            <table class="table table-zebra">
+            <table class="table table-zebra tabel-baku">
                 <thead>
                     <tr>
                         <th><button wire:click="urutkan('nama')" class="link py-1">Nama / NIP {{ $sort === 'nama' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
@@ -83,16 +83,16 @@
                                 <span class="badge badge-outline">{{ $g->mapel }}</span>
                                 <span class="text-sm opacity-60">{{ $g->jenjang }}</span>
                                 @if ($g->sudah_sertifikasi)
-                                    <span class="badge badge-success badge-sm" title="Sertifikasi: {{ $g->mapel_sertifikasi ?? '—' }}{{ $g->linear() ? '' : ' — TIDAK LINEAR' }}">✓ Serdik</span>
+                                    <x-lencana-status nada="sukses" teks="Serdik" :judul="'Sertifikasi: '.($g->mapel_sertifikasi ?? '—').($g->linear() ? '' : ' — TIDAK LINEAR')" />
                                 @endif
                                 @if (! $g->linear())
-                                    <span class="badge badge-error badge-sm" title="Mapel diampu ({{ $g->mapel }}) tidak sesuai sertifikat ({{ $g->mapel_sertifikasi }})">Tidak linear</span>
+                                    <x-lencana-status nada="bahaya" teks="Tidak linear" :judul="'Mapel diampu ('.$g->mapel.') tidak sesuai sertifikat ('.$g->mapel_sertifikasi.')'" />
                                 @endif
                             </td>
                             <td>
-                                <span class="badge badge-neutral badge-sm">{{ $g->labelStatusKepegawaian() }}</span>
+                                <x-lencana-status nada="gelap" :teks="$g->labelStatusKepegawaian()" />
                                 @if ($g->berkeluarga())
-                                    <span class="badge badge-info" title="Prioritas keluarga dalam rekomendasi">👨‍👩‍👧 {{ $g->labelStatusPernikahan() }}</span>
+                                    <x-lencana-status nada="info" :teks="$g->labelStatusPernikahan()" judul="Prioritas keluarga dalam rekomendasi" />
                                 @else
                                     <span class="badge badge-ghost">{{ $g->labelStatusPernikahan() }}</span>
                                 @endif
@@ -103,7 +103,7 @@
                             <td class="text-sm">{{ $g->sekolah_saat_ini }}</td>
                             <td class="text-right whitespace-nowrap">
                                 @if (auth()->user()->hasRole('guru', 'kabid_ptk', 'kepala_sekolah'))
-                                    <a href="{{ route('guru.edit', $g) }}" class="btn btn-sm btn-warning">Ubah</a>
+                                    <a href="{{ route('guru.edit', $g) }}" class="btn btn-sm btn-warning gap-1"><x-ikon nama="pensil" class="h-4 w-4" /> Ubah</a>
                                 @endif
                                 @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah'))
                                     <x-hapus :aksi="route('guru.destroy', $g)" tanya="Hapus data {{ $g->nama }}?" />
@@ -132,15 +132,15 @@
                             <h3 class="font-bold">{{ $g->nama }}</h3>
                             <p class="text-sm opacity-60">{{ $g->nipTersamar() }}</p>
                         </div>
-                        <span class="badge badge-neutral badge-sm">{{ $g->labelStatusKepegawaian() }}</span>
+                        <x-lencana-status nada="gelap" :teks="$g->labelStatusKepegawaian()" />
                     </div>
                     <div class="flex flex-wrap gap-1 mt-2">
                         <span class="badge badge-outline badge-sm">{{ $g->mapel }} ({{ $g->jenjang }})</span>
                         @if ($g->sudah_sertifikasi)
-                            <span class="badge badge-success badge-sm">✓ Serdik</span>
+                            <x-lencana-status nada="sukses" teks="Serdik" />
                         @endif
                         @if (! $g->linear())
-                            <span class="badge badge-error badge-sm">Tidak linear</span>
+                            <x-lencana-status nada="bahaya" teks="Tidak linear" />
                         @endif
                         @if ($g->berkeluarga())
                             <span class="badge badge-info badge-sm">{{ $g->labelStatusPernikahan() }}</span>
@@ -150,7 +150,7 @@
                     <p class="text-sm opacity-60">{{ $g->kecamatan ?? '—' }}{{ $g->desa_kelurahan ? ', '.$g->desa_kelurahan : '' }}</p>
                     <div class="card-actions justify-end mt-2">
                         @if (auth()->user()->hasRole('guru', 'kabid_ptk', 'kepala_sekolah'))
-                            <a href="{{ route('guru.edit', $g) }}" class="btn btn-sm btn-warning">Ubah</a>
+                            <a href="{{ route('guru.edit', $g) }}" class="btn btn-sm btn-warning gap-1"><x-ikon nama="pensil" class="h-4 w-4" /> Ubah</a>
                         @endif
                         @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah'))
                             <x-hapus :aksi="route('guru.destroy', $g)" tanya="Hapus data {{ $g->nama }}?" />

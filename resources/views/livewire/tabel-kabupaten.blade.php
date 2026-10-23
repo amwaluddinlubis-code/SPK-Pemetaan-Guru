@@ -26,7 +26,7 @@
 
     <x-kartu class="overflow-hidden">
         <div class="card-body p-0 overflow-x-auto min-w-0">
-            <table class="table table-zebra">
+            <table class="table table-zebra tabel-baku">
                 <thead>
                     <tr>
                         <th><button wire:click="urutkan('kode')" class="link py-1">Kode {{ $sort === 'kode' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>

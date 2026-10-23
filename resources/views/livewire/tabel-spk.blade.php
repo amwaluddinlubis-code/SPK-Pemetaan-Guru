@@ -12,7 +12,7 @@
             <form method="POST" action="{{ route('spk.generate') }}"
                   onsubmit="return confirm('Jalankan SPK untuk semua guru yang jaraknya melebihi {{ \App\Http\Controllers\SpkController::AMBANG_KM }} km?')">
                 @csrf
-                <button type="submit" class="btn btn-primary">⚙️ Generate SPK</button>
+                <button type="submit" class="btn btn-primary"><x-ikon nama="spk" class="h-5 w-5" /> Generate SPK</button>
             </form>
         @endif
     </x-slot:aksi>
@@ -20,13 +20,15 @@
 
 <div class="card bg-base-100 shadow mb-4">
     <div class="card-body py-3 text-sm">
-        <strong>🧮 Metode peringkat — Greedy + SAW–TOPSIS.</strong>
+      <p class="leading-relaxed">
+        <strong><x-ikon nama="simulasi" class="h-5 w-5 inline align-[-3px]" /> Metode peringkat — Greedy + SAW–TOPSIS.</strong>
         Greedy menyaring kelayakan (jarak &gt; {{ \App\Http\Controllers\SpkController::AMBANG_KM }} km, tujuan lebih dekat,
         formasi tersedia, guru asal sekolah 3T dilindungi) dan mengalokasikan formasi tanpa over-booking.
         Alternatif yang lolos lalu dinilai SAW dan TOPSIS dengan kriteria:
         penghematan jarak <strong>40%</strong>, jarak tujuan <strong>25%</strong>, sisa formasi <strong>25%</strong>,
         prioritas daerah tujuan <strong>10%</strong>. Skor akhir = rata-rata SAW dan TOPSIS (0–100);
         rincian kriteria tersimpan pada setiap rekomendasi dan tercantum di telaahan staf.
+      </p>
     </div>
 </div>
 
@@ -54,7 +56,7 @@
     </div>
 
     <x-kartu class="overflow-x-auto">
-        <table class="table table-zebra">
+        <table class="table table-zebra tabel-baku">
             <thead>
                 <tr>
                     <th>Guru</th>
@@ -88,7 +90,7 @@
                                 @php $jj = $jarakJalan[$s->id] ?? null; @endphp
                                 @if ($jj && $jj['sumber'] === 'jalan')
                                     Jarak usulan: <strong>{{ number_format($jj['jarak_km'], 1, ',', '.') }} km</strong>
-                                    <span class="badge badge-info badge-xs" title="Jarak tempuh jalan via routing{{ $jj['cached'] ? ' (cache)' : '' }}{{ $jj['waktu_menit'] ? ' · ±'.$jj['waktu_menit'].' mnt' : '' }}">🚗 jalan</span>
+                                    <span class="badge badge-info badge-xs" title="Jarak tempuh jalan via routing{{ $jj['cached'] ? ' (cache)' : '' }}{{ $jj['waktu_menit'] ? ' · ±'.$jj['waktu_menit'].' mnt' : '' }}">jalan</span>
                                     <br><span class="opacity-60">{{ number_format($s->jarak_km, 1, ',', '.') }} km garis lurus</span>
                                 @else
                                     Jarak usulan: {{ number_format($s->jarak_km, 1, ',', '.') }} km (garis lurus)
@@ -105,7 +107,7 @@
                             <div class="text-xs opacity-50">(garis lurus)</div>
                             @if ($s->sudahDinilai())
                                 <div class="mt-2 rounded bg-base-200 px-2 py-1">
-                                    <div class="text-xs">🏅 Skor hibrida <strong>{{ number_format($s->skorPersen(), 1, ',', '.') }}/100</strong></div>
+                                    <div class="text-xs">Skor hibrida <strong>{{ number_format($s->skorPersen(), 1, ',', '.') }}/100</strong></div>
                                     <div class="text-xs opacity-70">
                                         SAW {{ number_format($s->skor_saw * 100, 1, ',', '.') }} · TOPSIS {{ number_format($s->skor_topsis * 100, 1, ',', '.') }}
                                     </div>
@@ -122,41 +124,41 @@
                                 $sisa = $sisaKuota[$kunciKuota] ?? 0;
                             @endphp
                             <ul class="text-xs space-y-1 list-none p-0 m-0">
-                                <li>✅ Mapel <strong>{{ $s->mapelTujuan() }}</strong> dibutuhkan sekolah tujuan</li>
+                                <li><x-ikon nama="centang" class="h-3.5 w-3.5 inline text-success align-[-2px]" /> Mapel <strong>{{ $s->mapelTujuan() }}</strong> dibutuhkan sekolah tujuan</li>
                                 @if ($s->tingkatLinieritas() === 2)
-                                    <li>🔀 Mengisi formasi <strong>{{ $s->mapelTujuan() }}</strong> lewat linier kelompok
+                                    <li><x-ikon nama="swap" class="h-3.5 w-3.5 inline align-[-2px]" /> Mengisi formasi <strong>{{ $s->mapelTujuan() }}</strong> lewat linier kelompok
                                         (mapel guru: {{ $s->guru->mapel }}{{ $s->guru->bidang_studi_serdik ? '; serdik '.$s->guru->bidang_studi_serdik : '' }})</li>
                                 @endif
                                 @if (isset($perkiraanBeban[$s->id]))
                                     @php $pb = $perkiraanBeban[$s->id]; @endphp
                                     <li>
                                         @if ($pb['cukup'])
-                                            ✅ Perkiraan beban di tujuan ±{{ number_format($pb['jp'], 1, ',', '.') }} JP/minggu (mencukupi)
+                                            <x-ikon nama="centang" class="h-3.5 w-3.5 inline text-success align-[-2px]" /> Perkiraan beban di tujuan ±{{ number_format($pb['jp'], 1, ',', '.') }} JP/minggu (mencukupi)
                                         @else
-                                            ⚠️ Perkiraan beban di tujuan hanya ±{{ number_format($pb['jp'], 1, ',', '.') }} JP/minggu
+                                            <x-ikon nama="peringatan" class="h-3.5 w-3.5 inline text-warning align-[-2px]" /> Perkiraan beban di tujuan hanya ±{{ number_format($pb['jp'], 1, ',', '.') }} JP/minggu
                                             (&lt; 24) — beban kerja penuh terancam, tunjangan profesi berisiko
                                         @endif
                                     </li>
                                 @endif
                                 @if ($s->tujuanDaerahKhusus())
-                                    <li>ℹ️ Tujuan daerah khusus ({{ str_replace('_', ' ', $s->sekolahTujuan->kategori_daerah) }}) —
+                                    <li><x-ikon nama="info" class="h-3.5 w-3.5 inline text-info align-[-2px]" /> Tujuan daerah khusus ({{ str_replace('_', ' ', $s->sekolahTujuan->kategori_daerah) }}) —
                                         penempatan ini berhak <strong>Tunjangan Khusus</strong> 1× gaji pokok/bulan</li>
                                 @endif
                                 <li>
                                     @if ($sisa > 0)
-                                        ✅ Sisa formasi: <strong>{{ $sisa }}</strong>
+                                        <x-ikon nama="centang" class="h-3.5 w-3.5 inline text-success align-[-2px]" /> Sisa formasi: <strong>{{ $sisa }}</strong>
                                     @else
-                                        ⚠️ Sisa formasi: <strong>0</strong> (penuh)
+                                        <x-ikon nama="peringatan" class="h-3.5 w-3.5 inline text-warning align-[-2px]" /> Sisa formasi: <strong>0</strong> (penuh)
                                     @endif
                                 </li>
                                 <li>
-                                    ✅ Menghemat {{ number_format($s->hematKm(), 1, ',', '.') }} km
+                                    <x-ikon nama="centang" class="h-3.5 w-3.5 inline text-success align-[-2px]" /> Menghemat {{ number_format($s->hematKm(), 1, ',', '.') }} km
                                     ({{ number_format($s->jarak_sekarang_km, 1, ',', '.') }} → {{ number_format($s->jarak_km, 1, ',', '.') }} km),
                                     di atas ambang {{ $ambangKm }} km
                                 </li>
                                 <li>
                                     @if ($s->guru->berkeluarga())
-                                        👨‍👩‍👧 {{ $s->guru->labelStatusPernikahan() }} — prioritas keluarga
+                                        {{ $s->guru->labelStatusPernikahan() }} — prioritas keluarga
                                     @else
                                         {{ $s->guru->labelStatusPernikahan() }}
                                     @endif
@@ -171,7 +173,7 @@
                                     @endif
                                 </li>
                                 @if (! empty($dampakAsal[$s->id]))
-                                    <li class="text-warning">⚠️ {{ $dampakAsal[$s->id] }}</li>
+                                    <li class="text-warning"><x-ikon nama="peringatan" class="h-3.5 w-3.5 inline text-warning align-[-2px]" /> {{ $dampakAsal[$s->id] }}</li>
                                 @endif
                             </ul>
                         </td>
@@ -191,14 +193,14 @@
                         <td class="whitespace-nowrap">
                             @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
                                 <a href="{{ route('spk.telaahan', $s) }}" target="_blank"
-                                   class="btn btn-info btn-sm" title="Cetak telaahan staf untuk PPK">📄 Telaahan</a>
+                                   class="btn btn-info btn-sm gap-1" title="Cetak telaahan staf untuk PPK"><x-ikon nama="usulan" class="h-4 w-4" /> Telaahan</a>
                             @endif
                             @if ($s->status === 'rekomendasi')
                                 @if (auth()->user()->hasRole('kadis'))
                                     <form method="POST" action="{{ route('spk.setujui', $s) }}" class="inline"
                                           onsubmit="return confirm('Setujui penempatan ini? Guru akan langsung dimutasi.')">
                                         @csrf
-                                        <button type="submit" class="btn btn-success btn-sm">Setujui</button>
+                                        <button type="submit" class="btn btn-success btn-sm gap-1"><x-ikon nama="centang" class="h-4 w-4" /> Setujui</button>
                                     </form>
                                 @endif
                                 @if (auth()->user()->hasRole('kabid_ptk') || auth()->user()->hasRole('kadis'))
@@ -206,7 +208,7 @@
                                           onsubmit="const a = prompt('Alasan penolakan (wajib diisi):'); if (!a || !a.trim()) { alert('Alasan penolakan wajib diisi.'); return false; } this.querySelector('[name=catatan_admin]').value = a.trim(); return true;">
                                         @csrf
                                         <input type="hidden" name="catatan_admin" value="">
-                                        <button type="submit" class="btn btn-error btn-sm">Tolak</button>
+                                        <button type="submit" class="btn btn-error btn-sm gap-1"><x-ikon nama="silang" class="h-4 w-4" /> Tolak</button>
                                     </form>
                                 @endif
                             @else
@@ -215,14 +217,8 @@
                         </td>
                     </tr>
                 @empty
-                    <tr>
-                        <td colspan="6" class="text-center py-8 opacity-60">
-                            Belum ada rekomendasi SPK.
-                            @if (auth()->user()->hasRole('kabid_ptk'))
-                                Klik <strong>Generate SPK</strong> untuk mencari penempatan.
-                            @endif
-                        </td>
-                    </tr>
+                    @php $pesanKosongSpk = 'Belum ada rekomendasi SPK.'.(auth()->user()->hasRole('kabid_ptk') ? ' Klik Generate SPK untuk mencari penempatan.' : ''); @endphp
+                    <x-kosong :pesan="$pesanKosongSpk" kolom="6" />
                 @endforelse
             </tbody>
         </table>

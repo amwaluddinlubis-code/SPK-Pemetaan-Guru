@@ -11,7 +11,7 @@
             <form method="POST" action="{{ route('swap.generate') }}"
                   onsubmit="return confirm('Jalankan pencocokan pasangan swap untuk semua guru?')">
                 @csrf
-                <button type="submit" class="btn btn-primary">⚙️ Generate Rekomendasi</button>
+                <button type="submit" class="btn btn-primary"><x-ikon nama="swap" class="h-5 w-5" /> Generate Rekomendasi</button>
             </form>
         @endif
     </x-slot:aksi>
@@ -41,7 +41,7 @@
     </div>
 
     <x-kartu class="overflow-x-auto">
-        <table class="table table-zebra">
+        <table class="table table-zebra tabel-baku">
             <thead>
                 <tr>
                     <th>Guru A</th>

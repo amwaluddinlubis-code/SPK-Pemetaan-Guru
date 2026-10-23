@@ -43,6 +43,31 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
+/* Tabel data baku (Redesign R3): kepala kolom tenang & terbaca,
+   baris sejajar tengah, sorot hover halus, angka rata kanan tabular.
+   Terapkan bersama kelas daisyUI: class="table table-zebra tabel-baku" */
+.tabel-baku thead th {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    color: color-mix(in oklab, var(--color-base-content) 62%, transparent);
+}
+.tabel-baku tbody td {
+    vertical-align: middle;
+}
+.tabel-baku tbody tr {
+    transition: background-color 0.15s ease;
+}
+.tabel-baku tbody tr:hover {
+    background-color: color-mix(in oklab, var(--color-base-content) 4%, transparent);
+}
+.tabel-baku th.angka,
+.tabel-baku td.angka {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
 /* Menu bilah sisi (Redesign R1): status aktif jelas di atas warna aksen,
    label grup tenang — hierarki terbaca tanpa berteriak */
 .menu-kerangka li > a:hover {

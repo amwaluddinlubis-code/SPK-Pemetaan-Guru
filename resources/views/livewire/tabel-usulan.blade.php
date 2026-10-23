@@ -3,11 +3,11 @@
 <x-halaman judul="Usulan Penempatan" ikon="usulan">
     <x-slot:aksi>
         @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
-            <a href="{{ route('usulan.export', request()->only(['q', 'status'])) }}" class="btn btn-accent">📊 Export Excel</a>
-            <a href="{{ route('usulan.cetak', request()->only(['q', 'status'])) }}" target="_blank" class="btn btn-neutral">🖨️ Cetak/PDF</a>
+            <a href="{{ route('usulan.export', request()->only(['q', 'status'])) }}" class="btn btn-accent"><x-ikon nama="unduh" class="h-5 w-5" /> Export Excel</a>
+            <a href="{{ route('usulan.cetak', request()->only(['q', 'status'])) }}" target="_blank" class="btn btn-neutral"><x-ikon nama="cetak" class="h-5 w-5" /> Cetak/PDF</a>
         @endif
         @if (auth()->user()->hasRole('guru', 'kepala_sekolah', 'kabid_ptk'))
-            <a href="{{ route('usulan.create') }}" class="btn btn-primary">+ Ajukan Usulan</a>
+            <a href="{{ route('usulan.create') }}" class="btn btn-primary"><x-ikon nama="tambah" class="h-5 w-5" /> Ajukan Usulan</a>
         @endif
     </x-slot:aksi>
 </x-halaman>
@@ -37,7 +37,7 @@
 
     <x-kartu class="overflow-hidden">
         <div class="card-body p-0 overflow-x-auto min-w-0">
-            <table class="table table-zebra">
+            <table class="table table-zebra tabel-baku">
                 <thead>
                     <tr>
                         <th>Guru</th>
@@ -61,7 +61,7 @@
                             <td><span class="badge {{ $u->badgeStatus() }}">{{ $u->labelStatus() }}</span></td>
                             <td class="text-sm">{{ $u->pengaju->name ?? '—' }}</td>
                             <td class="text-right">
-                                <a href="{{ route('usulan.show', $u) }}" class="btn btn-sm btn-info">Lihat</a>
+                                <a href="{{ route('usulan.show', $u) }}" class="btn btn-sm btn-info gap-1"><x-ikon nama="mata" class="h-4 w-4" /> Lihat</a>
                             </td>
                         </tr>
                     @empty

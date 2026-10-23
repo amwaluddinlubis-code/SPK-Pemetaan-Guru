@@ -176,3 +176,15 @@
     Terkait: jarak guru yang domisilinya belum terpetakan adalah
     TIDAK DIKETAHUI (null) — `Guru::jarakKeSekolahSaatIni()` mengembalikan
     null, tidak pernah dihitung dari titik (0,0).
+27. **Tabel data baku (Redesign R3).** Semua tabel data memakai kelas
+    `tabel-baku` (kepala kolom kapital redup, baris sejajar tengah, hover
+    halus) di samping kelas daisyUI. Lencana status memakai komponen
+    `x-lencana-status` dengan peta warna tetap (sukses= tuntas/
+    terverifikasi, peringatan= menunggu/perhatian, bahaya= ditolak/
+    tidak linear, info= proses, gelap= status kepegawaian, netral=
+    lainnya) dan tidak pernah membungkus teks (whitespace-nowrap).
+    Tombol aksi selalu ikon SVG + label (pensil= Ubah, sampah= Hapus,
+    mata= Lihat, centang= Setujui, silang= Tolak); emoji dilarang pada
+    tabel & tombol halamannya. Keadaan kosong memakai `x-kosong`
+    (ikon + pesan). Angka pada kolom numerik rata kanan & tabular
+    (kelas `angka`).

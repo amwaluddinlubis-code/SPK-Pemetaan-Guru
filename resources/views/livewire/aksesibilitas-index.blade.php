@@ -21,7 +21,7 @@
 </div>
 
 <div class="card bg-base-100 shadow overflow-x-auto">
-    <table class="table table-zebra table-sm">
+    <table class="table table-zebra table-sm tabel-baku">
         <thead>
             <tr><th>Kecamatan</th><th>Kategori Daerah</th><th class="text-right">Guru</th><th class="text-right">Rata-rata (km)</th><th class="text-right">Maks (km)</th><th class="text-right">&gt; 15 km</th></tr>
         </thead>

@@ -39,7 +39,7 @@
 
     <x-kartu class="overflow-hidden">
         <div class="card-body p-0 overflow-x-auto min-w-0">
-            <table class="table table-zebra table-sm">
+            <table class="table table-zebra table-sm tabel-baku">
                 <thead>
                     <tr>
                         <th><button wire:click="urutkan('kecamatan')" class="link py-1">Kecamatan {{ $sort === 'kecamatan' ? ($arah === 'asc' ? '▲' : '▼') : '' }}</button></th>
@@ -56,11 +56,11 @@
                         <tr>
                             <td>{{ $d['kecamatan'] ?: '—' }}</td>
                             <td>{{ $d['mapel'] }}</td>
-                            <td class="text-right">{{ $d['tersedia'] }}</td>
-                            <td class="text-right">{{ $d['kebutuhan'] }}</td>
+                            <td class="text-right angka">{{ $d['tersedia'] }}</td>
+                            <td class="text-right angka">{{ $d['kebutuhan'] }}</td>
                             <td class="text-right {{ $d['defisit'] > 0 ? 'text-error font-bold' : '' }}">{{ $d['defisit'] }}</td>
                             <td class="text-right {{ $d['surplus'] > 0 ? 'text-success font-bold' : '' }}">{{ $d['surplus'] }}</td>
-                            <td class="text-right">{{ $d['dalam_proses'] }}</td>
+                            <td class="text-right angka">{{ $d['dalam_proses'] }}</td>
                         </tr>
                     @empty
                         <x-kosong pesan="Tidak ada data untuk filter ini." kolom="7" />
