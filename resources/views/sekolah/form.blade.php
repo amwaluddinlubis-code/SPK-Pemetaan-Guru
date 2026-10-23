@@ -61,7 +61,8 @@
                             },
                          }"
                          x-init="muatDesa(@js(old('kecamatan', $sekolah->kecamatan)))"
-                         x-on:searchable-select-change="if ($event.detail.name === 'kecamatan') muatDesa($event.detail.value)">
+                         x-on:searchable-select-change="if ($event.detail.name === 'kecamatan') { muatDesa($event.detail.value); petaTerbangKeWilayah('peta-sekolah', { kecamatan: petaKodeKecamatan[($event.detail.value || '').toUpperCase().trim()] ?? '' }, 12); }"
+                         x-on:desa-terpilih="petaTerbangKeDesa('peta-sekolah', $event.detail)">
                     <fieldset class="fieldset w-full sm:col-span-2">
                         <label class="fieldset-legend font-semibold" for="f-kecamatan">Kecamatan</label>
                         @php

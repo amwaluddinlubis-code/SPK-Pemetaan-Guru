@@ -18,7 +18,12 @@ class WilayahDesa extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['kode', 'kecamatan_kode', 'nama'];
+    protected $fillable = ['kode', 'kecamatan_kode', 'nama', 'lat', 'lng'];
+
+    protected $casts = [
+        'lat' => 'float',
+        'lng' => 'float',
+    ];
 
     public function kecamatan()
     {

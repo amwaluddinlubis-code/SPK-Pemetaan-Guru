@@ -18,7 +18,12 @@ class WilayahKecamatan extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['kode', 'kabupaten_kode', 'nama'];
+    protected $fillable = ['kode', 'kabupaten_kode', 'nama', 'lat', 'lng'];
+
+    protected $casts = [
+        'lat' => 'float',
+        'lng' => 'float',
+    ];
 
     public function kabupaten()
     {

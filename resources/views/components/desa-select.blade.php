@@ -30,7 +30,7 @@
         <template x-for="d in (opsiDesa ?? []).filter(d => nilai.trim() === '' || d.nama.toLowerCase().includes(nilai.trim().toLowerCase())).slice(0, 100)" :key="d.kode">
             <li>
                 <button type="button" class="block w-full px-3 py-2 text-left hover:bg-base-200"
-                        x-on:click="nilai = d.nama; open = false"
+                        x-on:click="nilai = d.nama; open = false; $dispatch('desa-terpilih', { kode: d.kode, nama: d.nama, lat: d.lat ?? null, lng: d.lng ?? null })"
                         x-text="d.nama"></button>
             </li>
         </template>

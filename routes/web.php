@@ -94,6 +94,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/wilayah/api/kabupaten', [WilayahController::class, 'apiKabupaten'])->name('wilayah.api.kabupaten');
     Route::get('/wilayah/api/kecamatan', [WilayahController::class, 'apiKecamatan'])->name('wilayah.api.kecamatan');
     Route::get('/wilayah/api/desa', [WilayahController::class, 'apiDesa'])->name('wilayah.api.desa');
+    Route::get('/wilayah/api/koordinat', [WilayahController::class, 'apiKoordinat'])->name('wilayah.api.koordinat');
 
     Route::get('/guru', TabelGuru::class)->name('guru.index');
     // Tambah: kabid_ptk, kepala_sekolah (guru baru masuk sekolahnya)

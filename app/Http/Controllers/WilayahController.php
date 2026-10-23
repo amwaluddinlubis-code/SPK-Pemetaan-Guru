@@ -10,6 +10,7 @@ use App\Models\WilayahDesa;
 use App\Models\WilayahKabupaten;
 use App\Models\WilayahKecamatan;
 use App\Models\WilayahProvinsi;
+use App\Services\KoordinatWilayah;
 use Illuminate\Http\Request;
 
 class WilayahController extends Controller
@@ -68,7 +69,29 @@ class WilayahController extends Controller
 
         return response()->json(
             WilayahDesa::where('kecamatan_kode', $kecamatan)
-                ->orderBy('nama')->get(['kode', 'nama'])
+                ->orderBy('nama')->get(['kode', 'nama', 'lat', 'lng'])
         );
+    }
+
+    /**
+     * Koordinat titik tengah wilayah untuk peta formulir:
+     * ?kecamatan={kode}&desa={kode} → {kecamatan: {...}|null, desa: {...}|null}.
+     * Sumber berurutan: kolom wilayah → centroid sekolah → centroid guru.
+     */
+    public function apiKoordinat(Request $request, KoordinatWilayah $layanan)
+    {
+        $hasil = ['kecamatan' => null, 'desa' => null];
+
+        $kecamatan = WilayahKecamatan::find(trim($request->get('kecamatan', '')));
+        if ($kecamatan !== null) {
+            $hasil['kecamatan'] = $layanan->untukKecamatan($kecamatan);
+        }
+
+        $desa = WilayahDesa::find(trim($request->get('desa', '')));
+        if ($desa !== null) {
+            $hasil['desa'] = $layanan->untukDesa($desa);
+        }
+
+        return response()->json($hasil);
     }
 }

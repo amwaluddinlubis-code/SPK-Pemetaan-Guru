@@ -189,7 +189,8 @@
                             },
                          }"
                          x-init="muatDesa(@js(old('kecamatan', $guru->kecamatan)))"
-                         x-on:searchable-select-change="if ($event.detail.name === 'kecamatan') muatDesa($event.detail.value)">
+                         x-on:searchable-select-change="if ($event.detail.name === 'kecamatan') { muatDesa($event.detail.value); petaTerbangKeWilayah('peta-domisili', { kecamatan: petaKodeKecamatan[($event.detail.value || '').toUpperCase().trim()] ?? '' }, 12); }"
+                         x-on:desa-terpilih="petaTerbangKeDesa('peta-domisili', $event.detail)">
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-kecamatan">Kecamatan Domisili</label>
                             @php
@@ -234,6 +235,7 @@
                             'idPeta' => 'peta-domisili',
                             'inputLat' => 'domisili_lat',
                             'inputLng' => 'domisili_lng',
+                            'gps' => true,
                             'lat' => (float) (old('domisili_lat', $guru->domisili_lat) ?: 0.79),
                             'lng' => (float) (old('domisili_lng', $guru->domisili_lng) ?: 99.41),
                         ])
