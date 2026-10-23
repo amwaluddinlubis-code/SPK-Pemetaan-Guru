@@ -15,6 +15,12 @@
             <a href="{{ route('sekolah.export', request()->only(['q', 'kecamatan'])) }}" class="btn btn-accent">📊 Export Excel</a>
             <a href="{{ route('sekolah.cetak', request()->only(['q', 'kecamatan'])) }}" target="_blank" class="btn btn-neutral">🖨️ Cetak/PDF</a>
             @if (auth()->user()->hasRole('kabid_ptk'))
+                <form method="POST" action="{{ route('sekolah.verifikasi-massal') }}" class="inline-flex"
+                      onsubmit="return confirm('Tandai SEMUA sekolah berkoordinat yang belum terverifikasi sebagai TERVERIFIKASI? Hanya lakukan setelah titik-titik koordinat dikonfirmasi. Sekolah yang belum terverifikasi tidak dapat menjadi tujuan rekomendasi SPK.')">
+                    @csrf
+                    <input type="hidden" name="koordinat_sumber" value="konfirmasi_massal">
+                    <button type="submit" class="btn btn-secondary">✅ Verifikasi Koordinat Massal</button>
+                </form>
                 <a href="{{ route('sekolah.create') }}" class="btn btn-primary">+ Tambah Sekolah</a>
             @endif
         @endif
@@ -82,7 +88,14 @@
                         <tr>
                             <td>
                                 <strong>{{ $s->nama }}</strong><br>
-                                <span class="text-sm opacity-60">NPSN: {{ $s->npsn }}</span>
+                                <span class="text-sm opacity-60">NPSN: {{ $s->npsn }}</span><br>
+                                @if ($s->lat === null || $s->lng === null)
+                                    <span class="badge badge-ghost badge-sm">📍 Tanpa koordinat</span>
+                                @elseif ($s->koordinatTerverifikasi())
+                                    <span class="badge badge-success badge-sm" title="Diverifikasi {{ $s->koordinat_terverifikasi_pada?->format('d/m/Y') }} oleh {{ $s->verifikatorKoordinat?->name ?? 'petugas' }}">📍 Terverifikasi</span>
+                                @else
+                                    <span class="badge badge-warning badge-sm" title="Koordinat estimasi — sekolah ini belum dapat menjadi tujuan rekomendasi SPK">📍 Belum terverifikasi</span>
+                                @endif
                             </td>
                             <td class="text-sm">{{ $s->alamat }}</td>
                             <td class="text-sm">{{ $s->kecamatan ?? '—' }}</td>

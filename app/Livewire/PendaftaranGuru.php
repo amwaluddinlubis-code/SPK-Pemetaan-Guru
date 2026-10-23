@@ -67,9 +67,10 @@ class PendaftaranGuru extends Component
                     : 'Data guru dibuat; akun menyusul setelah operator melengkapi NIP.',
             ]);
 
+            // Jejak audit tidak menyimpan nilai NIP — cukup nama & guru_id.
             ActivityLog::catat('pendaftaran.disetujui', $pendaftaran, 'sukses', [
                 'nama' => $pendaftaran->nama,
-                'nip' => $pendaftaran->nip,
+                'guru_id' => $guru->id,
             ]);
         });
 

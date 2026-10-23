@@ -289,8 +289,12 @@ class SpkController extends Controller
                 [$guru->domisili_lat, $guru->domisili_lng, $guru->domisili_lat]
             )
             ->join('kebutuhan_guru', 'kebutuhan_guru.sekolah_id', '=', 'sekolah.id')
-            // Pengaturan dinas: mode bawaan melarang rekomendasi lintas
-            // jenjang (guru hanya ke sekolah sejenjangnya).
+            // Hanya sekolah berkoordinat TERVERIFIKASI yang boleh menjadi
+            // tujuan rekomendasi — titik estimasi tidak diperlakukan
+            // sebagai dasar penempatan.
+            ->koordinatTerverifikasi()
+            // Pengaturan dinas: bila mode 'larang' aktif, rekomendasi
+            // hanya ke sekolah sejenjang dengan guru.
             ->when(! PengaturanSpk::bolehLintasJenjang(),
                 fn ($q) => $q->where('sekolah.jenjang', $guru->jenjang))
             ->whereIn('kebutuhan_guru.mapel', $daftarMapel)
@@ -304,12 +308,10 @@ class SpkController extends Controller
     }
 
     /**
-     * Hitung sisa kebutuhan per (sekolah, mapel) dari data terkini DI DALAM
-     * transaksi: kunci baris kebutuhan yang relevan (urutan id konsisten),
-     * lalu kurangi dengan alokasi aktif (rekomendasi berstatus 'rekomendasi').
-     *
-     * WAJIB dipanggil di dalam DB::transaction — di luar itu penguncian
-     * tidak berlaku dan hasil bisa basi.
+     * Sisa formasi per (sekolah, mapel) DI DALAM transaksi generate.
+     * Perhitungan resmi terpusat di KebutuhanGuru::sisaDenganAlokasi():
+     * target − guru yang sudah bertugas − reservasi aktif (rekomendasi
+     * SPK + usulan), dengan baris kebutuhan dikunci (kunci: true).
      */
     private function sisaKebutuhanTerkunci($gurus): array
     {
@@ -325,30 +327,11 @@ class SpkController extends Controller
                 }
             }
         }
-        $mapelKandidat = $mapelKandidat->unique()->values();
 
-        $sisa = [];
-        $terkunci = KebutuhanGuru::whereIn('mapel', $mapelKandidat)
-            ->orderBy('id')
-            ->lockForUpdate()
-            ->get();
-        foreach ($terkunci as $k) {
-            $sisa[$k->sekolah_id.'|'.strtolower(trim($k->mapel))] = (int) $k->jumlah;
-        }
-
-        // Alokasi aktif mengurangi formasi yang benar-benar diisi
-        // (mapel_tujuan; rekomendasi lama memakai mapel guru).
-        $alokasi = HasilSpk::where('status', 'rekomendasi')
-            ->join('guru', 'guru.id', '=', 'hasil_spks.guru_id')
-            ->selectRaw('hasil_spks.sekolah_tujuan_id, COALESCE(hasil_spks.mapel_tujuan, guru.mapel) as mapel, COUNT(*) as jml')
-            ->groupBy('hasil_spks.sekolah_tujuan_id', DB::raw('COALESCE(hasil_spks.mapel_tujuan, guru.mapel)'))
-            ->get();
-        foreach ($alokasi as $a) {
-            $kunci = $a->sekolah_tujuan_id.'|'.strtolower(trim($a->mapel));
-            $sisa[$kunci] = ($sisa[$kunci] ?? 0) - (int) $a->jml;
-        }
-
-        return $sisa;
+        return KebutuhanGuru::sisaDenganAlokasi(
+            $mapelKandidat->unique()->values()->all(),
+            kunci: true,
+        );
     }
 
     // Setujui penempatan (kadis): mutasi guru + tolak rekomendasi lain utk guru tsb
@@ -358,7 +341,8 @@ class SpkController extends Controller
     //     disetujui dua kali oleh dua pejabat bersamaan.
     //   - Status, sekolah asal guru, dan sisa formasi divalidasi ULANG
     //     di dalam transaction (data bisa berubah sejak rekomendasi dibuat).
-    //   - Sisa kebutuhan formasi dikurangi saat penempatan disetujui.
+    //   - Target kebutuhan tidak diubah; mutasi guru ke tujuan yang
+    //     mengurangi sisa formasi pada perhitungan berikutnya.
     public function setujui(Request $request, HasilSpk $spk)
     {
         try {
@@ -383,14 +367,19 @@ class SpkController extends Controller
                 // penempatan tingkat 2 berbeda dari mapel guru saat ini).
                 $mapelIsi = $spk->mapel_tujuan ?: (string) $guru->mapel;
 
-                // Validasi ulang: sisa formasi masih tersedia
-                $sisa = KebutuhanGuru::where('sekolah_id', $tujuan->id)
-                    ->where('mapel', $mapelIsi)
-                    ->lockForUpdate()
-                    ->value('jumlah') ?? 0;
-                if ($sisa < 1) {
+                // Validasi ulang: formasi masih tersedia — perhitungan
+                // resmi KebutuhanGuru::sisaDenganAlokasi() (target −
+                // guru bertugas − reservasi SPK lain & usulan aktif),
+                // dihitung di dalam transaksi dengan baris kebutuhan
+                // terkunci; reservasi rekomendasi ini sendiri dikecualikan.
+                $sisa = KebutuhanGuru::sisaDenganAlokasi(
+                    [$mapelIsi],
+                    kecualikanSpkId: $spk->id,
+                    kunci: true,
+                );
+                if (($sisa[$tujuan->id.'|'.strtolower(trim($mapelIsi))] ?? 0) < 1) {
                     throw new \RuntimeException(
-                        'Gagal: formasi di sekolah tujuan sudah terisi penuh.'
+                        'Gagal: formasi di sekolah tujuan sudah terisi penuh atau tereservasi proses penempatan lain.'
                     );
                 }
 
@@ -409,8 +398,9 @@ class SpkController extends Controller
                 }
                 $guru->update($mutasi);
 
-                // Catat berkurangnya kebutuhan formasi
-                KebutuhanGuru::kurangi($tujuan->id, $mapelIsi);
+                // Target kebutuhan TIDAK diubah: guru kini tercatat
+                // bertugas di tujuan, sehingga sisa formasi terhitung
+                // berkurang lewat KebutuhanGuru::sisaDenganAlokasi().
 
                 $spk->update([
                     'status' => 'disetujui',

@@ -73,7 +73,7 @@ class TabelSekolah extends Component
     public function render()
     {
         $user = auth()->user();
-        $query = Sekolah::with('kebutuhan');
+        $query = Sekolah::with('kebutuhan', 'verifikatorKoordinat');
 
         if ($user->role === 'kepala_sekolah') {
             $query->where('id', $user->sekolah_id);

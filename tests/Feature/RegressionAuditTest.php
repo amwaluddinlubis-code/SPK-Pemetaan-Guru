@@ -47,6 +47,8 @@ class RegressionAuditTest extends TestCase
             'kecamatan' => 'Panyabungan',
             'lat' => $lat,
             'lng' => $lng,
+            'koordinat_terverifikasi_lat' => $lat,
+            'koordinat_terverifikasi_lng' => $lng,
         ], $attr));
     }
 
@@ -147,7 +149,8 @@ class RegressionAuditTest extends TestCase
         $rec = HasilSpk::firstOrFail();
         $this->actingAs($kadis)->post("/spk/{$rec->id}/setujui");
 
-        $this->assertEquals(0, KebutuhanGuru::where('sekolah_id', $tujuan->id)->value('jumlah'));
+        $this->assertSame(0, KebutuhanGuru::sisaDenganAlokasi(['Matematika'])[$tujuan->id.'|matematika'] ?? 0,
+            'Formasi harus habis setelah persetujuan (guru bertugas di tujuan).');
 
         // Guru baru yang layak muncul, tetapi formasi sudah habis
         $this->buatGuru($this->buatSekolah(1.0, 100.35));
@@ -173,8 +176,10 @@ class RegressionAuditTest extends TestCase
         $this->actingAs($kadis)->post("/spk/{$rec->id}/setujui");
 
         $this->assertEquals('disetujui', $rec->fresh()->status);
-        $this->assertEquals(0, KebutuhanGuru::where('sekolah_id', $tujuan->id)->value('jumlah'),
-            'Formasi hanya boleh berkurang satu kali.');
+        $this->assertEquals(1, KebutuhanGuru::where('sekolah_id', $tujuan->id)->value('jumlah'),
+            'Target kebutuhan tidak berubah oleh persetujuan.');
+        $this->assertSame(0, KebutuhanGuru::sisaDenganAlokasi(['Matematika'])[$tujuan->id.'|matematika'] ?? 0,
+            'Formasi hanya boleh terisi satu kali.');
     }
 
     // ============ Swap: invariant & akses ============

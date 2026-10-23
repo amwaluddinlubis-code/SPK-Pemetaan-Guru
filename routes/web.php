@@ -156,6 +156,13 @@ Route::middleware('auth')->group(function () {
     // Terapkan analisis kebutuhan guru ke semua sekolah sekaligus: khusus kabid_ptk
     Route::post('/sekolah/analisis-massal/terapkan', [SekolahController::class, 'terapkanAnalisisMassal'])->name('sekolah.analisis.massal')
         ->middleware('role:kabid_ptk');
+    // Verifikasi koordinat sekolah: per sekolah (kabid/kadis semua dalam
+    // konteks; kepala sekolah hanya sekolahnya — ditegakkan controller)
+    // dan massal (khusus kabid_ptk).
+    Route::post('/sekolah/verifikasi-massal', [SekolahController::class, 'verifikasiMassalKoordinat'])->name('sekolah.verifikasi-massal')
+        ->middleware('role:kabid_ptk');
+    Route::post('/sekolah/{sekolah}/verifikasi-koordinat', [SekolahController::class, 'verifikasiKoordinat'])->name('sekolah.verifikasi-koordinat')
+        ->middleware('role:kabid_ptk,kadis,kepala_sekolah');
     // Tambah & hapus: kabid_ptk (administrator)
     Route::get('/sekolah/create', [SekolahController::class, 'create'])->name('sekolah.create')
         ->middleware('role:kabid_ptk');
@@ -178,6 +185,10 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:kepala_sekolah,kabid_ptk');
 
     // --- Pendaftaran Guru: antrean persetujuan operator (kabid_ptk) ---
+    // Halaman terdaftar di RegistriMenu → digerbang matriks Pengaturan
+    // Akses (aturan proyek #8: tanpa middleware role di rute halaman).
+    // Otorisasi aksi ditegakkan di dalam komponen karena endpoint
+    // pembaruan Livewire tidak melewati gerbang rute.
     Route::get('/pendaftaran', PendaftaranGuru::class)->name('pendaftaran.index');
 
     // --- Kelola Pengguna: kabid_ptk (administrator) ---

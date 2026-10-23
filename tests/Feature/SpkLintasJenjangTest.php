@@ -47,6 +47,8 @@ class SpkLintasJenjangTest extends TestCase
             'jenjang' => $jenjang,
             'lat' => 0.0,
             'lng' => $lng,
+            'koordinat_terverifikasi_lat' => 0.0,
+            'koordinat_terverifikasi_lng' => $lng,
         ]);
     }
 

@@ -52,9 +52,11 @@ class AkunGuru
             'harus_ganti_password' => true,
         ]);
 
+        // Jejak audit tidak menyimpan nilai NIP/username (username guru
+        // adalah NIP itu sendiri) — cukup nama & keterkaitan entitas.
         ActivityLog::catat('akun_guru.dibuat', $akun, 'sukses', [
-            'username' => $nip,
             'guru' => $guru->nama,
+            'guru_id' => $guru->id,
         ]);
 
         return $akun;
@@ -84,7 +86,7 @@ class AkunGuru
                 'harus_ganti_password' => true,
             ]);
             ActivityLog::catat('akun_guru.disinkronkan', $akun, 'sukses', [
-                'username' => $nip,
+                'guru_id' => $guru->id,
             ]);
         }
 

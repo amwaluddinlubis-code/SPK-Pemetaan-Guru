@@ -567,6 +567,10 @@ class SekolahController extends Controller
                 'kategori_daerah' => $data['kategori_daerah'] ?? 'biasa',
                 'lat' => $data['lat'], 'lng' => $data['lng'],
             ]);
+            // Catatan: mengubah titik koordinat otomatis membatalkan
+            // status terverifikasi (titik terverifikasi tersimpan
+            // terpisah dan tidak lagi sama) — lihat
+            // Sekolah::koordinatTerverifikasi().
             // Hapus kebutuhan lama, simpan yang baru (cara paling sederhana & aman)
             $sekolah->kebutuhan()->delete();
             $this->simpanKebutuhan($sekolah, $data['kebutuhan'] ?? []);
@@ -619,6 +623,99 @@ class SekolahController extends Controller
         if ($user->role === 'kepala_sekolah' && $sekolah->id !== $user->sekolah_id) {
             abort(403, 'Anda hanya boleh mengubah sekolah Anda sendiri.');
         }
+    }
+
+    /**
+     * Otorisasi verifikasi koordinat per peran:
+     * - Kabid PTK & Kadis: seluruh sekolah dalam konteks pemda aktif
+     *   (cakupan ditegakkan global scope KonteksPemda pada model).
+     * - Kepala Sekolah: hanya sekolahnya sendiri.
+     * - Peran lain (guru, ketua_pgri, pemda): tidak boleh.
+     */
+    private function otorisasiVerifikasiKoordinat(Sekolah $sekolah): void
+    {
+        $user = auth()->user();
+        $boleh = match ($user->role) {
+            'kabid_ptk', 'kadis' => true,
+            'kepala_sekolah' => (int) $user->sekolah_id === (int) $sekolah->id,
+            default => false,
+        };
+        abort_unless($boleh, 403, 'Anda tidak berwenang memverifikasi koordinat sekolah ini.');
+    }
+
+    /**
+     * Verifikasi koordinat satu sekolah: catat status, waktu, petugas,
+     * sumber, dan catatan. Koordinat wajib sudah terisi.
+     */
+    public function verifikasiKoordinat(Request $request, Sekolah $sekolah)
+    {
+        $this->otorisasiVerifikasiKoordinat($sekolah);
+
+        if ($sekolah->lat === null || $sekolah->lng === null) {
+            return back()->with('gagal', 'Koordinat sekolah belum diisi — isi dulu lewat Ubah Sekolah sebelum memverifikasi.');
+        }
+
+        $data = $request->validate([
+            'koordinat_sumber' => ['required', 'string', 'in:'.implode(',', array_keys(Sekolah::SUMBER_KOORDINAT))],
+            'koordinat_catatan' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        // Titik saat ini dicatat sebagai titik terverifikasi, lengkap
+        // dengan waktu, petugas, sumber, dan catatan.
+        $sekolah->update([
+            'koordinat_terverifikasi_lat' => $sekolah->lat,
+            'koordinat_terverifikasi_lng' => $sekolah->lng,
+            'koordinat_terverifikasi_pada' => now(),
+            'koordinat_terverifikasi_oleh' => auth()->id(),
+            'koordinat_sumber' => $data['koordinat_sumber'],
+            'koordinat_verifikasi_catatan' => $data['koordinat_catatan'] ?? null,
+        ]);
+
+        ActivityLog::catatAman('sekolah.koordinat_diverifikasi', $sekolah, 'sukses', [
+            'sumber' => $data['koordinat_sumber'],
+            'petugas' => auth()->user()->name,
+        ]);
+
+        return back()->with('sukses', "Koordinat {$sekolah->nama} ditandai terverifikasi.");
+    }
+
+    /**
+     * Verifikasi massal (khusus Kabid PTK): semua sekolah dalam konteks
+     * pemda yang koordinatnya terisi tetapi belum terverifikasi.
+     * Jalan pintas awal penerapan agar mesin SPK dapat bekerja setelah
+     * operator mengonfirmasi titik-titik estimasi yang ada.
+     */
+    public function verifikasiMassalKoordinat(Request $request)
+    {
+        abort_unless(auth()->user()->role === 'kabid_ptk', 403);
+
+        $data = $request->validate([
+            'koordinat_sumber' => ['required', 'string', 'in:'.implode(',', array_keys(Sekolah::SUMBER_KOORDINAT))],
+            'koordinat_catatan' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $jumlah = Sekolah::whereNotNull('lat')->whereNotNull('lng')
+            ->where(function ($q) {
+                $q->whereNull('koordinat_terverifikasi_lat')
+                    ->orWhereNull('koordinat_terverifikasi_lng')
+                    ->orWhereRaw('ABS(koordinat_terverifikasi_lat - lat) >= 0.000001')
+                    ->orWhereRaw('ABS(koordinat_terverifikasi_lng - lng) >= 0.000001');
+            })
+            ->update([
+                'koordinat_terverifikasi_lat' => DB::raw('lat'),
+                'koordinat_terverifikasi_lng' => DB::raw('lng'),
+                'koordinat_terverifikasi_pada' => now(),
+                'koordinat_terverifikasi_oleh' => auth()->id(),
+                'koordinat_sumber' => $data['koordinat_sumber'],
+                'koordinat_verifikasi_catatan' => $data['koordinat_catatan'] ?? null,
+            ]);
+
+        ActivityLog::catatAman('sekolah.koordinat_diverifikasi_massal', null, 'sukses', [
+            'jumlah_sekolah' => $jumlah,
+            'sumber' => $data['koordinat_sumber'],
+        ]);
+
+        return back()->with('sukses', "Verifikasi massal selesai: {$jumlah} sekolah ditandai terverifikasi.");
     }
 
     private function validasi(Request $request, ?int $kecualiId = null): array

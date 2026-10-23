@@ -43,6 +43,8 @@ class CakupanFiturTest extends TestCase
             'kecamatan' => 'Panyabungan',
             'lat' => $lat,
             'lng' => $lng,
+            'koordinat_terverifikasi_lat' => $lat,
+            'koordinat_terverifikasi_lng' => $lng,
         ], $attr));
     }
 

@@ -15,6 +15,7 @@ use App\Services\AkunGuru;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 class AkunGuruTest extends TestCase
@@ -212,10 +213,17 @@ class AkunGuruTest extends TestCase
             'status' => 'menunggu',
         ]);
 
-        Livewire::actingAs($guru)
-            ->test(HalamanPendaftaran::class)
-            ->call('setujui', $pendaftaran->id)
-            ->assertForbidden();
+        // Render awal komponen ditolak 403 untuk peran selain kabid_ptk,
+        // sehingga snapshot aksi tidak pernah terbit bagi mereka; aksi
+        // setujui()/tolak() pun menegakkan otorisasi yang sama di dalam
+        // komponen (otorisasiOperator).
+        try {
+            Livewire::actingAs($guru)
+                ->test(HalamanPendaftaran::class)
+                ->assertForbidden();
+        } catch (HttpException $e) {
+            $this->assertSame(403, $e->getStatusCode());
+        }
 
         $this->assertSame('menunggu', $pendaftaran->fresh()->status);
     }

@@ -146,9 +146,10 @@ class PetaRekomendasi extends Component
             'lng' => (float) $guru->domisili_lng,
         ];
 
-        // Kumpulkan kandidat: sekolah yang butuh mapel guru ini
+        // Kumpulkan kandidat: sekolah yang butuh mapel guru ini DAN
+        // koordinatnya sudah terverifikasi (selaras mesin SPK).
         $kandidat = [];
-        foreach (Sekolah::with('kebutuhan')->get() as $sekolah) {
+        foreach (Sekolah::with('kebutuhan')->koordinatTerverifikasi()->get() as $sekolah) {
             $butuh = $sekolah->butuhMapel($guru->mapel);
             if ($butuh <= 0) {
                 continue; // lewati: tidak butuh mapel ini

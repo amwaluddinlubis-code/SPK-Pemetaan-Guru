@@ -45,6 +45,8 @@ class SpkLinieritasTest extends TestCase
             'jenjang' => 'SMP',
             'lat' => 0.0,
             'lng' => $lng,
+            'koordinat_terverifikasi_lat' => 0.0,
+            'koordinat_terverifikasi_lng' => $lng,
         ], $attr));
     }
 
@@ -229,8 +231,10 @@ class SpkLinieritasTest extends TestCase
         $this->assertSame($tujuan->id, $guru->sekolah_id);
         $this->assertSame('Informatika', $guru->mapel, 'Bidang tugas guru menjadi mapel yang diisi');
         $this->assertSame('Matematika', $guru->bidang_studi_serdik, 'Bidang studi serdik tidak berubah');
-        $this->assertSame(0, (int) KebutuhanGuru::where('sekolah_id', $tujuan->id)
-            ->where('mapel', 'Informatika')->value('jumlah'));
+        $this->assertSame(1, (int) KebutuhanGuru::where('sekolah_id', $tujuan->id)
+            ->where('mapel', 'Informatika')->value('jumlah'), 'Target kebutuhan tidak berubah');
+        $this->assertSame(0, KebutuhanGuru::sisaDenganAlokasi(['Informatika'])[$tujuan->id.'|informatika'] ?? 0,
+            'Formasi Informatika terisi oleh guru yang bermutasi');
         $this->assertSame('disetujui', $spk->fresh()->status);
     }
 }

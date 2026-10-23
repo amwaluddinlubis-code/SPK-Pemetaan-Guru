@@ -112,3 +112,40 @@
     kosong (diisi bertahap; mesin SPK & analisis jarak menyaringnya)
     dan pendidikan terakhir tersimpan berformat "Jenjang - Bidang"
     (mis. "S1 - Informatika").
+21. **Keamanan antrean Pendaftaran Guru**: halaman Pendaftaran Guru
+    hanya untuk kabid_ptk — digerbang matriks Pengaturan Akses DAN
+    otorisasi di dalam komponen Livewire (`mount` + setiap aksi),
+    karena endpoint pembaruan Livewire tidak melewati gerbang rute.
+    Jejak Audit tidak pernah menyimpan nilai NIP: `ActivityLog`
+    menyensor kunci sensitif (termasuk `nip` dan `username` — username
+    guru adalah NIP-nya) dan pemanggil tidak mencantumkan NIP pada
+    perubahan yang dicatat.
+22. **Formasi & reservasi bersama lintas alur**: perhitungan formasi
+    resmi ada di `KebutuhanGuru::sisaDenganAlokasi()`. Target =
+    `kebutuhan_guru.jumlah_target` (atribut `jumlah` memetakannya;
+    diisi analisis kebutuhan sebagai kebutuhan bruto sekolah);
+    tersedia = target − guru yang sudah bertugas pada formasi itu −
+    reservasi aktif. Reservasi = rekomendasi SPK berstatus
+    `rekomendasi` + usulan berstatus aktif menuju formasi itu
+    (dihitung dari status, bukan angka tersimpan, dan satu guru hanya
+    menahan satu slot per formasi — penolakan/pembatalan otomatis
+    melepaskannya). Generate SPK, pengajuan usulan, dan KEDUA
+    persetujuan (SPK & usulan, oleh kadis) memakai perhitungan yang
+    sama dan memvalidasi ulang di dalam transaksi (baris kebutuhan
+    dikunci, reservasi item yang diproses dikecualikan). Persetujuan
+    TIDAK mengubah target: mutasi guru ke tujuanlah yang mengisi
+    formasi pada perhitungan berikutnya, sehingga angka Distribusi
+    tetap konsisten dan satu slot tidak dapat dialokasikan dua kali
+    lintas alur.
+23. **Verifikasi koordinat sekolah**: koordinat hasil seed/impor
+    berstatus **belum terverifikasi** secara bawaan dan tidak boleh
+    menjadi tujuan rekomendasi (generate SPK dan Peta Rekomendasi
+    hanya memakai sekolah terverifikasi). Verifikasi menyimpan titik
+    terverifikasi (`koordinat_terverifikasi_lat/lng`) beserta waktu,
+    petugas, sumber, dan catatan; sekolah terverifikasi selama titik
+    saat ini sama dengan titik terverifikasi — mengubah titik
+    otomatis membatalkan statusnya (harus diverifikasi ulang). Yang
+    berwenang: kabid_ptk & kadis untuk semua sekolah dalam konteks
+    pemda, kepala sekolah hanya untuk sekolahnya sendiri; guru tidak
+    dapat memvalidasi. Kabid_ptk dapat memverifikasi massal dari
+    halaman Data Sekolah. Prosedur lapangan: `docs/verifikasi-data.md`.

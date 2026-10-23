@@ -29,6 +29,7 @@ class ActivityLog extends Model
     ];
 
     // Kunci yang tidak boleh masuk ke kolom perubahan (rahasia/PII berlebih).
+    // 'username' termasuk: username akun guru adalah NIP-nya.
     public const REDACTED = [
         'password', 'password_confirmation', 'token', 'remember_token', 'username',
         'nip', 'domisili_alamat', 'domisili_lat', 'domisili_lng',

@@ -12,6 +12,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\Guru;
+use App\Models\KebutuhanGuru;
 use App\Models\Sekolah;
 use App\Models\UsulanPenempatan;
 use Illuminate\Http\Request;
@@ -158,6 +159,13 @@ class UsulanController extends Controller
                 if ($sekolah->butuhMapel($guru->mapel) <= 0) {
                     throw ValidationException::withMessages(['sekolah_id' => "Sekolah ini tidak membutuhkan guru {$guru->mapel}."]);
                 }
+                // Formasi harus benar-benar tersedia: perhitungan resmi
+                // sisaDenganAlokasi() (target − guru bertugas − reservasi
+                // semua alur).
+                $sisa = KebutuhanGuru::sisaDenganAlokasi([(string) $guru->mapel]);
+                if (($sisa[$sekolah->id.'|'.strtolower(trim((string) $guru->mapel))] ?? 0) < 1) {
+                    throw ValidationException::withMessages(['sekolah_id' => 'Formasi di sekolah ini sudah terisi penuh atau sedang tereservasi proses penempatan lain.']);
+                }
 
                 // Satu guru hanya boleh punya satu usulan aktif (dicek ulang di dalam lock)
                 if (UsulanPenempatan::where('guru_id', $guru->id)
@@ -255,12 +263,39 @@ class UsulanController extends Controller
                 $guru = Guru::whereKey($u->guru_id)->lockForUpdate()->firstOrFail();
                 $sekolah = Sekolah::findOrFail($u->sekolah_id);
 
+                // Validasi ulang formasi di dalam transaksi memakai
+                // perhitungan resmi KebutuhanGuru::sisaDenganAlokasi()
+                // (target − guru bertugas − reservasi SPK & usulan lain;
+                // baris kebutuhan dikunci, reservasi usulan ini sendiri
+                // dikecualikan). Tanpa ini, usulan dapat mengisi formasi
+                // yang sudah dijanjikan rekomendasi SPK (dan sebaliknya).
+                $mapelIsi = (string) $guru->mapel;
+                $adaKebutuhan = KebutuhanGuru::where('sekolah_id', $sekolah->id)
+                    ->where('mapel', $mapelIsi)
+                    ->exists();
+                if ($adaKebutuhan) {
+                    $sisa = KebutuhanGuru::sisaDenganAlokasi(
+                        [$mapelIsi],
+                        kecualikanUsulanId: $u->id,
+                        kunci: true,
+                    );
+                    if (($sisa[$sekolah->id.'|'.strtolower(trim($mapelIsi))] ?? 0) < 1) {
+                        throw new \RuntimeException(
+                            'Formasi di sekolah tujuan sudah terisi penuh atau tereservasi proses penempatan lain.'
+                        );
+                    }
+                }
+
                 $u->update([
                     'status' => 'disetujui', 'diproses_oleh' => auth()->id(),
                     'catatan' => $data['catatan'] ?? null,
                 ]);
 
-                // Mutasi: pindahkan guru ke sekolah tujuan (atomik dengan status)
+                // Mutasi: pindahkan guru ke sekolah tujuan (atomik dengan
+                // status). Target kebutuhan tidak diubah — guru kini
+                // tercatat bertugas di tujuan sehingga sisa formasi
+                // terhitung berkurang pada perhitungan berikutnya,
+                // sama seperti persetujuan SPK.
                 $guru->update([
                     'sekolah_id' => $sekolah->id,
                     'sekolah_saat_ini' => $sekolah->nama,

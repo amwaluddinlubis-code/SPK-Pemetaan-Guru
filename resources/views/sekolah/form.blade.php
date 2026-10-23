@@ -117,6 +117,50 @@
                     ])
                 </div>
 
+                @if ($sekolah->exists)
+                    {{-- Status verifikasi koordinat + formulir verifikasi.
+                         Otorisasi ditegakkan controller; tampilan hanya
+                         menyesuaikan peran yang berwenang. --}}
+                    @php
+                        $bolehVerifikasi = auth()->user()->hasRole('kabid_ptk', 'kadis')
+                            || (auth()->user()->hasRole('kepala_sekolah') && (int) auth()->user()->sekolah_id === (int) $sekolah->id);
+                    @endphp
+                    <div class="alert {{ $sekolah->koordinatTerverifikasi() ? 'alert-success' : 'alert-warning' }} mt-3">
+                        <div class="w-full">
+                            <p class="font-semibold">📍 {{ $sekolah->labelStatusKoordinat() }}</p>
+                            @if ($sekolah->koordinatTerverifikasi())
+                                <p class="text-sm">Diverifikasi {{ $sekolah->koordinat_terverifikasi_pada?->format('d/m/Y H:i') }}
+                                    oleh {{ $sekolah->verifikatorKoordinat?->name ?? 'petugas' }}
+                                    (sumber: {{ \App\Models\Sekolah::SUMBER_KOORDINAT[$sekolah->koordinat_sumber] ?? $sekolah->koordinat_sumber }}).
+                                    @if ($sekolah->koordinat_verifikasi_catatan) Catatan: {{ $sekolah->koordinat_verifikasi_catatan }} @endif
+                                </p>
+                                <p class="text-sm">Mengubah titik koordinat akan membatalkan status terverifikasi ini.</p>
+                            @else
+                                <p class="text-sm">Sekolah dengan koordinat belum terverifikasi tidak dapat menjadi tujuan rekomendasi SPK maupun Peta Rekomendasi.</p>
+                                @if ($bolehVerifikasi && $sekolah->lat !== null && $sekolah->lng !== null)
+                                    <form method="POST" action="{{ route('sekolah.verifikasi-koordinat', $sekolah) }}" class="mt-2 flex flex-wrap gap-2 items-end">
+                                        @csrf
+                                        <fieldset class="fieldset">
+                                            <label class="fieldset-legend" for="koordinat_sumber">Sumber verifikasi</label>
+                                            <select id="koordinat_sumber" name="koordinat_sumber" class="select" required>
+                                                @foreach (\App\Models\Sekolah::SUMBER_KOORDINAT as $kode => $label)
+                                                    @continue($kode === 'konfirmasi_massal')
+                                                    <option value="{{ $kode }}">{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                        </fieldset>
+                                        <fieldset class="fieldset flex-1 min-w-52">
+                                            <label class="fieldset-legend" for="koordinat_catatan">Catatan (opsional)</label>
+                                            <input type="text" id="koordinat_catatan" name="koordinat_catatan" class="input w-full" maxlength="255" placeholder="mis. Dicek bersama operator sekolah">
+                                        </fieldset>
+                                        <button type="submit" class="btn btn-success">✅ Tandai Terverifikasi</button>
+                                    </form>
+                                @endif
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
                 <div class="divider">Kebutuhan Guru per Mata Pelajaran</div>
 
                 {{-- Baris kebutuhan dinamis: Alpine.js untuk tambah/hapus baris --}}

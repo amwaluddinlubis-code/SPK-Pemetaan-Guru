@@ -36,6 +36,13 @@
 ## Setelah deploy
 
 - [ ] Login sebagai admin, verifikasi dashboard tampil normal
+- [ ] Migrasi verifikasi koordinat terpasang; seluruh sekolah awal
+      berstatus BELUM terverifikasi — Kabid PTK menjalankan verifikasi
+      (massal setelah konfirmasi, atau per sekolah lewat Ubah Sekolah)
+      sebelum generate SPK dipakai, karena hanya sekolah terverifikasi
+      yang dapat menjadi tujuan rekomendasi
+- [ ] Antrean Pendaftaran Guru hanya dapat dibuka Kabid PTK (peran
+      lain menerima 403) dan Jejak Audit tidak memuat nilai NIP
 - [ ] Test lupa/reset password via email
 - [ ] Monitor log 24 jam pertama (`storage/logs/laravel.log`)
 - [ ] Jadwalkan backup database berkala (harian, retensi 30 hari)

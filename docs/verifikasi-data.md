@@ -33,3 +33,27 @@ Verifikasi dulu sekolah di kecamatan dengan defisit guru tertinggi
 Operator: Dinas Pendidikan Kab. Mandailing Natal (Bidang PTK).
 Target: seluruh sekolah di database terverifikasi sebelum aplikasi dipakai
 untuk keputusan mutasi resmi.
+
+## Status verifikasi di aplikasi (per 23 Okt 2026)
+
+Prosedur lapangan di atas kini ditegakkan oleh aplikasi:
+
+- Setiap sekolah menyimpan status `koordinat_terverifikasi` beserta
+  waktu, petugas, sumber (GPS lapangan / konfirmasi sekolah / peta
+  Dapodik / citra satelit / konfirmasi massal), dan catatan.
+  Semua koordinat awal (seed/impor) berstatus **belum terverifikasi**.
+- Lencana status tampil di halaman Data Sekolah; formulir verifikasi
+  ada di halaman Ubah Sekolah.
+- Yang berwenang memverifikasi: **Kabid PTK** dan **Kadis** (semua
+  sekolah dalam konteks pemda), **Kepala Sekolah** (hanya sekolahnya
+  sendiri). Guru tidak dapat memvalidasi.
+- Kabid PTK dapat memakai tombol **Verifikasi Koordinat Massal** di
+  Data Sekolah setelah titik-titik estimasi dikonfirmasi — gunakan
+  hanya bila hasil verifikasi lapangan memang sudah menyimpulkan
+  titik yang ada dapat dipakai.
+- Mesin SPK (generate) dan Peta Rekomendasi **hanya** menjadikan
+  sekolah terverifikasi sebagai tujuan rekomendasi.
+- Mengubah titik koordinat sekolah yang sudah terverifikasi akan
+  membatalkan statusnya secara otomatis; verifikasi ulang diperlukan.
+- Setiap verifikasi (satuan maupun massal) dan pembatalan otomatis
+  tercatat di Jejak Audit.

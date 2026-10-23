@@ -43,6 +43,8 @@ class KeamananPersetujuanTest extends TestCase
             'kecamatan' => 'Panyabungan',
             'lat' => $lat,
             'lng' => $lng,
+            'koordinat_terverifikasi_lat' => $lat,
+            'koordinat_terverifikasi_lng' => $lng,
         ], $attr));
     }
 
@@ -114,8 +116,11 @@ class KeamananPersetujuanTest extends TestCase
 
         $this->assertEquals('disetujui', $rec->fresh()->status);
         $this->assertEquals($tujuan->id, $guru->fresh()->sekolah_id);
-        $this->assertEquals(0, KebutuhanGuru::where('sekolah_id', $tujuan->id)
+        // Model target: jumlah kebutuhan tidak berubah oleh persetujuan;
+        // formasi terisi lewat guru yang kini bertugas di tujuan.
+        $this->assertEquals(1, KebutuhanGuru::where('sekolah_id', $tujuan->id)
             ->where('mapel', 'Matematika')->value('jumlah'));
+        $this->assertSame(0, KebutuhanGuru::sisaDenganAlokasi(['Matematika'])[$tujuan->id.'|matematika'] ?? 0);
     }
 
     public function test_spk_setujui_guru_sudah_pindah_ditolak(): void
