@@ -72,7 +72,7 @@
                 </div>
             </div>
 
-            <main id="konten-utama" class="container mx-auto px-4 py-6 max-w-6xl flex-1 w-full">
+            <main id="konten-utama" class="container mx-auto px-4 py-6 flex-1 w-full">
                 {{-- Spanduk konteks: admin diingatkan selama Pemda belum diatur --}}
                 @if (auth()->user()->hasRole('kabid_ptk') && empty($konteksPemdaAktif))
                     <div class="alert alert-warning mb-4" role="alert"
