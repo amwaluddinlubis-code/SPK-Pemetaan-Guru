@@ -2,22 +2,51 @@
    daisyUI menyediakan komponen siap pakai (btn, card, table, dll.)
    sehingga kita tidak perlu menulis CSS manual. */
 
+/* 0. Font khas aplikasi (Redesign R0): Plus Jakarta Sans.
+      Bila perangkat luring, tumpukan font sistem menjadi cadangan. */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
 /* 1. Muat Tailwind */
 @import "tailwindcss";
 
 /* 2. Muat daisyUI sebagai plugin.
       Tema default: light. Ganti data-theme="dark" di <html>
-      untuk mode gelap. */
+      untuk mode gelap. Warna primary/secondary/accent ditimpa
+      per-pemda lewat Branding::gayaTema() yang disuntikkan layout. */
 @plugin "daisyui";
 
-/* 3. Kustomisasi kecil di bawah ini (opsional) */
+/* 3. Token desain (Redesign R0): font & radius seragam.
+      --radius-field/--radius-box menata sudut komponen daisyUI. */
+@theme {
+    --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
+        "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+:root,
+[data-theme] {
+    --radius-selector: 0.5rem;
+    --radius-field: 0.5rem;
+    --radius-box: 0.75rem;
+}
+
 html {
     scroll-behavior: smooth;
 }
 
-/* 4. Aksesibilitas: indikator fokus keyboard yang jelas */
+body {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* Angka tabular: kolom angka pada tabel lurus (fondasi Redesign R3) */
+.angka {
+    font-variant-numeric: tabular-nums;
+}
+
+/* 4. Aksesibilitas: indikator fokus keyboard yang jelas,
+      mengikuti warna aksen aktif */
 :focus-visible {
-    outline: 3px solid oklch(var(--p));
+    outline: 3px solid var(--color-primary);
     outline-offset: 2px;
     border-radius: 4px;
 }
@@ -28,8 +57,8 @@ html {
     top: -100px;
     left: 16px;
     z-index: 100;
-    background: oklch(var(--p));
-    color: oklch(var(--pc));
+    background: var(--color-primary);
+    color: var(--color-primary-content);
     padding: 8px 16px;
     border-radius: 8px;
     font-weight: bold;

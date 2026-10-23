@@ -10,17 +10,23 @@ namespace App\Livewire;
 
 use App\Models\ActivityLog;
 use App\Models\Guru;
+use App\Models\Pengaturan;
 use App\Models\Sekolah;
 use App\Models\WilayahKabupaten;
 use App\Models\WilayahProvinsi;
+use App\Services\Branding;
 use App\Services\KonteksPemda;
 use App\Services\PengaturanSpk;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Title('Pengaturan Pemda — PetaPenempatan ASN')]
 class PengaturanPemdaLivewire extends Component
 {
+    use WithFileUploads;
+
     public string $level = 'kabupaten';
 
     public string $kodeProvinsi = '';
@@ -30,12 +36,71 @@ class PengaturanPemdaLivewire extends Component
     /** Mode rekomendasi lintas jenjang (PengaturanSpk): 'larang'|'boleh'. */
     public string $lintasJenjang = 'larang';
 
+    /** Warna aksen aplikasi (Branding, Redesign R0): hex #rrggbb. */
+    public string $warnaAksen = '';
+
+    /** Berkas logo baru yang dipilih (belum disimpan). */
+    public $logoBaru;
+
     public function mount(): void
     {
         $this->level = KonteksPemda::level() ?: 'kabupaten';
         $this->kodeProvinsi = KonteksPemda::kodeProvinsi() ?: '';
         $this->kodeKabupaten = KonteksPemda::kodeKabupaten() ?: '';
         $this->lintasJenjang = PengaturanSpk::modeLintasJenjang();
+        $this->warnaAksen = Branding::warna();
+    }
+
+    /** Simpan warna aksen & logo pemda (Redesign R0). */
+    public function simpanBranding()
+    {
+        abort_unless(auth()->user()?->hasRole('kabid_ptk'), 403);
+
+        $this->validate([
+            'warnaAksen' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'logoBaru' => ['nullable', 'file', 'mimes:png,jpg,jpeg,svg', 'max:1024'],
+        ], [
+            'warnaAksen.regex' => 'Warna harus dalam format hex, mis. #2563eb.',
+            'logoBaru.mimes' => 'Logo harus berupa berkas PNG, JPG, atau SVG.',
+            'logoBaru.max' => 'Ukuran logo maksimal 1 MB.',
+        ]);
+
+        Pengaturan::simpan(Branding::KUNCI_WARNA, strtolower($this->warnaAksen));
+
+        if ($this->logoBaru !== null) {
+            $lama = Branding::logoPath();
+            $path = $this->logoBaru->store('branding', 'public');
+            Pengaturan::simpan(Branding::KUNCI_LOGO, $path);
+            if ($lama !== null && $lama !== $path) {
+                Storage::disk('public')->delete($lama);
+            }
+            $this->reset('logoBaru');
+        }
+
+        ActivityLog::catatAman('pengaturan.branding', null, 'sukses', [
+            'warna' => Branding::warna(),
+            'logo' => Branding::logoPath(),
+        ]);
+        session()->flash('sukses', 'Branding disimpan: warna aksen & logo kini berlaku di seluruh aplikasi.');
+
+        return $this->redirectRoute('pengaturan.pemda');
+    }
+
+    /** Hapus logo pemda (kembali ke ikon bawaan). */
+    public function hapusLogo()
+    {
+        abort_unless(auth()->user()?->hasRole('kabid_ptk'), 403);
+
+        $lama = Branding::logoPath();
+        Pengaturan::simpan(Branding::KUNCI_LOGO, '');
+        if ($lama !== null) {
+            Storage::disk('public')->delete($lama);
+        }
+
+        ActivityLog::catatAman('pengaturan.branding', null, 'sukses', ['logo' => null]);
+        session()->flash('sukses', 'Logo pemda dihapus; aplikasi kembali memakai ikon bawaan.');
+
+        return $this->redirectRoute('pengaturan.pemda');
     }
 
     /** Simpan pilihan perilaku rekomendasi lintas jenjang. */

@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk — PetaPenempatan ASN</title>
+    @php
+        $namaPemdaLogin = \App\Services\KonteksPemda::namaPemda();
+        $logoLogin = \App\Services\Branding::logoUrl();
+    @endphp
+    <title>Masuk — {{ $namaPemdaLogin ?? 'PetaPenempatan ASN' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Branding pemda: warna aksen menimpa variabel tema daisyUI (R0) -->
+    <style>{!! \App\Services\Branding::gayaTema() !!}</style>
 </head>
 <body class="min-h-screen bg-base-200">
 
@@ -18,10 +24,17 @@
         <div class="absolute -bottom-24 -right-16 w-[30rem] h-[30rem] bg-fuchsia-500/20 rounded-full blur-3xl"></div>
 
         <div class="relative z-10 flex flex-col justify-center px-16 max-w-2xl">
-            <div class="text-6xl mb-6">🗺️</div>
+            @if ($logoLogin)
+                <img src="{{ $logoLogin }}" alt="Logo pemda" class="h-20 w-20 rounded-2xl bg-white object-contain p-1.5 mb-6">
+            @else
+                <div class="text-6xl mb-6">🗺️</div>
+            @endif
             <h1 class="text-4xl font-extrabold mb-4 leading-tight">
                 PetaPenempatan ASN
             </h1>
+            @if ($namaPemdaLogin)
+                <p class="text-xl font-semibold text-white/85 -mt-2 mb-4">{{ $namaPemdaLogin }}</p>
+            @endif
             <p class="text-lg text-white/75 mb-10">
                 Sistem pemetaan penempatan Guru ASN berbasis domisili —
                 menempatkan guru lebih dekat dengan rumahnya.
@@ -53,9 +66,13 @@
 
             <!-- Logo khusus layar kecil -->
             <div class="text-center lg:hidden mb-8">
-                <div class="text-5xl">🗺️</div>
+                @if ($logoLogin)
+                    <img src="{{ $logoLogin }}" alt="Logo pemda" class="h-16 w-16 mx-auto rounded-2xl bg-white object-contain p-1 shadow">
+                @else
+                    <div class="text-5xl">🗺️</div>
+                @endif
                 <h1 class="text-2xl font-extrabold mt-3">PetaPenempatan ASN</h1>
-                <p class="text-sm opacity-60 mt-1">Penempatan guru berbasis domisili</p>
+                <p class="text-sm opacity-60 mt-1">{{ $namaPemdaLogin ?? 'Penempatan guru berbasis domisili' }}</p>
             </div>
 
             <div class="card bg-base-100 shadow-2xl">

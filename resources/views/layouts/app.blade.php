@@ -3,10 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('judul', $title ?? 'PetaPenempatan ASN')</title>
+    @php
+        // Judul tab: nama halaman + nama pemda konteks (Redesign R0).
+        $judulTab = $title ?? 'PetaPenempatan ASN';
+        if (! empty($konteksPemdaNama ?? null)) {
+            $judulTab .= ' — '.$konteksPemdaNama;
+        }
+        $logoBranding = \App\Services\Branding::logoUrl();
+    @endphp
+    <title>@yield('judul', $judulTab)</title>
 
     <!-- Aset Vite: Tailwind + daisyUI (resources/css/app.css) & JS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Branding pemda: warna aksen menimpa variabel tema daisyUI (R0) -->
+    <style>{!! \App\Services\Branding::gayaTema() !!}</style>
 
     <!-- Tema awal (cegah flicker): dibaca sebelum render -->
     <script>
@@ -38,8 +49,8 @@
                 </div>
                 <div class="navbar-center">
                     <div class="flex flex-col items-center leading-tight">
-                        <span class="text-lg font-bold hidden sm:inline"><x-ikon nama="peta" class="h-5 w-5 inline" /> PetaPenempatan ASN</span>
-                        <span class="text-lg font-bold sm:hidden"><x-ikon nama="peta" class="h-5 w-5 inline" /> Peta ASN</span>
+                        <span class="text-lg font-bold hidden sm:inline">@if ($logoBranding)<img src="{{ $logoBranding }}" alt="Logo pemda" class="h-6 w-6 inline rounded bg-white object-contain p-0.5 align-[-4px]">@else<x-ikon nama="peta" class="h-5 w-5 inline" />@endif PetaPenempatan ASN</span>
+                        <span class="text-lg font-bold sm:hidden">@if ($logoBranding)<img src="{{ $logoBranding }}" alt="Logo pemda" class="h-6 w-6 inline rounded bg-white object-contain p-0.5 align-[-4px]">@else<x-ikon nama="peta" class="h-5 w-5 inline" />@endif Peta ASN</span>
                         @if (! empty($konteksPemdaWilayah))
                             @if (auth()->user()->hasRole('kabid_ptk'))
                                 <a href="{{ route('pengaturan.pemda') }}" class="badge badge-secondary badge-sm mt-0.5 h-6 max-w-36 truncate sm:max-w-none" title="Konteks Pemda aktif — klik untuk mengatur">📍 {{ $konteksPemdaWilayah }}</a>
@@ -127,7 +138,7 @@
             <aside class="w-64 min-h-screen bg-primary text-primary-content flex flex-col">
                 <!-- Brand -->
                 <div class="p-4 border-b border-primary-content/20">
-                    <a href="{{ route('dashboard') }}" class="text-xl font-bold"><x-ikon nama="peta" class="h-6 w-6 inline" /> PetaPenempatan ASN</a>
+                    <a href="{{ route('dashboard') }}" class="text-xl font-bold">@if ($logoBranding)<img src="{{ $logoBranding }}" alt="Logo pemda" class="h-8 w-8 inline rounded-lg bg-white object-contain p-0.5 align-[-6px]">@else<x-ikon nama="peta" class="h-6 w-6 inline" />@endif PetaPenempatan ASN</a>
                     <p class="text-xs opacity-70 mt-1">Sistem Informasi Penempatan Guru</p>
                     @if (! empty($konteksPemdaNama))
                         <p class="text-xs font-semibold mt-1">{{ $konteksPemdaNama }}</p>

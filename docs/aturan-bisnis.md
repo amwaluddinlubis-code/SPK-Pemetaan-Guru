@@ -149,3 +149,12 @@
     pemda, kepala sekolah hanya untuk sekolahnya sendiri; guru tidak
     dapat memvalidasi. Kabid_ptk dapat memverifikasi massal dari
     halaman Data Sekolah. Prosedur lapangan: `docs/verifikasi-data.md`.
+24. **Branding pemda (Redesign R0).** Warna aksen & logo aplikasi diatur
+    Kabid PTK di Pengaturan Pemda (kunci `branding_warna`/`branding_logo`
+    di tabel pengaturan, layanan `App\Services\Branding`) dan diterapkan
+    ke seluruh aplikasi lewat variabel tema daisyUI (primary/secondary/
+    accent untuk tema terang & gelap) yang disuntikkan layout. Warna
+    harus hex #rrggbb; logo PNG/JPG/SVG maks 1 MB di disk public.
+    Mengganti keduanya tidak memerlukan perubahan kode; tanpa pengaturan,
+    berlaku warna bawaan #2563eb dan ikon bawaan. Judul tab mengikuti
+    nama pemda konteks aktif.

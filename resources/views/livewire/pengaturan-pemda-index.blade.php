@@ -113,4 +113,49 @@
             </form>
         </div>
     </div>
+
+    {{-- ===== Branding aplikasi: warna aksen & logo pemda (Redesign R0) ===== --}}
+    <div class="card bg-base-100 shadow mt-6">
+        <div class="card-body">
+            <h2 class="card-title text-lg">Branding — Warna Aksen & Logo Pemda</h2>
+            <p class="text-sm opacity-70">
+                Warna aksen menjadi warna utama seluruh aplikasi (bilah atas, tombol,
+                menu aktif, fokus) dan logo tampil di bilah sisi, bilah atas, serta
+                halaman masuk. Perubahan berlaku seketika tanpa mengubah kode.
+            </p>
+            <form wire:submit="simpanBranding" class="mt-2 space-y-4">
+                <div class="flex flex-wrap items-end gap-4">
+                    <div class="form-control">
+                        <label class="label" for="warna-akksen"><span class="label-text font-semibold">Warna aksen</span></label>
+                        <div class="flex items-center gap-2">
+                            <input id="warna-akksen" type="color" wire:model="warnaAksen" class="h-11 w-16 cursor-pointer rounded-lg border border-base-300 bg-base-100 p-1">
+                            <input type="text" wire:model="warnaAksen" class="input input-bordered w-32 font-mono" placeholder="#2563eb" maxlength="7">
+                        </div>
+                        @error('warnaAksen')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="flex items-center gap-2 pb-1">
+                        <span class="btn btn-primary btn-sm pointer-events-none">Contoh Tombol</span>
+                        <span class="badge badge-secondary">Contoh Lencana</span>
+                    </div>
+                </div>
+                <div class="form-control">
+                    <label class="label" for="logo-pemda"><span class="label-text font-semibold">Logo pemda (PNG/JPG/SVG, maks 1 MB)</span></label>
+                    <div class="flex flex-wrap items-center gap-4">
+                        @if (\App\Services\Branding::logoUrl())
+                            <span class="inline-flex items-center justify-center rounded-box bg-primary p-1.5">
+                                <img src="{{ \App\Services\Branding::logoUrl() }}" alt="Logo pemda saat ini" class="h-12 w-12 rounded-lg bg-white object-contain p-0.5">
+                            </span>
+                            <button type="button" wire:click="hapusLogo" wire:confirm="Hapus logo pemda? Aplikasi kembali memakai ikon bawaan." class="btn btn-outline btn-error btn-sm">Hapus Logo</button>
+                        @endif
+                        <input id="logo-pemda" type="file" wire:model="logoBaru" accept=".png,.jpg,.jpeg,.svg" class="file-input file-input-bordered w-full max-w-sm">
+                    </div>
+                    @error('logoBaru')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
+                    <p class="text-xs opacity-60 mt-1" wire:loading wire:target="logoBaru">Mengunggah logo…</p>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary">Simpan Branding</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
