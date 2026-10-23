@@ -5,40 +5,32 @@
 <div>
     <h1 class="text-2xl font-bold mb-4"><x-ikon nama="dashboard" class="h-7 w-7 inline" /> Dashboard Pemetaan</h1>
 
-    {{-- Kartu statistik (daisyUI stats) --}}
-    <div class="stats stats-vertical sm:stats-horizontal shadow w-full mb-6">
-        <div class="stat">
-            <div class="stat-title">Total Guru</div>
-            <div class="stat-value text-primary">{{ $totalGuru }}</div>
-            <div class="stat-desc">terdata di sistem</div>
-        </div>
-        <div class="stat">
-            <div class="stat-title">Total Sekolah</div>
-            <div class="stat-value text-secondary">{{ $totalSekolah }}</div>
-            <div class="stat-desc">terdata di sistem</div>
-        </div>
-        <div class="stat">
-            <div class="stat-title">Rata-rata Jarak</div>
-            <div class="stat-value">
-                @if ($rataJarak !== null)
-                    {{ number_format($rataJarak, 1) }} km
-                @else
-                    —
-                @endif
-            </div>
-            <div class="stat-desc">{{ $guruDenganJarak }} dari {{ $totalGuru }} guru memiliki koordinat valid</div>
-        </div>
-        <div class="stat">
-            <div class="stat-title">Butuh Perhatian ⚠️</div>
-            <div class="stat-value text-error">{{ $guruJauh }}</div>
-            <div class="stat-desc">guru berjarak &gt; 5 km</div>
-        </div>
+    {{-- Kartu KPI berketerangan (Redesign R2): angka + konteks nyata --}}
+    <div class="flex flex-wrap gap-4 mb-6">
+        <x-kartu-kpi label="Total Guru" :nilai="number_format($totalGuru)" ikon="guru">
+            {{ number_format($guruBerdomisili) }} dari {{ number_format($totalGuru) }} berdomisili terpetakan
+        </x-kartu-kpi>
+        <x-kartu-kpi label="Total Sekolah" :nilai="number_format($totalSekolah)" ikon="sekolah">
+            {{ $sekolahPerJenjang }}
+        </x-kartu-kpi>
+        <x-kartu-kpi label="Rata-rata Jarak" :nilai="$rataJarak !== null ? number_format($rataJarak, 1).' km' : '—'" ikon="peta">
+            {{ $guruDenganJarak }} dari {{ $totalGuru }} guru memiliki koordinat valid
+        </x-kartu-kpi>
+        <x-kartu-kpi label="Butuh Perhatian" :nilai="number_format($guruJauh)" :ikon="$guruJauh > 0 ? 'peringatan' : 'spk'" :nada="$guruJauh > 0 ? 'bahaya' : 'sukses'">
+            @if ($guruJauh > 0)
+                Guru berjarak &gt; 5 km dari sekolah tugasnya — telaah di menu Aksesibilitas
+            @else
+                Tidak ada guru berjarak &gt; 5 km dari sekolah tugasnya
+            @endif
+        </x-kartu-kpi>
         @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
-            <div class="stat">
-                <div class="stat-title">Usulan Menunggu 📝</div>
-                <div class="stat-value text-warning">{{ $usulanMenunggu }}</div>
-                <div class="stat-desc"><a href="{{ route('usulan.index') }}" class="link">proses sekarang</a></div>
-            </div>
+            <x-kartu-kpi label="Usulan Menunggu" :nilai="number_format($usulanMenunggu)" ikon="usulan" :nada="$usulanMenunggu > 0 ? 'peringatan' : 'netral'" :tautan="route('usulan.index')">
+                @if ($usulanMenunggu > 0)
+                    Usulan penempatan menunggu diproses — klik untuk membuka antrean
+                @else
+                    Tidak ada usulan yang menunggu diproses
+                @endif
+            </x-kartu-kpi>
         @endif
     </div>
 

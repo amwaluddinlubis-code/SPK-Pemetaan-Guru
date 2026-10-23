@@ -166,3 +166,13 @@
     `judul` (tanpa emoji) dan `ikon` yang sama dengan ikon menunya di
     RegistriMenu; deskripsi lewat slot `deskripsi`, tombol lewat slot
     `aksi`. Status menu aktif ditandai latar + garis tepi di bilah sisi.
+26. **Kartu KPI dashboard (Redesign R2).** Semua angka ringkasan di
+    Dashboard Pemetaan & Dashboard Eksekutif memakai komponen
+    `x-kartu-kpi`: label, ikon, angka, dan SATU baris konteks berupa
+    komposisi/perbandingan nyata (mis. guru berdomisili terpetakan,
+    sekolah per jenjang, guru per status kepegawaian) — dilarang konteks
+    pengisi ("terdata di sistem") bila komposisi tersedia. Nada warna
+    bermakna: bahaya/peringatan hanya saat nilai > 0, sukses saat bersih.
+    Terkait: jarak guru yang domisilinya belum terpetakan adalah
+    TIDAK DIKETAHUI (null) — `Guru::jarakKeSekolahSaatIni()` mengembalikan
+    null, tidak pernah dihitung dari titik (0,0).

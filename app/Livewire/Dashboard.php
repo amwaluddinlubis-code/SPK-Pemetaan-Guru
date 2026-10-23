@@ -37,6 +37,12 @@ class Dashboard extends Component
         // Guru yang jaraknya > 5 km (hanya dari jarak yang valid)
         $guruJauh = $jarakValid->filter(fn ($jarak) => $jarak > 5)->count();
 
+        // Konteks kartu KPI (Redesign R2): komposisi nyata di balik angka
+        $guruBerdomisili = $semuaGuru
+            ->filter(fn ($guru) => $guru->domisili_lat !== null && $guru->domisili_lng !== null)
+            ->count();
+        $sekolahPerJenjang = $this->konteksSekolahPerJenjang();
+
         // Usulan yang masih menunggu diproses (untuk Kabid/Kadis)
         $usulanMenunggu = UsulanPenempatan::whereIn('status', UsulanPenempatan::AKTIF)->count();
 
@@ -46,7 +52,26 @@ class Dashboard extends Component
             'rataJarak',
             'guruDenganJarak',
             'guruJauh',
+            'guruBerdomisili',
+            'sekolahPerJenjang',
             'usulanMenunggu'
         ));
+    }
+
+    /** Ringkasan sekolah per jenjang untuk konteks KPI, mis. "SD 400 · SMP 81". */
+    private function konteksSekolahPerJenjang(): string
+    {
+        $urutan = ['TK' => 0, 'SD' => 1, 'SMP' => 2, 'SMA' => 3, 'SMK' => 4];
+        $perJenjang = Sekolah::query()
+            ->selectRaw('jenjang, count(*) as jml')
+            ->groupBy('jenjang')
+            ->pluck('jml', 'jenjang');
+
+        $ringkasan = $perJenjang
+            ->sortBy(fn ($jml, $jenjang) => $urutan[$jenjang] ?? 9)
+            ->map(fn ($jml, $jenjang) => $jenjang.' '.number_format((int) $jml))
+            ->implode(' · ');
+
+        return $ringkasan !== '' ? $ringkasan : 'terdata di sistem';
     }
 }

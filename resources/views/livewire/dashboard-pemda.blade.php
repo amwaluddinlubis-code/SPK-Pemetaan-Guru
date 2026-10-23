@@ -3,35 +3,32 @@
     <h1 class="text-2xl font-bold mb-1"><x-ikon nama="distribusi" class="h-7 w-7 inline" /> Dashboard Eksekutif Pemda</h1>
     <p class="text-sm opacity-60 mb-4">Ringkasan penempatan Guru ASN se-Kabupaten — hanya lihat, tanpa ubah data.</p>
 
-    {{-- Kartu ringkasan: metrik aksi (menunggu) paling menonjol --}}
-    <div class="stats stats-vertical sm:stats-horizontal shadow w-full mb-6" data-testid="ringkasan-eksekutif">
-        <div class="stat">
-            <div class="stat-title">Total Guru</div>
-            <div class="stat-value text-primary">{{ $totalGuru }}</div>
-            <div class="stat-desc">terdata di sistem</div>
-        </div>
-        <div class="stat">
-            <div class="stat-title">Total Sekolah</div>
-            <div class="stat-value text-secondary">{{ $totalSekolah }}</div>
-            <div class="stat-desc">terdata di sistem</div>
-        </div>
-        <div class="stat">
-            <div class="stat-title">Kebutuhan Guru</div>
-            <div class="stat-value text-warning">{{ $totalKebutuhan }}</div>
-            <div class="stat-desc">formasi belum terpenuhi</div>
-        </div>
-        <div class="stat bg-error/10 border-l-4 border-error">
-            <div class="stat-title font-bold text-error">Menunggu Keputusan</div>
-            <div class="stat-value text-error">{{ $totalMenunggu }}</div>
-            <div class="stat-desc">{{ $menungguUsulan }} usulan · {{ $menungguSpk }} SPK · {{ $menungguSwap }} swap</div>
-        </div>
+    {{-- Kartu KPI berketerangan (Redesign R2): yang menunggu keputusan
+         tampil bernada bahaya; angka lain membawa konteks komposisinya --}}
+    <div class="flex flex-wrap gap-4 mb-6" data-testid="ringkasan-eksekutif">
+        <x-kartu-kpi label="Total Guru" :nilai="number_format($totalGuru)" ikon="guru">
+            {{ $guruPerStatus !== '' ? $guruPerStatus : 'terdata di sistem' }}
+        </x-kartu-kpi>
+        <x-kartu-kpi label="Total Sekolah" :nilai="number_format($totalSekolah)" ikon="sekolah">
+            {{ $sekolahPerJenjang }}
+        </x-kartu-kpi>
+        <x-kartu-kpi label="Kebutuhan Guru" :nilai="number_format($totalKebutuhan)" ikon="distribusi" :nada="$totalKebutuhan > 0 ? 'peringatan' : 'netral'">
+            Formasi terdaftar {{ $kebutuhanCakupan }}
+        </x-kartu-kpi>
+        <x-kartu-kpi label="Menunggu Keputusan" :nilai="number_format($totalMenunggu)" :ikon="$totalMenunggu > 0 ? 'peringatan' : 'spk'" :nada="$totalMenunggu > 0 ? 'bahaya' : 'sukses'">
+            @if ($totalMenunggu > 0)
+                {{ $menungguUsulan }} usulan · {{ $menungguSpk }} SPK · {{ $menungguSwap }} swap
+            @else
+                Tidak ada usulan, SPK, atau swap yang menunggu keputusan
+            @endif
+        </x-kartu-kpi>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-2">
         {{-- Distribusi per kecamatan --}}
         <div class="card bg-base-100 shadow">
             <div class="card-body">
-                <h2 class="card-title text-lg">📍 Distribusi per Kecamatan</h2>
+                <h2 class="card-title text-lg"><x-ikon nama="peta" class="h-5 w-5 text-primary" /> Distribusi per Kecamatan</h2>
                 <div class="overflow-x-auto">
                     <table class="table table-zebra">
                         <thead>
@@ -68,7 +65,7 @@
         {{-- Distribusi per jenjang --}}
         <div class="card bg-base-100 shadow">
             <div class="card-body">
-                <h2 class="card-title text-lg">🎓 Distribusi per Jenjang</h2>
+                <h2 class="card-title text-lg"><x-ikon nama="akademik" class="h-5 w-5 text-primary" /> Distribusi per Jenjang</h2>
                 <div class="overflow-x-auto">
                     <table class="table table-zebra">
                         <thead>
@@ -116,7 +113,7 @@
     <div class="grid gap-6 lg:grid-cols-3 mt-6">
         <div class="card bg-base-100 shadow">
             <div class="card-body">
-                <h2 class="card-title text-lg">📝 Usulan Penempatan</h2>
+                <h2 class="card-title text-lg"><x-ikon nama="usulan" class="h-5 w-5 text-primary" /> Usulan Penempatan</h2>
                 @forelse ($rekapUsulan as $status => $jml)
                     <div class="flex justify-between items-center py-1">
                         <span class="badge {{ $warna[$status] ?? 'badge-ghost' }}">{{ \App\Models\UsulanPenempatan::STATUS[$status] ?? $status }}</span>
@@ -129,7 +126,7 @@
         </div>
         <div class="card bg-base-100 shadow">
             <div class="card-body">
-                <h2 class="card-title text-lg">🎯 SPK Penempatan</h2>
+                <h2 class="card-title text-lg"><x-ikon nama="spk" class="h-5 w-5 text-primary" /> SPK Penempatan</h2>
                 @forelse ($rekapSpk as $status => $jml)
                     <div class="flex justify-between items-center py-1">
                         <span class="badge {{ $warna[$status] ?? 'badge-ghost' }}">{{ \App\Models\HasilSpk::STATUS[$status] ?? $status }}</span>
@@ -142,7 +139,7 @@
         </div>
         <div class="card bg-base-100 shadow">
             <div class="card-body">
-                <h2 class="card-title text-lg">🔄 Mutasi Silang</h2>
+                <h2 class="card-title text-lg"><x-ikon nama="swap" class="h-5 w-5 text-primary" /> Mutasi Silang</h2>
                 @forelse ($rekapSwap as $status => $jml)
                     <div class="flex justify-between items-center py-1">
                         <span class="badge {{ $warna[$status] ?? 'badge-ghost' }}">{{ \App\Models\RekomendasiSwap::STATUS[$status] ?? $status }}</span>

@@ -32,6 +32,19 @@ class DashboardPemda extends Component
         $menungguSwap = RekomendasiSwap::where('status', 'menunggu')->count();
         $totalMenunggu = $menungguUsulan + $menungguSpk + $menungguSwap;
 
+        // Konteks kartu KPI (Redesign R2): komposisi nyata di balik angka
+        $labelStatus = Guru::STATUS_KEPEGAWAIAN;
+        $guruPerStatus = Guru::query()
+            ->selectRaw('status_kepegawaian, count(*) as jml')
+            ->groupBy('status_kepegawaian')
+            ->pluck('jml', 'status_kepegawaian')
+            ->map(fn ($jml, $status) => ($labelStatus[$status] ?? $status).' '.number_format((int) $jml))
+            ->implode(' · ');
+        $sekolahPerJenjang = $this->konteksSekolahPerJenjang();
+        $kebutuhanSekolah = KebutuhanGuru::where('jumlah_target', '>', 0)->distinct()->count('sekolah_id');
+        $kebutuhanMapel = KebutuhanGuru::where('jumlah_target', '>', 0)->distinct()->count('mapel');
+        $kebutuhanCakupan = 'di '.number_format($kebutuhanSekolah).' sekolah · '.number_format($kebutuhanMapel).' mapel';
+
         // --- Distribusi per kecamatan ---
         $daftarKecamatan = Sekolah::whereNotNull('kecamatan')
             ->distinct()->orderBy('kecamatan')->pluck('kecamatan');
@@ -75,8 +88,26 @@ class DashboardPemda extends Component
         return view('livewire.dashboard-pemda', compact(
             'totalGuru', 'totalSekolah', 'totalKebutuhan',
             'menungguUsulan', 'menungguSpk', 'menungguSwap', 'totalMenunggu',
+            'guruPerStatus', 'sekolahPerJenjang', 'kebutuhanCakupan',
             'perKecamatan', 'perJenjang',
             'rekapUsulan', 'rekapSpk', 'rekapSwap'
         ));
+    }
+
+    /** Ringkasan sekolah per jenjang untuk konteks KPI, mis. "SD 400 · SMP 81". */
+    private function konteksSekolahPerJenjang(): string
+    {
+        $urutan = ['TK' => 0, 'SD' => 1, 'SMP' => 2, 'SMA' => 3, 'SMK' => 4];
+        $perJenjang = Sekolah::query()
+            ->selectRaw('jenjang, count(*) as jml')
+            ->groupBy('jenjang')
+            ->pluck('jml', 'jenjang');
+
+        $ringkasan = $perJenjang
+            ->sortBy(fn ($jml, $jenjang) => $urutan[$jenjang] ?? 9)
+            ->map(fn ($jml, $jenjang) => $jenjang.' '.number_format((int) $jml))
+            ->implode(' · ');
+
+        return $ringkasan !== '' ? $ringkasan : 'terdata di sistem';
     }
 }

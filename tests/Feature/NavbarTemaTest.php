@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Guru;
+use App\Models\Sekolah;
 use App\Models\User;
+use App\Models\UsulanPenempatan;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -88,11 +91,31 @@ class NavbarTemaTest extends TestCase
         $pemda = User::factory()->create(['role' => 'pemda']);
         $this->actingAs($pemda);
 
+        // Satu usulan menunggu → kartu "Menunggu Keputusan" bernada bahaya
+        $sekolah = Sekolah::create([
+            'npsn' => '7101', 'nama' => 'SMP TES', 'alamat' => 'Alamat',
+            'kecamatan' => 'Panyabungan', 'kategori_daerah' => 'biasa',
+            'jenjang' => 'SMP', 'lat' => 0.0, 'lng' => 100.0,
+        ]);
+        $guru = Guru::create([
+            'nama' => 'Guru Tes', 'mapel' => 'Matematika', 'jenjang' => 'SMP',
+            'domisili_alamat' => 'Domisili', 'kecamatan' => 'Panyabungan',
+            'status_pernikahan' => 'belum_kawin', 'sudah_sertifikasi' => false,
+            'sekolah_id' => $sekolah->id, 'sekolah_saat_ini' => $sekolah->nama,
+            'domisili_lat' => 0.0, 'domisili_lng' => 100.0,
+        ]);
+        UsulanPenempatan::create([
+            'guru_id' => $guru->id, 'sekolah_id' => $sekolah->id,
+            'alasan' => 'Dekat rumah', 'status' => 'diajukan',
+            'diajukan_oleh' => $pemda->id,
+        ]);
+
         $res = $this->get('/pemda');
         $res->assertOk();
         $res->assertSee('data-testid="ringkasan-eksekutif"', false);
-        // Metrik menunggu keputusan ditonjolkan visual
+        // Metrik menunggu keputusan ditonjolkan visual (bingkai bahaya R2)
         $res->assertSee('border-error', false);
+        $res->assertSee('Menunggu Keputusan');
     }
 
     public function test_form_guru_tab(): void

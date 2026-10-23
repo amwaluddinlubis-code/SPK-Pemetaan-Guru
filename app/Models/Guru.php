@@ -187,6 +187,13 @@ class Guru extends Model
             return null;
         }
 
+        // Domisili belum terpetakan → jarak tidak diketahui (null).
+        // Tanpa pagar ini, domisili null terbaca sebagai titik (0,0)
+        // dan menghasilkan jarak ribuan km yang menyesatkan statistik.
+        if ($this->domisili_lat === null || $this->domisili_lng === null) {
+            return null;
+        }
+
         return $this->jarakKe($k['lat'], $k['lng']);
     }
 
