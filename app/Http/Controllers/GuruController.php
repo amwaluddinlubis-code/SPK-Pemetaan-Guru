@@ -18,6 +18,7 @@ use App\Services\KonteksPemda;
 use App\Services\Linieritas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -35,7 +36,7 @@ class GuruController extends Controller
             'nip' => ['nullable', 'string', 'max:30'],
             'nama' => ['required', 'string', 'max:100'],
             'tempat_lahir' => ['nullable', 'string', 'max:100'],
-            'tanggal_lahir' => ['nullable', 'date'],
+            'tanggal_lahir' => ['nullable', 'date', 'before_or_equal:today'],
             'mapel' => ['required', 'string', 'max:50'],
             'jenjang' => ['required', 'in:TK,SD,SMP,SMA'],
             'domisili_alamat' => ['required', 'string', 'max:255'],
@@ -57,6 +58,29 @@ class GuruController extends Controller
             // dihitung dari relasi sekolah_id; kolom sekolah_saat_ini_lat/lng
             // hanya cache yang diperbarui otomatis saat mutasi disetujui.
         ];
+    }
+
+    /**
+     * Pemeriksaan lanjutan yang aturannya lintas-field / berbasis data
+     * acuan: pasangan koordinat (0, 0) bukan titik yang sah, dan bidang
+     * studi serdik harus dikenal daftar Kepmen 222/O/2025 (kalau tidak,
+     * linieritasnya diam-diam menjadi "tidak dinilai").
+     */
+    private function periksaKoordinatDanBidang(array $data): void
+    {
+        if (isset($data['domisili_lat'], $data['domisili_lng'])
+            && (float) $data['domisili_lat'] === 0.0 && (float) $data['domisili_lng'] === 0.0) {
+            throw ValidationException::withMessages([
+                'domisili_lat' => 'Titik koordinat domisili belum ditandai — (0, 0) bukan lokasi yang sah. Klik titik pada peta.',
+            ]);
+        }
+
+        if (! empty($data['bidang_studi_serdik'])
+            && Linieritas::kodeUntuk($data['bidang_studi_serdik'], $data['jenjang'] ?? null) === null) {
+            throw ValidationException::withMessages([
+                'bidang_studi_serdik' => 'Bidang studi ini tidak ada dalam daftar Kepmen 222/O/2025 — pilih dari daftar yang tersedia agar linieritas dapat dinilai.',
+            ]);
+        }
     }
 
     /**
@@ -118,8 +142,14 @@ class GuruController extends Controller
 
     public function store(Request $request)
     {
+        // NIP di-trim SEBELUM validasi: cek unik harus menilai nilai yang
+        // sama dengan yang disimpan, agar spasi tak menyelinapkan duplikat
+        // yang baru ketahuan di indeks unik basis data (error 500).
+        $request->merge(['nip' => trim((string) $request->input('nip', '')) ?: null]);
+
         $data = $request->validate($this->aturanValidasi());
         $request->validate(['nip' => ['unique:guru,nip']]);
+        $this->periksaKoordinatDanBidang($data);
 
         // Mapel selalu disimpan sebagai label kanonis — varian ejaan dari
         // isian manual (mis. "Ilmu Pengetahuan Alam", "PAI") dinormalisasi
@@ -183,8 +213,11 @@ class GuruController extends Controller
     {
         $this->otorisasiAkses($guru);
 
+        $request->merge(['nip' => trim((string) $request->input('nip', '')) ?: null]);
+
         $data = $request->validate($this->aturanValidasi());
         $request->validate(['nip' => ['unique:guru,nip,'.$guru->id]]);
+        $this->periksaKoordinatDanBidang($data);
 
         // SEC-002: batasi kolom yang boleh diubah per peran. Kepemilikan record
         // bukan berarti boleh mengubah atribut administratif.

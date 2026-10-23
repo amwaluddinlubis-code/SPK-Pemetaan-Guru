@@ -245,3 +245,11 @@
     NIP terkunci untuk guru & kepala sekolah; tab Kepegawaian dan
     NUPTK/tempat/tanggal lahir terkunci untuk peran guru (sejalan
     SEC-002 di server).
+34. **Standar GUI v2.0 & kontras tema gelap (R6)** — docs/standar-
+    gui.md v2.0 adalah acuan wajib halaman baru. Warna aksen tema
+    gelap TIDAK dicerahkan dari warna branding (tetap heks yang sama
+    seperti tema terang): mencerahkan menurunkan kontras teks primer
+    ke 3,84 (di bawah WCAG AA 4,5); setelah disamakan terukur 5,47.
+    Sapuan QA R6: 31 rute desktop terang + 5 gelap + 4 HP semua 200,
+    nol error JS, fokus keyboard terlihat, kontras semua pasangan
+    ≥ 4,5.

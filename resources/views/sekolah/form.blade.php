@@ -110,13 +110,13 @@
                     @error('kategori_daerah')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                     </fieldset>
                     <fieldset class="fieldset w-full">
-                        <label class="fieldset-legend font-semibold" for="lat">Latitude</label>
+                        <label class="fieldset-legend font-semibold" for="lat">Lintang (Latitude)</label>
                         <input type="text" id="lat" name="lat" value="{{ old('lat', $sekolah->lat) }}" required
                                class="input w-full" placeholder="0.7900">
                     @error('lat')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                     </fieldset>
                     <fieldset class="fieldset w-full">
-                        <label class="fieldset-legend font-semibold" for="lng">Longitude</label>
+                        <label class="fieldset-legend font-semibold" for="lng">Bujur (Longitude)</label>
                         <input type="text" id="lng" name="lng" value="{{ old('lng', $sekolah->lng) }}" required
                                class="input w-full" placeholder="99.4100">
                     @error('lng')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror

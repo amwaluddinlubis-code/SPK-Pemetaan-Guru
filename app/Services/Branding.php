@@ -95,7 +95,10 @@ class Branding
     {
         $warna = self::warna();
         $sekunder = self::ubahTerang($warna, -16);
-        $gelap = self::ubahTerang($warna, 18);
+        // Tema gelap memakai warna aksen yang SAMA: mencerahkan aksen
+        // (perilaku lama +18%) menurunkan kontras teks primer di bawah
+        // ambang keterbacaan WCAG AA 4,5 — terukur 3,84 pada QA R6.
+        $gelap = $warna;
         $sekunderGelap = self::ubahTerang($gelap, -10);
 
         return '[data-theme="light"]{'

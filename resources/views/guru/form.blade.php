@@ -51,7 +51,22 @@
             {{-- Jika $guru->exists: mode ubah (PUT), jika tidak: mode tambah (POST) --}}
             <form method="POST"
                   action="{{ $guru->exists ? route('guru.update', $guru) : route('guru.store') }}"
-                  x-data="{ tab: '{{ $tabAktif }}' }"
+                  x-data="{
+                      tab: '{{ $tabAktif }}',
+                      lanjutKe(tujuan, ev) {
+                          const panel = ev.target.closest('[role=tabpanel]');
+                          const kosong = [...panel.querySelectorAll('[required]')].filter(i => (i.value ?? '').toString().trim() === '');
+                          if (kosong.length) {
+                              kosong.forEach(i => i.classList.add('ring-2', 'ring-error'));
+                              kosong[0].focus();
+                              kosong[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                              return false;
+                          }
+                          panel.querySelectorAll('.ring-error').forEach(i => i.classList.remove('ring-2', 'ring-error'));
+                          this.tab = tujuan;
+                          return true;
+                      }
+                  }"
                   data-testid="form-guru-tab">
                 @csrf
                 @if ($guru->exists) @method('PUT') @endif
@@ -135,7 +150,7 @@
                         </fieldset>
                     </div>
                     <div class="flex justify-end mt-4">
-                        <button type="button" class="btn btn-primary" @click="tab = 'kepegawaian'">Lanjut →</button>
+                        <button type="button" class="btn btn-primary" @click="lanjutKe('kepegawaian', $event)">Lanjut →</button>
                     </div>
                 </div>
 
@@ -252,7 +267,7 @@
                     @endif
                     <div class="flex justify-between mt-4">
                         <button type="button" class="btn btn-ghost" @click="tab = 'pribadi'">← Kembali</button>
-                        <button type="button" class="btn btn-primary" @click="tab = 'domisili'; $nextTick(() => Object.values(window.petaPickers || {}).forEach(m => m.invalidateSize()))">Lanjut →</button>
+                        <button type="button" class="btn btn-primary" @click="if (lanjutKe('domisili', $event)) $nextTick(() => Object.values(window.petaPickers || {}).forEach(m => m.invalidateSize()))">Lanjut →</button>
                     </div>
                 </div>
 
@@ -304,14 +319,14 @@
                         @error('domisili_alamat')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
-                            <label class="fieldset-legend font-semibold" for="domisili_lat">Latitude</label>
+                            <label class="fieldset-legend font-semibold" for="domisili_lat">Lintang (Latitude)</label>
                             <input type="text" id="domisili_lat" name="domisili_lat"
                                    value="{{ old('domisili_lat', $guru->domisili_lat) }}" required
                                    class="input w-full" placeholder="0.7900">
                         @error('domisili_lat')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
                         </fieldset>
                         <fieldset class="fieldset w-full">
-                            <label class="fieldset-legend font-semibold" for="domisili_lng">Longitude</label>
+                            <label class="fieldset-legend font-semibold" for="domisili_lng">Bujur (Longitude)</label>
                             <input type="text" id="domisili_lng" name="domisili_lng"
                                    value="{{ old('domisili_lng', $guru->domisili_lng) }}" required
                                    class="input w-full" placeholder="99.4100">
