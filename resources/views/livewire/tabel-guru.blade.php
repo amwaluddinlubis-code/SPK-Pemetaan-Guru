@@ -79,7 +79,11 @@
                             </td>
                         </tr>
                     @empty
-                        <x-kosong pesan="Tidak ada data guru yang cocok." kolom="8" />
+                        @if ($konteksKosong)
+                            <x-kosong pesan="Belum ada data guru di wilayah {{ $namaPemdaKonteks }}. Data di luar konteks Pemda disembunyikan — atur konteks lewat menu Sistem → Pengaturan Pemda." kolom="8" />
+                        @else
+                            <x-kosong pesan="Tidak ada data guru yang cocok." kolom="8" />
+                        @endif
                     @endforelse
                 </tbody>
             </table>

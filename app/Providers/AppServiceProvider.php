@@ -46,6 +46,8 @@ class AppServiceProvider extends ServiceProvider
         // tidak menyentuh database sebelum aplikasi siap sepenuhnya.
         View::composer('*', function ($view) {
             $view->with('konteksPemdaNama', KonteksPemda::namaPemda());
+            $view->with('konteksPemdaWilayah', KonteksPemda::namaWilayah());
+            $view->with('konteksPemdaAktif', KonteksPemda::aktif());
         });
     }
 }

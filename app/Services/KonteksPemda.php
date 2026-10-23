@@ -195,6 +195,41 @@ class KonteksPemda
         return $prov ? 'Pemerintah Provinsi '.Str::title($prov->nama) : null;
     }
 
+    /**
+     * Nama wilayah konteks bentuk pendek, mis. "Kab. Mandailing Natal",
+     * "Kota Medan", atau "Sumatera Utara" (provinsi). Untuk lencana & chip.
+     */
+    public static function namaWilayah(): ?string
+    {
+        if (! self::aktif()) {
+            return null;
+        }
+
+        try {
+            if (self::level() === 'kabupaten') {
+                $kab = self::kabupaten();
+                if ($kab === null) {
+                    return null;
+                }
+                $nama = strtoupper($kab->nama);
+                if (str_starts_with($nama, 'KAB. ')) {
+                    return 'Kab. '.Str::title(substr($nama, 5));
+                }
+                if (str_starts_with($nama, 'KOTA ')) {
+                    return 'Kota '.Str::title(substr($nama, 5));
+                }
+
+                return Str::title($kab->nama);
+            }
+
+            $prov = self::provinsi();
+
+            return $prov ? Str::title($prov->nama) : null;
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
     /** Seluruh kecamatan (model) di dalam konteks; kosong bila konteks tidak aktif. */
     public static function daftarKecamatan(): Collection
     {

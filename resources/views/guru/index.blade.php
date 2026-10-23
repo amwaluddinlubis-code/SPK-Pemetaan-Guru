@@ -32,5 +32,7 @@
         </x-alert>
     @endif
 
+    <x-chip-konteks jenis="guru" />
+
     @livewire('tabel-guru')
 @endsection

@@ -6,6 +6,7 @@
 namespace App\Livewire;
 
 use App\Models\Sekolah;
+use App\Services\KonteksPemda;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -91,6 +92,14 @@ class TabelSekolah extends Component
         $daftarKecamatan = Sekolah::whereNotNull('kecamatan')
             ->distinct()->orderBy('kecamatan')->pluck('kecamatan');
 
-        return view('livewire.tabel-sekolah', compact('daftarSekolah', 'daftarKecamatan'));
+        // Keadaan kosong karena konteks: daftar kosong bukan akibat filter,
+        // melainkan karena seluruh data berada di luar konteks Pemda aktif.
+        $konteksKosong = KonteksPemda::aktif()
+            && $daftarSekolah->total() === 0
+            && trim($this->q) === '' && $this->kecamatan === ''
+            && Sekolah::withoutGlobalScopes()->count() > 0;
+        $namaPemdaKonteks = KonteksPemda::namaPemda();
+
+        return view('livewire.tabel-sekolah', compact('daftarSekolah', 'daftarKecamatan', 'konteksKosong', 'namaPemdaKonteks'));
     }
 }

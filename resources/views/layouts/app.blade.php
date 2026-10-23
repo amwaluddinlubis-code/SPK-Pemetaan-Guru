@@ -37,8 +37,17 @@
                     </label>
                 </div>
                 <div class="navbar-center">
-                    <span class="text-lg font-bold hidden sm:inline"><x-ikon nama="peta" class="h-5 w-5 inline" /> PetaPenempatan ASN</span>
-                    <span class="text-lg font-bold sm:hidden"><x-ikon nama="peta" class="h-5 w-5 inline" /> PPA</span>
+                    <div class="flex flex-col items-center leading-tight">
+                        <span class="text-lg font-bold hidden sm:inline"><x-ikon nama="peta" class="h-5 w-5 inline" /> PetaPenempatan ASN</span>
+                        <span class="text-lg font-bold sm:hidden"><x-ikon nama="peta" class="h-5 w-5 inline" /> PPA</span>
+                        @if (! empty($konteksPemdaWilayah))
+                            @if (auth()->user()->hasRole('kabid_ptk'))
+                                <a href="{{ route('pengaturan.pemda') }}" class="badge badge-secondary badge-sm mt-0.5" title="Konteks Pemda aktif — klik untuk mengatur">📍 {{ $konteksPemdaWilayah }}</a>
+                            @else
+                                <span class="badge badge-secondary badge-sm mt-0.5" title="Konteks Pemda aktif">📍 {{ $konteksPemdaWilayah }}</span>
+                            @endif
+                        @endif
+                    </div>
                 </div>
                 <div class="navbar-end">
                     {{-- Toggle tema: light / dark / system --}}
@@ -64,6 +73,17 @@
             </div>
 
             <main id="konten-utama" class="container mx-auto px-4 py-6 max-w-6xl flex-1 w-full">
+                {{-- Spanduk konteks: admin diingatkan selama Pemda belum diatur --}}
+                @if (auth()->user()->hasRole('kabid_ptk') && empty($konteksPemdaAktif))
+                    <div class="alert alert-warning mb-4" role="alert"
+                         x-data="{ tampil: localStorage.getItem('spandukKonteksPemda') !== 'tutup' }"
+                         x-show="tampil" style="display: none;">
+                        <span>⚠️ Aplikasi <strong>belum berkonteks Pemda</strong> — data semua wilayah masih tampil. <a href="{{ route('pengaturan.pemda') }}" class="link font-semibold">Atur sekarang</a></span>
+                        <button class="btn btn-sm btn-ghost" aria-label="Tutup pengingat"
+                                @click="tampil = false; localStorage.setItem('spandukKonteksPemda', 'tutup')">✕</button>
+                    </div>
+                @endif
+
                 {{-- Pesan sukses (mis. setelah tambah/ubah/hapus data) --}}
                 @if (session('sukses'))
                     <div class="alert alert-success mb-4" x-data="{ tampil: true }" x-show="tampil">

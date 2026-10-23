@@ -38,5 +38,7 @@
         </x-alert>
     @endif
 
+    <x-chip-konteks jenis="sekolah" />
+
     @livewire('tabel-sekolah')
 @endsection
