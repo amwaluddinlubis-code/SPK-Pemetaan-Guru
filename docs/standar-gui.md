@@ -1,6 +1,6 @@
 # Standar GUI — PetaPenempatan ASN
 
-Versi 1.0 — 2026-10-10. Acuan wajib untuk semua halaman aplikasi,
+Versi 1.1 — 2026-10-23 (1.0: 2026-10-10). Acuan wajib untuk semua halaman aplikasi,
 agar tampilan konsisten walau dikerjakan bergantian / dibantu AI.
 
 ## 1. Fondasi
@@ -26,6 +26,10 @@ Jangan menulis ulang markup di bawah — pakai komponen anonim `resources/views/
 | `<x-info-halaman>` | `data` (paginator) | "Menampilkan X–Y dari Z data" |
 | `<x-alert>` | `tipe` (sukses/error/warning/info) | Alert umum + slot isi |
 | `<x-ikon>` | `nama`, `class` | Ikon Heroicons outline |
+| `<x-searchable-select>` | `wire-model`/`name`, `options`, `selected` | Combobox terpencarian (filter & form) |
+| `<x-desa-select>` | mengikuti kecamatan terpilih | Pemilih desa dari API wilayah, tetap boleh ketik bebas |
+| `<x-per-halaman>` | — (di dalam view Livewire tabel) | Pemilih baris per halaman 10/15/20/25/50/100 |
+| `<x-chip-konteks>` | — | Chip cakupan konteks Pemda di halaman daftar |
 
 Aturan: komponen baru hanya bila pola dipakai ≥3 tempat; varian kecil
 diselesaikan via atribut/`class` tambahan, bukan file baru.
@@ -60,7 +64,9 @@ Semua halaman (kecuali login) memakai `layouts.app`:
 
 - Format judul tab browser: `Nama Halaman — PetaPenempatan ASN`
   (jangan lupa akhiran "— PetaPenempatan ASN").
-- Konten otomatis terbungkus `main.container.mx-auto.px-4.py-6.max-w-6xl`.
+- Konten otomatis terbungkus `main.container.mx-auto.px-4.py-6`
+  (lebar penuh wadah; sejak 23 Okt 2026 tanpa batas `max-w-6xl`,
+  maksimum mengikuti breakpoint container 1536px).
 - Pola kepala halaman (header + tombol aksi kanan):
 
 ```blade
@@ -109,7 +115,11 @@ Semua halaman (kecuali login) memakai `layouts.app`:
 - `overflow-x-auto` wajib agar tabel bisa digeser di HP.
 - Baris kosong: satu `<tr>` dengan pesan, contoh:
   "Belum ada rekomendasi SPK. Klik Generate SPK untuk mencari penempatan."
-- Pagination Laravel standar di bawah tabel (`$data->links()`).
+- Pagination di bawah tabel memakai **tema daisyUI terpusat**
+  (`config/livewire.php`: `pagination_theme=daisyui`; pola `join` +
+  `btn btn-sm join-item`, halaman aktif `btn-active`), dirender lewat
+  `$data->links()` pada komponen Livewire. Di sampingnya tampil
+  `<x-info-halaman>` dan `<x-per-halaman>` (pemilih 10–100 baris).
 
 ## 7. Formulir (daisyUI v5)
 
@@ -198,7 +208,7 @@ Satu status = satu warna, berlaku di semua halaman:
 - [ ] `@section('judul', '... — PetaPenempatan ASN')`
 - [ ] Header `h1.text-2xl.font-bold` + tombol aksi kanan (sesuai peran)
 - [ ] Tabel interaktif WAJIB komponen Livewire `Tabel*` (lihat Aturan Livewire di AGENTS.md): pola kartu + `table-zebra` + `overflow-x-auto`
-- [ ] Form pakai pola `form-control` + `old()` + error validasi
+- [ ] Form pakai pola fieldset (§7) + `old()` + error validasi
 - [ ] Badge status mengikuti tabel warna §9
 - [ ] Aksi merusak punya `confirm()`
 - [ ] Teks Bahasa Indonesia, istilah baku §10

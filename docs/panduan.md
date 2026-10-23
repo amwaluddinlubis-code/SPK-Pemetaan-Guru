@@ -4,7 +4,7 @@ Sistem informasi pemetaan penempatan Guru ASN berbasis domisili untuk
 Dinas Pendidikan Kabupaten Mandailing Natal.
 
 Teknologi: Laravel 13 + MySQL 8 + Livewire 4 + Tailwind CSS/daisyUI.
-Status per **11 Oktober 2026**: prototipe fungsional. Fitur pemerataan tambahan telah ditambahkan, tetapi aplikasi **belum dinyatakan siap production**. Hasil tes harus dikaitkan dengan commit/run CI yang benar-benar diverifikasi; jangan menganggap angka terdahulu sebagai bukti untuk commit terbaru.
+Status per **23 Oktober 2026**: prototipe fungsional yang terus dikembangkan. Sejak 12 Okt 2026 ditambahkan: integrasi referensi wilayah Kemendagri, Pengaturan Pemda (konteks wilayah ketat), pemilih terpencarian, import rombel Dapodik + analisis kebutuhan massal, pagination daisyUI + pemilih baris per halaman, **Pengaturan Akses** (matriks menu/route per peran), dan **Impersonate**. Aplikasi **belum dinyatakan siap production**. Hasil tes harus dikaitkan dengan commit/run CI yang benar-benar diverifikasi; jangan menganggap angka terdahulu sebagai bukti untuk commit terbaru. (Verifikasi lokal terakhir: suite penuh 167 test hijau pada commit `1341d68`.)
 
 ## Masalah yang Diselesaikan
 
@@ -20,7 +20,7 @@ penempatan yang lebih adil dan efisien lewat tiga jalur: **usulan**,
 |---|---|
 | `docs/peran.md` | Peran pengguna, scope data, dan matriks hak akses |
 | `docs/alur-kerja.md` | Alur kerja utama: pendataan, usulan, swap, SPK, dashboard pemda |
-| `docs/aturan-bisnis.md` | 16 aturan bisnis kunci |
+| `docs/aturan-bisnis.md` | 17 aturan bisnis kunci |
 | `docs/model-data.md` | Ringkasan tabel dan relasi database |
 | `docs/mesin-pemerataan.md` | Fitur tambahan: kualitas data, distribusi, simulasi, aksesibilitas, proyeksi, jejak audit |
 | `docs/qa.md` | Aturan QA, hasil verifikasi, strategi locking, QA browser |

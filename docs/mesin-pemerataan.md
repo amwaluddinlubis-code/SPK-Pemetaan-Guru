@@ -9,8 +9,13 @@ Fitur tambahan berada di menu/route berikut (semua memerlukan login):
 | `/distribusi` | Agregat kebutuhan, ketersediaan, defisit/surplus per kecamatan dan mapel | Kabid PTK, Kadis, Pemda |
 | `/simulasi` | Simulasi hipotetis tanpa menulis perubahan operasional | Kabid PTK, Kadis |
 | `/aksesibilitas` | Statistik jarak Haversine agregat, bukan waktu tempuh jalan | Kabid PTK, Kadis |
-| `/proyeksi` | Syarat dan metodologi proyeksi kebutuhan | Kabid PTK |
+| `/proyeksi` | Syarat dan metodologi proyeksi kebutuhan | Kabid PTK, Kadis |
 | `/aktivitas` | Jejak audit operasional append-only melalui aplikasi | Kabid PTK |
+
+Kolom Peran adalah **bawaan** Pengaturan Akses (lihat `docs/peran.md`) —
+administrator dapat mengubah akses membuka halamannya per peran; ekspor
+dan aksi lain tetap dibatasi middleware peran rinci seperti tertulis di
+`routes/web.php`.
 
 ## Definisi dan batasan
 

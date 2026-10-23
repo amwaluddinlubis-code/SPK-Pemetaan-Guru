@@ -19,21 +19,46 @@
 | POST /spk/{id}/tolak, /swap/{id}/tolak | 403 | 403 | 403 | ya | ya | 403 |
 | GET /spk/{id}/telaahan | 403 | 403 | 403 | ya | ya | 403 |
 
-Pembatasan diterapkan server-side via middleware `role:` pada route dan
-`terapkanScopePeran()` pada query controller — bukan sekadar
-menyembunyikan menu. Akses langsung via URL oleh peran tak berwenang
-menghasilkan 403 (halaman ramah di `resources/views/errors/403.blade.php`).
+Pembatasan diterapkan server-side — bukan sekadar menyembunyikan menu —
+dalam tiga lapisan: (1) **Pengaturan Akses** menjadi gerbang halaman modul
+(middleware `PastikanAksesMenu` memetakan nama route ke menu di
+`App\Services\RegistriMenu`; nilai bawaan matriksnya = tabel pada dokumen
+ini); (2) middleware `role:` rinci pada route aksi (tambah/ubah/hapus/
+setujui/ekspor); (3) scope peran pada query komponen Livewire/controller.
+Akses langsung via URL oleh peran tak berwenang menghasilkan 403
+(halaman ramah di `resources/views/errors/403.blade.php`).
+
+## Pengaturan Akses (23 Okt 2026)
+
+Administrator (Kabid PTK) dapat mengubah matriks di atas lewat menu
+**Sistem → Pengaturan Akses**: menutup akses menyembunyikan menu dari
+bilah sisi peran itu dan menolak route-nya (403); membuka akses di luar
+bawaan benar-benar membuka halaman modulnya. Matriks mengatur **akses
+membuka modul**, bukan hak aksi di dalamnya — aksi tetap dijaga lapisan
+(2) dan (3). Pengaman: Kabid PTK tidak bisa menutup aksesnya sendiri ke
+halaman Pengaturan Akses (anti-terkunci); Kelola Pengguna, Pengaturan
+Pemda, dan Pengaturan Akses sendiri tetap khusus Kabid PTK. Setiap
+perubahan tercatat di Jejak Audit (`akses-menu.ubah` / `akses-menu.reset`).
+
+## Impersonate (23 Okt 2026)
+
+Kabid PTK dapat **masuk sebagai** pengguna lain dari Kelola Pengguna
+untuk memeriksa tampilan/kendala — dengan bilah peringatan selama
+penyamaran dan tombol kembali ke akun sendiri. Dilarang: menyamar sebagai
+sesama Kabid PTK, akun sendiri, atau saat sedang menyamar. Mulai dan
+berhenti tercatat di Jejak Audit (`impersonate.mulai` / `impersonate.berhenti`).
 
 ## Keputusan kebijakan pemda (11 Okt 2026)
 
 Peran `pemda` dibatasi pada dashboard ringkasan karena dokumentasi peran
 menyatakan "Dashboard Eksekutif — Ringkasan read-only" dan daftar SPK/swap
 memuat data pribadi guru (NIP, domisili) di luar kebutuhan ringkasan. Jika
-kebijakan membutuhkan akses daftar, longgarkan middleware `role:` pada
-route `/spk` & `/swap` dan catat alasannya di sini.
+kebijakan berubah, longgarkan lewat **Pengaturan Akses** (bukan mengubah
+kode) dan catat alasannya di sini.
 
-**Catatan audit:** cakupan pada tabel di atas adalah kebijakan yang harus
-dipenuhi, bukan jaminan bahwa setiap halaman sudah menerapkannya. Audit
-statis pada `main` menemukan query daftar SPK dan swap yang perlu dibatasi
-menurut peran. Jangan anggap data pada halaman tersebut sudah terisolasi
-untuk setiap peran sampai perbaikan dan tes regresi terverifikasi.
+**Catatan audit (diperbarui 23 Okt 2026):** catatan lama menyatakan query
+daftar SPK/swap belum terisolasi per peran. Kini scope peran ditegakkan di
+dalam komponen `TabelSpk`/`TabelSwap` (guru: milik sendiri; kepala
+sekolah: se-sekolah; ketua PGRI: se-kecamatan) dan dicakup
+`TabelLivewireTest`, di samping scope pada controller. Akses halaman
+daftarnya sendiri kini digerbang Pengaturan Akses (lihat bagian di atas).

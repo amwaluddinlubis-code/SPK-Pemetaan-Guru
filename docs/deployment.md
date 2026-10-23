@@ -21,8 +21,10 @@
 
 ## Data
 
-- [ ] DATA-001: koordinat 552 sekolah sudah diverifikasi lapangan
-      (lihat `docs/verifikasi-data.md`)
+- [ ] DATA-001: koordinat sekolah sudah diverifikasi lapangan
+      (data awal seed: 478 sekolah negeri; lihat `docs/verifikasi-data.md`)
+- [ ] Setelah login admin pertama: atur **Pengaturan Pemda** (konteks
+      wilayah kerja) dan tinjau **Pengaturan Akses** (matriks menu per peran)
 - [ ] Data guru asli sudah diimpor menggantikan 8 data contoh
 - [ ] Backup database awal sudah dibuat dan prosedur restore sudah dites
 

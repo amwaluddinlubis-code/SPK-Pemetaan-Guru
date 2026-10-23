@@ -25,7 +25,12 @@
 10. **Satu usulan aktif** per guru.
 11. **Scope peran**: tiap peran hanya melihat/mengubah sesuai wilayahnya.
     Terapkan dan uji scope pada semua halaman, endpoint, pencarian, ekspor,
-    serta aksi baca/tulis—termasuk daftar SPK dan swap.
+    serta aksi baca/tulis—termasuk daftar SPK dan swap. Sejak 23 Okt 2026
+    akses membuka modul diatur **Pengaturan Akses** (matriks peran × menu
+    di `App\Services\RegistriMenu` + tabel `akses_menu`, digerbang
+    middleware `PastikanAksesMenu`); bawaannya persis matriks pada
+    `docs/peran.md`. Matriks tidak menaikkan hak aksi — tambah/ubah/hapus/
+    menyetujui tetap mengikuti aturan peran rinci per route.
 12. **Rem pemerataan (3T)**: guru di sekolah Terpencil/3T tidak ditarik
     keluar lewat SPK.
 13. **Peringatan dampak sekolah asal**: bila sekolah asal kekurangan guru
@@ -39,3 +44,8 @@
     peran guru tidak bisa mengubahnya.
 16. **Keputusan akhir oleh pejabat berwenang**: hasil SPK adalah rekomendasi
     pendukung keputusan, bukan SK atau keputusan mutasi resmi otomatis.
+17. **Impersonate tercatat & terbatas**: hanya Kabid PTK yang dapat masuk
+    sebagai pengguna lain; dilarang menyamar sebagai sesama Kabid PTK,
+    akun sendiri, atau berlapis. Selama menyamar tampil bilah peringatan;
+    mulai dan berhenti wajib tercatat di Jejak Audit. Tindakan selama
+    impersonate berlaku sebagai akun yang disamar (termasuk scope datanya).

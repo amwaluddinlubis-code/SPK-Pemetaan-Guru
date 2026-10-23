@@ -2,8 +2,9 @@
 
 ## Latar belakang
 
-Koordinat 552 sekolah di database saat ini adalah **estimasi** dan belum
-layak dipakai untuk keputusan resmi penempatan guru.
+Koordinat sekolah-sekolah di database saat ini adalah **estimasi** dan belum
+layak dipakai untuk keputusan resmi penempatan guru. (Data awal yang
+ter-seed: 478 sekolah negeri se-Kab. Mandailing Natal.)
 
 ## Prosedur verifikasi
 
@@ -30,5 +31,5 @@ Verifikasi dulu sekolah di kecamatan dengan defisit guru tertinggi
 ## Tanggung jawab
 
 Operator: Dinas Pendidikan Kab. Mandailing Natal (Bidang PTK).
-Target: seluruh 552 sekolah terverifikasi sebelum aplikasi dipakai
+Target: seluruh sekolah di database terverifikasi sebelum aplikasi dipakai
 untuk keputusan mutasi resmi.

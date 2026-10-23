@@ -66,10 +66,38 @@
 - [x] Aksesibilitas dasar: skip link, indikator fokus keyboard.
 - [x] 9 test baru (`NavbarTemaTest`); total 109 passed.
 
+## Selesai: Konteks Pemda, Pengaturan Akses, Impersonate (23 Okt 2026)
+
+- [x] **Referensi Wilayah Kemendagri terintegrasi**: 4 tabel Livewire
+      (provinsi/kabupaten/kecamatan/desa) + API dropdown berjenjang +
+      seeder nasional (37 provinsi, 514 kabupaten, 7.277 kecamatan,
+      83.761 desa).
+- [x] **Pengaturan Pemda**: konteks wilayah kerja (provinsi/kabupaten)
+      dengan konteks ketat (global scope), identitas pemda di layout,
+      lencana konteks + spanduk pengingat + chip cakupan.
+- [x] **Pemilih terpencarian** (combobox) di filter & form, termasuk
+      pemilih desa mengikuti kecamatan.
+- [x] **Import Rombel Dapodik** per kecamatan (pencocokan NPSN) +
+      **Terapkan Analisis Massal** kebutuhan guru (rombel × JP
+      Permendikdasmen No. 13/2025 ÷ 24).
+- [x] **Pagination daisyUI** terpusat + pemilih baris per halaman
+      (10–100) di semua tabel; pencarian teks untuk tabel SPK & swap.
+- [x] **Pengaturan Akses**: matriks menu/route per peran (gerbang
+      middleware + sidebar dari registri), anti-terkunci administrator,
+      tercatat di Jejak Audit.
+- [x] **Impersonate**: admin masuk sebagai pengguna lain (bilah
+      peringatan + kembali), tercatat di Jejak Audit.
+- [x] Data awal sekolah dibatasi **status NEGERI (478)**; NPSN SDN 051
+      Bange dibetulkan (10207979).
+- [x] Container utama diperlebar (tanpa batas `max-w-6xl`).
+- [x] **Hasil lokal: 167 passed, 722 assertions** pada commit `1341d68`
+      (CI per-SHA tetap menjadi penentu status rilis).
+
 ## Prioritas 2 — Menuju Production (belum)
 
 - [ ] Import data guru asli (mengganti 8 data contoh).
-- [ ] Verifikasi koordinat 552 sekolah (saat ini estimasi).
+- [ ] Verifikasi koordinat sekolah pada data awal (478 sekolah negeri;
+      saat ini estimasi) — data live dapat bertambah lewat import.
 - [ ] Branding Dinas; deploy + domain; backup berkala dan uji pemulihan.
 - [ ] Ganti/hapus akun demo dan password bawaan; verifikasi konfigurasi
       environment, backup, dan prosedur pemulihan. **(Operasional.)**
@@ -103,8 +131,9 @@
    terkonfirmasi memblokir brute force (30 login bersamaan → 25 ditolak).
    Uji beban production wajib dilakukan di environment staging yang
    menyerupai production.
-8. **Akses daftar guru/sekolah/usulan untuk peran pemda** belum diputuskan
-   (audit hanya membatasi SPK/swap). Jika prinsip data minimization
-   diterapkan konsisten, pertimbangkan pembatasan serupa.
+8. **Akses daftar guru/sekolah/usulan untuk peran pemda** sudah diputuskan:
+   dibatasi ke peran operasional (route + menu), sejalan data minimization.
+   Sejak 23 Okt 2026 pembatasan ini diatur **Pengaturan Akses** dan dapat
+   diubah administrator tanpa mengubah kode.
 9. **GOV-001**: bobot keluarga 1,5x perlu dasar kebijakan tertulis Dinas
    sebelum dipakai operasional.

@@ -8,18 +8,24 @@ dengan komponen UI dari **daisyUI**.
 - 🗺️ Dashboard peta interaktif (Leaflet + OpenStreetMap, gratis)
 - 🎯 Rekomendasi sekolah terdekat yang membutuhkan mapel guru (otomatis, tanpa reload — Livewire)
 - 🔍 Pencarian + filter kecamatan di tabel guru & sekolah, filter peran di tabel pengguna
-- ⚡ Semua tabel interaktif Livewire (cari/filter/sortir/pagination tanpa reload; filter sinkron URL)
+- ⚡ Semua tabel interaktif Livewire (cari/filter/sortir/pagination tanpa reload; filter sinkron URL), pagination gaya daisyUI + pemilih jumlah baris per halaman (10–100)
+- 🗂️ Referensi wilayah Kemendagri lengkap (provinsi s.d. desa) dengan pemilih terpencarian (combobox) di form & filter
+- 🏛️ **Pengaturan Pemda**: konteks wilayah kerja (provinsi/kabupaten) — data di luar wilayah disembunyikan dari semua modul
+- 📊 Analisis kebutuhan guru otomatis (rombel × jam pelajaran Permendikdasmen No. 13/2025 ÷ 24) + import rombel dari CSV Dapodik per kecamatan + terapkan massal
+- 🧭 Mesin pemerataan: Kualitas Data, Distribusi defisit/surplus, Aksesibilitas, Simulasi what-if, Proyeksi, Jejak Audit
+- 🔐 **Pengaturan Akses**: matriks menu/route per peran yang dapat diatur administrator (bawaan = aturan peran di bawah)
+- 🎭 **Impersonate**: administrator dapat masuk sebagai pengguna lain untuk memeriksa tampilan (tercatat di Jejak Audit)
 - 📍 Pemilih koordinat klik-peta di form guru & sekolah (klik/geser pin → lat/lng terisi otomatis)
 - 👩‍🏫 CRUD Data Guru (NIP, mapel, domisili + koordinat; kecamatan berupa dropdown)
 - 📥 Import massal data guru dari Excel/CSV + unduh template (khusus administrator)
 - 📝 Alur usulan penempatan: Diajukan → Diverifikasi Kabid → Disetujui Kadis (otomatis mutasi) / Ditolak; bisa diajukan langsung dari hasil rekomendasi peta
 - 🏫 CRUD Data Sekolah + kebutuhan guru per mapel (baris dinamis — Alpine.js)
-- 🔐 Login dengan **5 tingkatan pengguna** (hak akses & scope berbeda)
+- 🔐 Login dengan **6 tingkatan pengguna** (hak akses & scope berbeda)
 - 👥 Kelola akun pengguna (khusus administrator)
 
 ## Sumber Data
 
-- **Data sekolah (552)**: ASLI dari [referensi.data.kemendikdasmen.go.id](https://referensi.data.kemendikdasmen.go.id/pendidikan/dikdas/071500/2) — seluruh SD/SMP se-Kab. Mandailing Natal, Sumatera Utara (diakses 2026-10-10). NPSN, nama, alamat, kecamatan, status = data resmi.
+- **Data sekolah awal (478)**: ASLI dari [referensi.data.kemendikdasmen.go.id](https://referensi.data.kemendikdasmen.go.id/pendidikan/dikdas/071500/2) — SD/SMP se-Kab. Mandailing Natal, Sumatera Utara (diakses 2026-10-10). NPSN, nama, alamat, kecamatan, status = data resmi. Sejak 23 Okt 2026 data awal (seeder) dibatasi pada sekolah berstatus **NEGERI** saja; sekolah swasta dapat ditambah lewat aplikasi/import. NPSN SDN 051 Bange pada data awal sudah dibetulkan menjadi 10207979 sesuai Dapodik.
 - **Koordinat sekolah**: PERKIRAAN (geocoding kecamatan via Nominatim/Wikipedia + sebaran acak). Jangan dipakai untuk keperluan resmi — ganti dengan koordinat hasil survei/Dapodik.
 - **Data guru (8)**: CONTOH fiktif untuk demo (domisili di sekitar Panyabungan).
 - **Kebutuhan guru**: CONTOH untuk demo — ganti dengan data riil.
@@ -33,6 +39,9 @@ dengan komponen UI dari **daisyUI**.
 | **Ketua PGRI Kecamatan** | Kecamatan | Lihat saja (read-only) data se-kecamatan |
 | **Kabid PTK** | Kabupaten (semua) | Administrator: CRUD penuh guru, sekolah, dan kelola pengguna |
 | **Kadis Pendidikan** | Semua | Reviewer: lihat semua (read-only) |
+| **Pemerintah Daerah** | Ringkasan kabupaten | Eksekutif: dashboard + dashboard ringkasan (`/pemda`) + Distribusi, read-only |
+
+Visibilitas menu & akses membuka modul di atas kini diatur lewat **Pengaturan Akses** (grup menu Sistem, khusus Kabid PTK) — tabel ini adalah nilai bawaannya. Hak melakukan aksi di dalam modul (tambah/ubah/hapus/menyetujui) tetap mengikuti aturan peran rinci di `docs/peran.md`.
 
 Akun contoh (password = nama peran + `123`, segera ganti!):
 
@@ -174,7 +183,7 @@ Urutan baca yang disarankan untuk memahami aplikasi:
 - **Export CSV**: tombol 📤 di halaman Data Guru, Data Sekolah, Usulan — mengikuti hak akses peran
 - **Import Sekolah** (`/sekolah/import`): seperti import guru, template bisa diunduh
 - **Sorting tabel**: klik header kolom (Nama, Mapel, Kecamatan, Status, Tanggal)
-- **Info pagination**: "Menampilkan 1–15 dari 552 data" di bawah tabel
+- **Info pagination**: "Menampilkan 1–15 dari 478 data" di bawah tabel
 - **Halaman error ramah**: 403 & 404 dengan tombol kembali
 
 ---

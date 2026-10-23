@@ -164,3 +164,8 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 5. Controller index() hanya return view (header + tombol aksi tetap Blade). Logika query daftar tidak boleh di controller (kecuali dipakai ulang export/cetak).
 6. Alpine.js hanya untuk interaksi trivial tanpa state server (dropdown, toggle, confirm). Peta memakai wire:ignore.
 7. Setiap tabel Livewire WAJIB diuji: render awal + filter + scope peran via Livewire::test().
+
+## Aturan Akses Menu & Impersonate (wajib)
+
+8. Menu/modul baru WAJIB didaftarkan di `App\Services\RegistriMenu` (label, grup, rute, pola aktif, ikon, peran bawaan). Akses membuka halaman modul digerbang middleware `PastikanAksesMenu` + layanan `App\Services\AksesMenu` (Pengaturan Akses) — JANGAN memasang middleware `role:` pada rute halaman/indeks modul yang terdaftar di registri; rute aksi (store/update/destroy/setujui/ekspor/dll.) TETAP memakai `role:` rinci dan scope peran di komponen/controller.
+9. Impersonate hanya untuk kabid_ptk, tidak ke sesama kabid_ptk/diri sendiri/berlapis; mulai & berhenti WAJIB tercatat via `ActivityLog::catatAman`.

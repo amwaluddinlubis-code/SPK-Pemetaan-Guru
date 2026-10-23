@@ -71,3 +71,36 @@ pengujian penetrasi, pengujian runtime, atau uji konkurensi langsung.
 Tidak ada klaim bahwa semua temuan sudah diperbaiki hanya karena tercantum
 dalam dokumentasi. Tandai temuan selesai hanya setelah perubahan kode,
 tes yang relevan, dan hasil CI pada commit terkait telah diverifikasi.
+
+---
+
+## Pembaruan fitur & tata kelola akses — 23 Oktober 2026
+
+Entri susulan (append-only) untuk perubahan besar sejak audit 11–12 Okt:
+
+- **Modul Referensi Wilayah terintegrasi**: tabel berkode Kemendagri
+  (provinsi/kabupaten/kecamatan/desa) + halaman Livewire + API dropdown;
+  seeder nasional terverifikasi (37/514/7.277/83.761 baris).
+- **Pengaturan Pemda (konteks ketat)**: global scope pada Sekolah, Guru,
+  KebutuhanGuru, UsulanPenempatan membatasi seluruh modul ke wilayah
+  kerja terpilih; pencocokan nama kecamatan dikanonikkan (varian ejaan
+  Merapi/Marapi). Tes: `PengaturanPemdaTest`, `KonteksUiTest`.
+- **Pengaturan Akses (gerbang baru)**: akses membuka halaman modul kini
+  diatur matriks peran × menu (`RegistriMenu` + tabel `akses_menu`,
+  middleware `PastikanAksesMenu`). Bawaan matriks = matriks terdokumentasi
+  di `docs/peran.md`. Lapisan lama tetap berlaku untuk aksi (middleware
+  `role:` rinci) dan scope data (komponen/controller). Pengaman
+  anti-terkunci: Kabid PTK tidak dapat menutup aksesnya ke halaman
+  pengaturan. Tes: `PengaturanAksesTest` (5).
+- **Impersonate**: mulai/berhenti tercatat di Jejak Audit; dilarang
+  menyamar sebagai sesama Kabid PTK/akun sendiri/berlapis; selama
+  menyamar halaman admin tertutup karena sesi berlaku sebagai akun
+  tujuan. Tes: `ImpersonateTest` (3).
+- **Integritas data awal**: seed sekolah dibatasi status NEGERI (478)
+  dan NPSN SDN 051 Bange dibetulkan ke 10207979 sesuai Dapodik
+  (commit `1560528`).
+- **Status verifikasi entri ini**: suite lokal penuh **167 passed /
+  722 assertions** pada commit `1341d68` (MySQL `peta_asn_test`).
+  Sesuai standar dokumen ini, hasil CI untuk SHA tersebut **belum
+  diperiksa saat entri ini ditulis** dan tetap wajib diverifikasi
+  sebelum dinyatakan lulus.

@@ -29,6 +29,30 @@ tanpa reload; filter sinkron URL via `#[Url]`). Aturannya di
 lolos lokal 12 Okt 2026: total suite **118 test, 402 assertions, 0 gagal**
 (sqlite `:memory:`; angka CI MySQL menyusul via workflow).
 
+## Pembaruan fitur & QA (23 Okt 2026)
+
+Sejak konversi di atas, tabel interaktif menjadi **11** (ditambah 4 tabel
+referensi wilayah Kemendagri: provinsi, kabupaten, kecamatan, desa).
+Fitur yang ditambahkan beserta tesnya:
+
+- **Pengaturan Pemda (konteks wilayah ketat)** — `PengaturanPemdaTest`,
+  `KonteksUiTest` (lencana konteks, spanduk, chip cakupan).
+- **Pemilih terpencarian** (`x-searchable-select`, `x-desa-select`) —
+  `SearchableSelectTest`.
+- **Pagination daisyUI + pemilih baris per halaman + pencarian SPK/swap** —
+  `PaginationDaisyUiTest` (4 test).
+- **Pengaturan Akses** — `PengaturanAksesTest` (5 test: bawaan = aturan
+  lama, tutup/buka berlaku ke route + menu, aksi tetap dijaga peran rinci,
+  anti-terkunci administrator).
+- **Impersonate** — `ImpersonateTest` (3 test: alur penuh, batasan,
+  halaman admin tertutup selama menyamar).
+
+Verifikasi lokal 23 Okt 2026 pada commit `1341d68`: **167 passed,
+722 assertions** (PHPUnit, MySQL `peta_asn_test`) — termasuk `WilayahTest`
+yang sebelumnya tercatat gagal pada commit modul wilayah. Sesuai aturan
+dokumen ini, status rilis tetap ditentukan run CI yang SHA-nya sama
+dengan commit yang akan dirilis.
+
 ## CI
 
 Workflow `.github/workflows/phpunit.yml` SUDAH ADA di repo (dibuat sesi

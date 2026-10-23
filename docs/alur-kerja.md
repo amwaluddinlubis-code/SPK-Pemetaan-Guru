@@ -9,6 +9,18 @@ sekolah: NPSN (unik), nama, alamat, desa/kelurahan, kecamatan, koordinat,
 kategori daerah (Biasa/Terpencil/Sangat Terpencil 3T), plus kebutuhan guru
 per mapel. Pemasukan lewat form atau import Excel (Kabid PTK).
 
+**Rombel & kebutuhan otomatis:** rombel tiap sekolah dapat diimpor massal
+dari CSV ekspor Dapodik per kecamatan (menu Import Rombel di Data Sekolah,
+khusus Kabid PTK; pencocokan via NPSN). Kebutuhan guru lalu dihitung
+otomatis: rombel × jam pelajaran per minggu (Permendikdasmen No. 13/2025)
+÷ 24, dan dapat diterapkan ke semua sekolah sekaligus lewat tombol
+**Terapkan Analisis Massal** (idempoten, tercatat di Jejak Audit).
+
+**Wilayah & konteks:** provinsi/kabupaten/kecamatan/desa mengikuti
+referensi Kemendagri (menu Referensi Wilayah). Bila **Pengaturan Pemda**
+diatur, seluruh modul hanya menampilkan data wilayah kerja tersebut
+(konteks ketat via global scope).
+
 ## Usulan Penempatan (bottom-up)
 
     diajukan → diverifikasi (Kabid PTK) → disetujui (Kadis) → guru otomatis dimutasi
