@@ -62,15 +62,17 @@
                                 @endif
                             </td>
                             <td class="text-right whitespace-nowrap">
-                                @if ($u->role !== 'kabid_ptk' && $u->id !== auth()->id() && ! session()->has(\App\Http\Controllers\ImpersonateController::SESSION_ASAL))
-                                    <form method="POST" action="{{ route('impersonate.mulai', $u) }}" class="inline"
-                                          onsubmit="return confirm('Masuk sebagai {{ $u->name }}? Anda bisa kembali ke akun Anda kapan saja lewat bilah kuning di atas.')">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-info gap-1"><x-ikon nama="pengguna" class="h-4 w-4" /> Impersonate</button>
-                                    </form>
-                                @endif
-                                <a href="{{ route('pengguna.edit', $u) }}" class="btn btn-sm btn-warning gap-1"><x-ikon nama="pensil" class="h-4 w-4" /> Ubah</a>
-                                <x-hapus :aksi="route('pengguna.destroy', $u)" tanya="Hapus akun {{ $u->name }}?" />
+                                <div class="grup-aksi">
+                                    @if ($u->role !== 'kabid_ptk' && $u->id !== auth()->id() && ! session()->has(\App\Http\Controllers\ImpersonateController::SESSION_ASAL))
+                                        <form method="POST" action="{{ route('impersonate.mulai', $u) }}" class="inline" title="Impersonate — masuk sebagai pengguna ini"
+                                              data-konfirmasi data-judul="Impersonate Pengguna" data-pesan="Masuk sebagai {{ $u->name }}? Anda bisa kembali ke akun Anda kapan saja lewat bilah kuning di atas." data-tombol="Masuk Sebagai" data-warna="btn-info">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-info" aria-label="Impersonate — masuk sebagai pengguna ini"><x-ikon nama="pengguna" class="h-4 w-4" /></button>
+                                        </form>
+                                    @endif
+                                    <a href="{{ route('pengguna.edit', $u) }}" class="btn btn-sm btn-warning" title="Ubah" aria-label="Ubah"><x-ikon nama="pensil" class="h-4 w-4" /></a>
+                                    <x-hapus :aksi="route('pengguna.destroy', $u)" tanya="Hapus akun {{ $u->name }}?" ikon-saja petunjuk="Hapus" />
+                                </div>
                             </td>
                         </tr>
                     @empty

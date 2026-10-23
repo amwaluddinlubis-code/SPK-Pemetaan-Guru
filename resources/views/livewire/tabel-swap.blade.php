@@ -9,7 +9,7 @@
         {{-- Tombol generate: khusus administrator (kabid_ptk) --}}
         @if (auth()->user()->hasRole('kabid_ptk'))
             <form method="POST" action="{{ route('swap.generate') }}"
-                  onsubmit="return confirm('Jalankan pencocokan pasangan swap untuk semua guru?')">
+                  data-konfirmasi data-judul="Cari Pasangan Swap" data-pesan="Jalankan pencocokan pasangan swap untuk semua guru?" data-tombol="Jalankan" data-warna="btn-primary">
                 @csrf
                 <button type="submit" class="btn btn-primary"><x-ikon nama="swap" class="h-5 w-5" /> Generate Rekomendasi</button>
             </form>
@@ -113,21 +113,23 @@
                         {{-- Aksi: hanya untuk yang masih menunggu --}}
                         <td class="whitespace-nowrap">
                             @if ($s->status === 'menunggu')
-                                @if (auth()->user()->hasRole('kadis'))
-                                    <form method="POST" action="{{ route('swap.setujui', $s) }}" class="inline"
-                                          onsubmit="return confirm('Setujui swap ini? Kedua guru akan langsung dimutasi.')">
-                                        @csrf
-                                        <button type="submit" class="btn btn-success btn-sm">Setujui</button>
-                                    </form>
-                                @endif
-                                @if (auth()->user()->hasRole('kabid_ptk') || auth()->user()->hasRole('kadis'))
-                                    <form method="POST" action="{{ route('swap.tolak', $s) }}" class="inline"
-                                          onsubmit="const a = prompt('Alasan penolakan (wajib diisi):'); if (!a || !a.trim()) { alert('Alasan penolakan wajib diisi.'); return false; } this.querySelector('[name=catatan_admin]').value = a.trim(); return true;">
-                                        @csrf
-                                        <input type="hidden" name="catatan_admin" value="">
-                                        <button type="submit" class="btn btn-error btn-sm">Tolak</button>
-                                    </form>
-                                @endif
+                                <div class="grup-aksi">
+                                    @if (auth()->user()->hasRole('kadis'))
+                                        <form method="POST" action="{{ route('swap.setujui', $s) }}" class="inline" title="Setujui swap"
+                                              data-konfirmasi data-judul="Setujui Swap" data-pesan="Setujui swap ini? Kedua guru akan langsung dimutasi bertukar sekolah." data-tombol="Setujui" data-warna="btn-success">
+                                            @csrf
+                                            <button type="submit" class="btn btn-success btn-sm" aria-label="Setujui swap"><x-ikon nama="centang" class="h-4 w-4" /></button>
+                                        </form>
+                                    @endif
+                                    @if (auth()->user()->hasRole('kabid_ptk') || auth()->user()->hasRole('kadis'))
+                                        <form method="POST" action="{{ route('swap.tolak', $s) }}" class="inline" title="Tolak swap"
+                                              data-konfirmasi data-alasan="catatan_admin" data-alasan-label="Alasan penolakan" data-judul="Tolak Swap" data-pesan="Swap ditolak. Alasan tercatat pada rekomendasi swap." data-tombol="Tolak" data-warna="btn-error">
+                                            @csrf
+                                            <input type="hidden" name="catatan_admin" value="">
+                                            <button type="submit" class="btn btn-error btn-sm" aria-label="Tolak swap"><x-ikon nama="silang" class="h-4 w-4" /></button>
+                                        </form>
+                                    @endif
+                                </div>
                             @else
                                 <span class="text-xs opacity-50">—</span>
                             @endif

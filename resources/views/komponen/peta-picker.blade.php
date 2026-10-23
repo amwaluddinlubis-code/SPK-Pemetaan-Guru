@@ -110,7 +110,7 @@
                 elLng.dispatchEvent(new Event('change'));
             }
             window.petaTerbangKe(idPeta, lat, lng, 16);
-            tulis('✅ Lokasi GPS diterapkan (akurasi ±' + Math.round(pos.coords.accuracy) + ' m). Geser pin bila perlu.');
+            tulis('Lokasi GPS diterapkan (akurasi ±' + Math.round(pos.coords.accuracy) + ' m). Geser pin bila perlu.');
         }, function (err) {
             tulis(err.code === 1
                 ? 'Izin lokasi ditolak — izinkan akses lokasi di browser lalu coba lagi.'
@@ -120,12 +120,12 @@
     </script>
 @endPushOnce
 
-<div id="{{ $idPeta }}" style="height: 280px;" class="rounded-xl z-0 border border-base-300"></div>
-<p class="text-xs opacity-60 mt-1">🖱️ Klik peta atau geser pin untuk mengisi koordinat otomatis (atau ketik manual).</p>
+<div id="{{ $idPeta }}" style="height: 280px;" class="rounded-box z-0 border border-base-300 bg-base-200 shadow-sm"></div>
+<p class="mt-1 flex items-center gap-1 text-xs opacity-60"><x-ikon nama="info" class="h-3.5 w-3.5 shrink-0" /> Klik peta atau geser pin untuk mengisi koordinat otomatis (atau ketik manual).</p>
 @if ($gps ?? false)
     <div class="mt-2 flex flex-wrap items-center gap-2">
         <button type="button" class="btn btn-sm btn-outline btn-primary"
-                onclick="petaPakaiGps('{{ $idPeta }}', '{{ $inputLat }}', '{{ $inputLng }}')">📍 Pakai Lokasi GPS Saya</button>
+                onclick="petaPakaiGps('{{ $idPeta }}', '{{ $inputLat }}', '{{ $inputLng }}')"><x-ikon nama="lokasi" class="h-4 w-4" /> Pakai Lokasi GPS Saya</button>
         <span id="{{ $idPeta }}-gps-status" class="text-xs opacity-70"></span>
     </div>
 @endif

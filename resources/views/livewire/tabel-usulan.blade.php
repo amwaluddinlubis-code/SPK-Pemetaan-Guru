@@ -61,7 +61,7 @@
                             <td><span class="badge {{ $u->badgeStatus() }}">{{ $u->labelStatus() }}</span></td>
                             <td class="text-sm">{{ $u->pengaju->name ?? '—' }}</td>
                             <td class="text-right">
-                                <a href="{{ route('usulan.show', $u) }}" class="btn btn-sm btn-info gap-1"><x-ikon nama="mata" class="h-4 w-4" /> Lihat</a>
+                                <a href="{{ route('usulan.show', $u) }}" class="btn btn-sm btn-info" title="Lihat & telaahan" aria-label="Lihat & telaahan"><x-ikon nama="mata" class="h-4 w-4" /></a>
                             </td>
                         </tr>
                     @empty

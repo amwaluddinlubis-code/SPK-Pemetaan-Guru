@@ -66,7 +66,7 @@
 
                 @if (auth()->user()->hasRole('kepala_sekolah', 'kabid_ptk'))
                     <form method="POST" action="{{ route('sekolah.analisis.terapkan', $sekolah) }}" class="mt-4"
-                          onsubmit="return confirm('Terapkan hasil hitungan ini sebagai kebutuhan guru resmi? Baris kebutuhan lama akan diganti.')">
+                          data-konfirmasi data-judul="Terapkan Analisis" data-pesan="Terapkan hasil hitungan ini sebagai kebutuhan guru resmi? Baris kebutuhan lama akan diganti." data-tombol="Terapkan" data-warna="btn-primary">
                         @csrf
                         <button type="submit" class="btn btn-primary">✓ Terapkan sebagai Kebutuhan Guru</button>
                         <a href="{{ route('sekolah.index') }}" class="btn btn-ghost">Kembali</a>

@@ -68,6 +68,42 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
+/* Grup tombol aksi menyatu (pola join): tombol-tombol aksi halaman
+   digabung sebilah — sudut luar membulat, sambungan menyiku, tepi
+   tumpang 1px. Anak boleh <a>/<button> langsung atau <form> pembungkus
+   (untuk aksi POST seperti analisis & verifikasi massal). */
+.grup-aksi {
+    display: inline-flex;
+    flex-wrap: nowrap;
+}
+/* Khusus bilah aksi kepala halaman (banyak tombol): boleh membungkus
+   ke baris berikutnya di layar sempit. Grup baris tabel tidak memakai
+   ini — flex-wrap di sel tabel menyusut selebar satu tombol sehingga
+   tombol justru bertumpuk vertikal. */
+.grup-aksi-bungkus {
+    flex-wrap: wrap;
+}
+.grup-aksi > *,
+.grup-aksi > form > .btn {
+    border-radius: 0;
+    margin-inline-start: -1px;
+}
+.grup-aksi > :first-child,
+.grup-aksi > form:first-child > .btn {
+    border-start-start-radius: var(--radius-field);
+    border-end-start-radius: var(--radius-field);
+    margin-inline-start: 0;
+}
+.grup-aksi > :last-child,
+.grup-aksi > form:last-child > .btn {
+    border-start-end-radius: var(--radius-field);
+    border-end-end-radius: var(--radius-field);
+}
+.grup-aksi .btn:focus-visible {
+    position: relative;
+    z-index: 1;
+}
+
 /* Menu bilah sisi (Redesign R1): status aktif jelas di atas warna aksen,
    label grup tenang — hierarki terbaca tanpa berteriak */
 .menu-kerangka li > a:hover {
@@ -77,6 +113,40 @@ body {
     background: rgb(255 255 255 / 0.16);
     font-weight: 700;
     box-shadow: inset 3px 0 0 rgb(255 255 255 / 0.9);
+}
+
+/* Grup menu bilah sisi: judul grup = parent yang bisa dilipat (details).
+   Panah berputar mengikuti status buka; status diingat per peramban
+   oleh skrip kecil di layout (kunci localStorage 'spk-menu-grup'). */
+.menu-kerangka .menu-grup > summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgb(255 255 255 / 0.55);
+    cursor: pointer;
+    user-select: none;
+}
+.menu-kerangka .menu-grup > summary::-webkit-details-marker {
+    display: none;
+}
+.menu-kerangka .menu-grup > summary::after {
+    display: none;
+}
+.menu-kerangka .menu-grup > summary:hover {
+    color: rgb(255 255 255 / 0.9);
+}
+.menu-kerangka .menu-grup > summary .panah {
+    transition: transform 0.2s ease;
+    transform: rotate(-90deg);
+}
+.menu-kerangka .menu-grup[open ] > summary .panah {
+    transform: rotate(0deg);
 }
 
 /* 4. Aksesibilitas: indikator fokus keyboard yang jelas,

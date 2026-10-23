@@ -10,7 +10,7 @@
         {{-- Tombol generate: khusus administrator (kabid_ptk) --}}
         @if (auth()->user()->hasRole('kabid_ptk'))
             <form method="POST" action="{{ route('spk.generate') }}"
-                  onsubmit="return confirm('Jalankan SPK untuk semua guru yang jaraknya melebihi {{ \App\Http\Controllers\SpkController::AMBANG_KM }} km?')">
+                  data-konfirmasi data-judul="Generate SPK" data-pesan="Jalankan SPK untuk semua guru yang jaraknya melebihi {{ \App\Http\Controllers\SpkController::AMBANG_KM }} km?" data-tombol="Jalankan SPK" data-warna="btn-primary">
                 @csrf
                 <button type="submit" class="btn btn-primary"><x-ikon nama="spk" class="h-5 w-5" /> Generate SPK</button>
             </form>
@@ -191,27 +191,30 @@
 
                         {{-- Aksi: hanya untuk yang masih berstatus rekomendasi --}}
                         <td class="whitespace-nowrap">
+                            <div class="grup-aksi">
                             @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
                                 <a href="{{ route('spk.telaahan', $s) }}" target="_blank"
-                                   class="btn btn-info btn-sm gap-1" title="Cetak telaahan staf untuk PPK"><x-ikon nama="usulan" class="h-4 w-4" /> Telaahan</a>
+                                   class="btn btn-info btn-sm" title="Telaahan — cetak telaahan staf untuk PPK" aria-label="Telaahan — cetak telaahan staf untuk PPK"><x-ikon nama="usulan" class="h-4 w-4" /></a>
                             @endif
                             @if ($s->status === 'rekomendasi')
                                 @if (auth()->user()->hasRole('kadis'))
-                                    <form method="POST" action="{{ route('spk.setujui', $s) }}" class="inline"
-                                          onsubmit="return confirm('Setujui penempatan ini? Guru akan langsung dimutasi.')">
+                                    <form method="POST" action="{{ route('spk.setujui', $s) }}" class="inline" title="Setujui penempatan"
+                                          data-konfirmasi data-judul="Setujui Penempatan" data-pesan="Setujui penempatan ini? Guru akan langsung dimutasi ke sekolah tujuan." data-tombol="Setujui" data-warna="btn-success">
                                         @csrf
-                                        <button type="submit" class="btn btn-success btn-sm gap-1"><x-ikon nama="centang" class="h-4 w-4" /> Setujui</button>
+                                        <button type="submit" class="btn btn-success btn-sm" aria-label="Setujui penempatan"><x-ikon nama="centang" class="h-4 w-4" /></button>
                                     </form>
                                 @endif
                                 @if (auth()->user()->hasRole('kabid_ptk') || auth()->user()->hasRole('kadis'))
-                                    <form method="POST" action="{{ route('spk.tolak', $s) }}" class="inline"
-                                          onsubmit="const a = prompt('Alasan penolakan (wajib diisi):'); if (!a || !a.trim()) { alert('Alasan penolakan wajib diisi.'); return false; } this.querySelector('[name=catatan_admin]').value = a.trim(); return true;">
+                                    <form method="POST" action="{{ route('spk.tolak', $s) }}" class="inline" title="Tolak rekomendasi"
+                                          data-konfirmasi data-alasan="catatan_admin" data-alasan-label="Alasan penolakan" data-judul="Tolak Rekomendasi" data-pesan="Rekomendasi ditolak dan reservasi formasinya terlepas. Alasan tercatat pada rekomendasi." data-tombol="Tolak" data-warna="btn-error">
                                         @csrf
                                         <input type="hidden" name="catatan_admin" value="">
-                                        <button type="submit" class="btn btn-error btn-sm gap-1"><x-ikon nama="silang" class="h-4 w-4" /> Tolak</button>
+                                        <button type="submit" class="btn btn-error btn-sm" aria-label="Tolak rekomendasi"><x-ikon nama="silang" class="h-4 w-4" /></button>
                                     </form>
                                 @endif
-                            @else
+                            @endif
+                            </div>
+                            @if ($s->status !== 'rekomendasi')
                                 <span class="text-xs opacity-50">—</span>
                             @endif
                         </td>

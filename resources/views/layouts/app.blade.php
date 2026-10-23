@@ -147,11 +147,26 @@
                         @php $itemsTerlihat = array_filter($itemsGrup, fn ($item, $kunci) => $menuTerlihat[$kunci] ?? false, ARRAY_FILTER_USE_BOTH); @endphp
                         @if (count($itemsTerlihat) > 0)
                             @if ($namaGrup !== '')
-                                <li class="menu-title mt-3 text-[11px] uppercase tracking-wider text-primary-content/50"><span>{{ $namaGrup }}</span></li>
+                                @php $grupAktif = collect($itemsTerlihat)->contains(fn ($item) => request()->routeIs($item['pola'])); @endphp
+                                {{-- Grup menu: judul = parent yang bisa dilipat (toggle
+                                     expand/collapse); item di bawahnya = child.
+                                     Grup berisi halaman aktif selalu terbuka; status
+                                     lain diingat per peramban (skrip di bawah). --}}
+                                <li>
+                                    <details class="menu-grup" data-grup="{{ \Illuminate\Support\Str::slug($namaGrup) }}" @if ($grupAktif) open data-aktif="1" @endif>
+                                        <summary><span>{{ $namaGrup }}</span><x-ikon nama="panah-bawah" class="panah h-3.5 w-3.5" /></summary>
+                                        <ul>
+                                            @foreach ($itemsTerlihat as $item)
+                                                <li><a href="{{ route($item['rute']) }}" class="{{ request()->routeIs($item['pola']) ? 'active' : '' }}"><x-ikon :nama="$item['ikon']" class="h-5 w-5" /> {{ $item['label'] }}</a></li>
+                                            @endforeach
+                                        </ul>
+                                    </details>
+                                </li>
+                            @else
+                                @foreach ($itemsTerlihat as $item)
+                                    <li><a href="{{ route($item['rute']) }}" class="{{ request()->routeIs($item['pola']) ? 'active' : '' }}"><x-ikon :nama="$item['ikon']" class="h-5 w-5" /> {{ $item['label'] }}</a></li>
+                                @endforeach
                             @endif
-                            @foreach ($itemsTerlihat as $item)
-                                <li><a href="{{ route($item['rute']) }}" class="{{ request()->routeIs($item['pola']) ? 'active' : '' }}"><x-ikon :nama="$item['ikon']" class="h-5 w-5" /> {{ $item['label'] }}</a></li>
-                            @endforeach
                         @endif
                     @endforeach
                 </ul>
@@ -179,10 +194,33 @@
         </div>
     </div>
 
+    <!-- Modal konfirmasi global (pengganti confirm/prompt bawaan) -->
+    <x-modal-konfirmasi />
+
     <!-- Script khusus halaman -->
     @stack('skrip')
 
     <!-- Script komponen Livewire (wajib ada) -->
     @livewireScripts
+
+    <!-- Status lipat grup menu bilah sisi: diingat per peramban -->
+    <script>
+        (function () {
+            var kunci = 'spk-menu-grup';
+            var simpan = {};
+            try { simpan = JSON.parse(localStorage.getItem(kunci) || '{}'); } catch (e) { simpan = {}; }
+            document.querySelectorAll('details.menu-grup').forEach(function (d) {
+                var k = d.getAttribute('data-grup');
+                if (d.hasAttribute('data-aktif')) { d.open = true; }
+                else if (k && k in simpan) { d.open = !!simpan[k]; }
+                d.addEventListener('toggle', function () {
+                    if (k) {
+                        simpan[k] = d.open;
+                        try { localStorage.setItem(kunci, JSON.stringify(simpan)); } catch (e) {}
+                    }
+                });
+            });
+        })();
+    </script>
 </body>
 </html>

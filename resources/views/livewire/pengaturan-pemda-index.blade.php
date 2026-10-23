@@ -13,9 +13,8 @@
                     Data di luar wilayah disembunyikan dari semua modul.
                 </p>
             </div>
-            <button type="button" class="btn btn-sm btn-outline"
-                    wire:click="lepas"
-                    wire:confirm="Lepas konteks Pemda? Aplikasi akan kembali menampilkan semua wilayah.">Lepas Konteks</button>
+            <button type="button" class="btn btn-sm btn-outline" data-pesan="Lepas konteks Pemda? Aplikasi akan kembali menampilkan semua wilayah."
+                    x-on:click="konfirmasiDariData($el, {judul: 'Lepas Konteks Pemda', tombol: 'Lepas Konteks', warna: 'btn-warning'}).then(function (v) { if (v) $wire.lepas(); })">Lepas Konteks</button>
         </div>
     @else
         <div class="alert alert-warning mb-4">
@@ -145,7 +144,7 @@
                             <span class="inline-flex items-center justify-center rounded-box bg-primary p-1.5">
                                 <img src="{{ \App\Services\Branding::logoUrl() }}" alt="Logo pemda saat ini" class="h-12 w-12 rounded-lg bg-white object-contain p-0.5">
                             </span>
-                            <button type="button" wire:click="hapusLogo" wire:confirm="Hapus logo pemda? Aplikasi kembali memakai ikon bawaan." class="btn btn-outline btn-error btn-sm">Hapus Logo</button>
+                            <button type="button" data-pesan="Hapus logo pemda? Aplikasi kembali memakai ikon bawaan." x-on:click="konfirmasiDariData($el, {judul: 'Hapus Logo Pemda', tombol: 'Hapus Logo', warna: 'btn-error'}).then(function (v) { if (v) $wire.hapusLogo(); })" class="btn btn-outline btn-error btn-sm">Hapus Logo</button>
                         @endif
                         <input id="logo-pemda" type="file" wire:model="logoBaru" accept=".png,.jpg,.jpeg,.svg" class="file-input file-input-bordered w-full max-w-sm">
                     </div>

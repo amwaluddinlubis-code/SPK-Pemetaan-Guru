@@ -74,8 +74,8 @@
     </x-kartu>
 
     <div class="mt-4 flex flex-wrap items-center gap-2">
-        <button type="button" class="btn btn-outline" wire:click="resetBawaan"
-                wire:confirm="Kembalikan semua akses ke bawaan? Penyimpangan yang sudah diatur akan dihapus.">
+        <button type="button" class="btn btn-outline" data-pesan="Kembalikan semua akses ke bawaan? Penyimpangan yang sudah diatur akan dihapus."
+                x-on:click="konfirmasiDariData($el, {judul: 'Kembalikan ke Bawaan', tombol: 'Kembalikan', warna: 'btn-error'}).then(function (v) { if (v) $wire.resetBawaan(); })">
             Kembalikan ke Bawaan
         </button>
         <span class="text-sm opacity-60">Setiap perubahan tercatat di Jejak Audit.</span>

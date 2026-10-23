@@ -59,12 +59,14 @@
                                                class="input input-sm w-44" placeholder="Alasan bila ditolak">
                                     </td>
                                     <td class="text-right whitespace-nowrap">
-                                        <button wire:click="setujui({{ $p->id }})"
-                                                wire:confirm="Setujui pendaftaran {{ $p->nama }}? Data guru & akun (username = NIP) akan dibuat."
-                                                class="btn btn-success btn-sm">✓ Setujui</button>
-                                        <button wire:click="tolak({{ $p->id }})"
-                                                wire:confirm="Tolak pendaftaran {{ $p->nama }}?"
-                                                class="btn btn-error btn-sm btn-outline">Tolak</button>
+                                        <div class="grup-aksi">
+                                            <button type="button" data-pesan="Setujui pendaftaran {{ $p->nama }}? Data guru & akun (username = NIP) akan dibuat."
+                                                    x-on:click="konfirmasiDariData($el, {judul: 'Setujui Pendaftaran', tombol: 'Setujui', warna: 'btn-success'}).then(function (v) { if (v) $wire.setujui({{ $p->id }}); })"
+                                                    class="btn btn-success btn-sm" title="Setujui" aria-label="Setujui"><x-ikon nama="centang" class="h-4 w-4" /></button>
+                                            <button type="button" data-pesan="Tolak pendaftaran {{ $p->nama }}?"
+                                                    x-on:click="konfirmasiDariData($el, {judul: 'Tolak Pendaftaran', tombol: 'Tolak', warna: 'btn-error'}).then(function (v) { if (v) $wire.tolak({{ $p->id }}); })"
+                                                    class="btn btn-error btn-sm" title="Tolak" aria-label="Tolak"><x-ikon nama="silang" class="h-4 w-4" /></button>
+                                        </div>
                                     </td>
                                 @else
                                     <td>

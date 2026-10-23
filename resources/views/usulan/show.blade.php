@@ -59,30 +59,26 @@
 
                 @if ($usulan->status === 'diverifikasi' && auth()->user()->hasRole('kadis'))
                     <p class="text-sm opacity-70">Sebagai Kadis, persetujuan akan <strong>memutasi guru</strong> ke sekolah tujuan.</p>
-                    <form method="POST" action="{{ route('usulan.setujui', $usulan) }}">
+                    <form method="POST" action="{{ route('usulan.setujui', $usulan) }}" data-konfirmasi data-judul="Setujui & Mutasi" data-pesan="Setujui dan mutasi guru ke {{ $usulan->sekolah->nama }}?" data-tombol="Setujui & Mutasi" data-warna="btn-success">
                         @csrf
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend" for="f-catatan-2">Catatan (opsional)</label>
                             <textarea id="f-catatan-2" name="catatan" rows="2" class="textarea w-full"></textarea>
                         </fieldset>
-                        <button type="submit" class="btn btn-success w-full mt-2"
-                                onclick="return confirm('Setujui dan mutasi guru ke {{ $usulan->sekolah->nama }}?')">
-                            ✅ Setujui & Mutasi
-                        </button>
+                        <button type="submit" class="btn btn-success w-full mt-2"><x-ikon nama="centang" class="h-5 w-5" /> Setujui & Mutasi</button>
                     </form>
                 @endif
 
                 @if ($usulan->masihAktif() && auth()->user()->hasRole('kabid_ptk', 'kadis'))
                     @if (! (auth()->user()->hasRole('kadis') && $usulan->status === 'diajukan'))
                         <div class="divider">atau</div>
-                        <form method="POST" action="{{ route('usulan.tolak', $usulan) }}">
+                        <form method="POST" action="{{ route('usulan.tolak', $usulan) }}" data-konfirmasi data-judul="Tolak Usulan" data-pesan="Tolak usulan ini? Alasan penolakan yang ditulis akan tercatat." data-tombol="Tolak" data-warna="btn-error">
                             @csrf
                             <fieldset class="fieldset w-full">
                                 <label class="fieldset-legend" for="f-catatan-3">Alasan penolakan (wajib)</label>
                                 <textarea id="f-catatan-3" name="catatan" rows="2" required class="textarea w-full"></textarea>
                             </fieldset>
-                            <button type="submit" class="btn btn-error btn-outline w-full mt-2"
-                                    onclick="return confirm('Tolak usulan ini?')">✕ Tolak</button>
+                            <button type="submit" class="btn btn-error btn-outline w-full mt-2"><x-ikon nama="silang" class="h-5 w-5" /> Tolak</button>
                         </form>
                     @endif
                 @endif

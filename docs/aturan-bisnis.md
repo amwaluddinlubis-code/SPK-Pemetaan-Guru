@@ -188,3 +188,26 @@
     tabel & tombol halamannya. Keadaan kosong memakai `x-kosong`
     (ikon + pesan). Angka pada kolom numerik rata kanan & tabular
     (kelas `angka`).
+28. **Grup menu bilah sisi bisa dilipat.** Judul grup RegistriMenu adalah
+    parent (elemen `<details class="menu-grup">`), menu di bawahnya adalah
+    child. Grup yang berisi halaman aktif selalu terbuka; status lipat
+    grup lain diingat per peramban (localStorage `spk-menu-grup`).
+    Item tanpa grup (mis. Eksekutif) tetap tampil rata.
+29. **Tombol aksi baris tabel & konfirmasi (melengkapi #27).** Tombol
+    aksi di kolom Aksi tabel digabung dalam grup menyatu (`.grup-aksi`,
+    pola join), tampil HANYA ikon — label menjadi tooltip `title` +
+    `aria-label` (tooltip bawaan peramban dipakai karena tooltip CSS
+    terpotong wadah tabel bergulir). Tombol aksi di kepala halaman tetap
+    ikon + label, berukuran kecil (`btn-sm`) dan juga digabung
+    `.grup-aksi`. Semua konfirmasi bawaan peramban (`confirm`, `prompt`,
+    `wire:confirm`) DILARANG: pakai modal DaisyUI global
+    `x-modal-konfirmasi` — form biasa lewat atribut `data-konfirmasi`
+    (varian alasan wajib lewat `data-alasan`), tombol Livewire lewat
+    `konfirmasiModal()`/`konfirmasiDariData()`.
+30. **Layar peta (Redesign R4).** Peta adalah fokus layar: wadah
+    relatif setinggi viewport; panel rekomendasi melayang di tepi kiri
+    atas selebar maks 320px dan bisa dilipat; legenda tetap di kiri
+    bawah; kontrol zoom di kanan bawah. Kartu kandidat menyorot penanda
+    sekolah terkait di peta (hover/klik). Pemilih koordinat memakai
+    bingkai yang sama (`rounded-box`, border base-300, bayangan halus)
+    dan petunjuk berikon — tanpa emoji.

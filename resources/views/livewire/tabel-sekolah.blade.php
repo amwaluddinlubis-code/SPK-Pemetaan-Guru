@@ -2,28 +2,30 @@
 <div>
 <x-halaman judul="Data Sekolah" ikon="sekolah">
     <x-slot:aksi>
+        <div class="grup-aksi grup-aksi-bungkus">
         @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
             @if (auth()->user()->hasRole('kabid_ptk'))
-                <a href="{{ route('sekolah.import') }}" class="btn btn-secondary"><x-ikon nama="unggah" class="h-5 w-5" /> Import Excel</a>
-                <a href="{{ route('sekolah.import-rombel') }}" class="btn btn-secondary"><x-ikon nama="unggah" class="h-5 w-5" /> Import Rombel</a>
+                <a href="{{ route('sekolah.import') }}" class="btn btn-sm btn-secondary"><x-ikon nama="unggah" class="h-4 w-4" /> Import Excel</a>
+                <a href="{{ route('sekolah.import-rombel') }}" class="btn btn-sm btn-secondary"><x-ikon nama="unggah" class="h-4 w-4" /> Import Rombel</a>
                 <form method="POST" action="{{ route('sekolah.analisis.massal') }}" class="inline-flex"
-                      onsubmit="return confirm('Terapkan analisis kebutuhan guru ke SEMUA sekolah yang rombelnya terisi? Baris kebutuhan lama tiap sekolah akan diganti hasil hitungan rombel × JP.')">
+                      data-konfirmasi data-judul="Terapkan Analisis Massal" data-pesan="Terapkan analisis kebutuhan guru ke SEMUA sekolah yang rombelnya terisi? Baris kebutuhan lama tiap sekolah akan diganti hasil hitungan rombel × JP." data-tombol="Terapkan" data-warna="btn-secondary">
                     @csrf
-                    <button type="submit" class="btn btn-secondary"><x-ikon nama="spk" class="h-5 w-5" /> Terapkan Analisis Massal</button>
+                    <button type="submit" class="btn btn-sm btn-secondary"><x-ikon nama="spk" class="h-4 w-4" /> Terapkan Analisis Massal</button>
                 </form>
             @endif
-            <a href="{{ route('sekolah.export', request()->only(['q', 'kecamatan'])) }}" class="btn btn-accent"><x-ikon nama="unduh" class="h-5 w-5" /> Export Excel</a>
-            <a href="{{ route('sekolah.cetak', request()->only(['q', 'kecamatan'])) }}" target="_blank" class="btn btn-neutral"><x-ikon nama="cetak" class="h-5 w-5" /> Cetak/PDF</a>
+            <a href="{{ route('sekolah.export', request()->only(['q', 'kecamatan'])) }}" class="btn btn-sm btn-accent"><x-ikon nama="unduh" class="h-4 w-4" /> Export Excel</a>
+            <a href="{{ route('sekolah.cetak', request()->only(['q', 'kecamatan'])) }}" target="_blank" class="btn btn-sm btn-neutral"><x-ikon nama="cetak" class="h-4 w-4" /> Cetak/PDF</a>
             @if (auth()->user()->hasRole('kabid_ptk'))
                 <form method="POST" action="{{ route('sekolah.verifikasi-massal') }}" class="inline-flex"
-                      onsubmit="return confirm('Tandai SEMUA sekolah berkoordinat yang belum terverifikasi sebagai TERVERIFIKASI? Hanya lakukan setelah titik-titik koordinat dikonfirmasi. Sekolah yang belum terverifikasi tidak dapat menjadi tujuan rekomendasi SPK.')">
+                      data-konfirmasi data-judul="Verifikasi Koordinat Massal" data-pesan="Tandai SEMUA sekolah berkoordinat yang belum terverifikasi sebagai TERVERIFIKASI? Hanya lakukan setelah titik-titik koordinat dikonfirmasi. Sekolah yang belum terverifikasi tidak dapat menjadi tujuan rekomendasi SPK." data-tombol="Verifikasi Semua" data-warna="btn-secondary">
                     @csrf
                     <input type="hidden" name="koordinat_sumber" value="konfirmasi_massal">
-                    <button type="submit" class="btn btn-secondary"><x-ikon nama="centang" class="h-5 w-5" /> Verifikasi Koordinat Massal</button>
+                    <button type="submit" class="btn btn-sm btn-secondary"><x-ikon nama="centang" class="h-4 w-4" /> Verifikasi Koordinat Massal</button>
                 </form>
-                <a href="{{ route('sekolah.create') }}" class="btn btn-primary"><x-ikon nama="tambah" class="h-5 w-5" /> Tambah Sekolah</a>
+                <a href="{{ route('sekolah.create') }}" class="btn btn-sm btn-primary"><x-ikon nama="tambah" class="h-4 w-4" /> Tambah Sekolah</a>
             @endif
         @endif
+        </div>
     </x-slot:aksi>
 </x-halaman>
 
@@ -115,13 +117,15 @@
                                 @endforelse
                             </td>
                             <td class="text-right whitespace-nowrap">
-                                <a href="{{ route('sekolah.analisis', $s) }}" class="btn btn-sm btn-info gap-1"><x-ikon nama="kualitas" class="h-4 w-4" /> Analisis</a>
-                                @if (auth()->user()->hasRole('kepala_sekolah', 'kabid_ptk'))
-                                    <a href="{{ route('sekolah.edit', $s) }}" class="btn btn-sm btn-warning gap-1"><x-ikon nama="pensil" class="h-4 w-4" /> Ubah</a>
-                                @endif
-                                @if (auth()->user()->hasRole('kabid_ptk'))
-                                    <x-hapus :aksi="route('sekolah.destroy', $s)" tanya="Hapus {{ $s->nama }} beserta kebutuhan gurunya?" />
-                                @endif
+                                <div class="grup-aksi">
+                                    <a href="{{ route('sekolah.analisis', $s) }}" class="btn btn-sm btn-info" title="Analisis kebutuhan guru" aria-label="Analisis kebutuhan guru"><x-ikon nama="kualitas" class="h-4 w-4" /></a>
+                                    @if (auth()->user()->hasRole('kepala_sekolah', 'kabid_ptk'))
+                                        <a href="{{ route('sekolah.edit', $s) }}" class="btn btn-sm btn-warning" title="Ubah" aria-label="Ubah"><x-ikon nama="pensil" class="h-4 w-4" /></a>
+                                    @endif
+                                    @if (auth()->user()->hasRole('kabid_ptk'))
+                                        <x-hapus :aksi="route('sekolah.destroy', $s)" tanya="Hapus {{ $s->nama }} beserta kebutuhan gurunya?" ikon-saja petunjuk="Hapus" />
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty

@@ -2,16 +2,18 @@
 <div>
 <x-halaman judul="Data Guru" ikon="guru">
     <x-slot:aksi>
+        <div class="grup-aksi grup-aksi-bungkus">
         @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah', 'kadis'))
             @if (auth()->user()->hasRole('kabid_ptk'))
-                <a href="{{ route('guru.import') }}" class="btn btn-secondary"><x-ikon nama="unggah" class="h-5 w-5" /> Import Excel</a>
+                <a href="{{ route('guru.import') }}" class="btn btn-sm btn-secondary"><x-ikon nama="unggah" class="h-4 w-4" /> Import Excel</a>
             @endif
-            <a href="{{ route('guru.export', request()->only(['q', 'kecamatan'])) }}" class="btn btn-accent"><x-ikon nama="unduh" class="h-5 w-5" /> Export Excel</a>
-            <a href="{{ route('guru.cetak', request()->only(['q', 'kecamatan'])) }}" target="_blank" class="btn btn-neutral"><x-ikon nama="cetak" class="h-5 w-5" /> Cetak/PDF</a>
+            <a href="{{ route('guru.export', request()->only(['q', 'kecamatan'])) }}" class="btn btn-sm btn-accent"><x-ikon nama="unduh" class="h-4 w-4" /> Export Excel</a>
+            <a href="{{ route('guru.cetak', request()->only(['q', 'kecamatan'])) }}" target="_blank" class="btn btn-sm btn-neutral"><x-ikon nama="cetak" class="h-4 w-4" /> Cetak/PDF</a>
             @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah'))
-                <a href="{{ route('guru.create') }}" class="btn btn-primary"><x-ikon nama="tambah" class="h-5 w-5" /> Tambah Guru</a>
+                <a href="{{ route('guru.create') }}" class="btn btn-sm btn-primary"><x-ikon nama="tambah" class="h-4 w-4" /> Tambah Guru</a>
             @endif
         @endif
+        </div>
     </x-slot:aksi>
 </x-halaman>
 
@@ -102,12 +104,14 @@
                             <td class="text-sm">{{ $g->desa_kelurahan ?? '—' }}</td>
                             <td class="text-sm">{{ $g->sekolah_saat_ini }}</td>
                             <td class="text-right whitespace-nowrap">
-                                @if (auth()->user()->hasRole('guru', 'kabid_ptk', 'kepala_sekolah'))
-                                    <a href="{{ route('guru.edit', $g) }}" class="btn btn-sm btn-warning gap-1"><x-ikon nama="pensil" class="h-4 w-4" /> Ubah</a>
-                                @endif
-                                @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah'))
-                                    <x-hapus :aksi="route('guru.destroy', $g)" tanya="Hapus data {{ $g->nama }}?" />
-                                @endif
+                                <div class="grup-aksi">
+                                    @if (auth()->user()->hasRole('guru', 'kabid_ptk', 'kepala_sekolah'))
+                                        <a href="{{ route('guru.edit', $g) }}" class="btn btn-sm btn-warning" title="Ubah" aria-label="Ubah"><x-ikon nama="pensil" class="h-4 w-4" /></a>
+                                    @endif
+                                    @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah'))
+                                        <x-hapus :aksi="route('guru.destroy', $g)" tanya="Hapus data {{ $g->nama }}?" ikon-saja petunjuk="Hapus" />
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -149,12 +153,14 @@
                     <p class="text-sm mt-2 opacity-70">{{ $g->sekolah_saat_ini }}</p>
                     <p class="text-sm opacity-60">{{ $g->kecamatan ?? '—' }}{{ $g->desa_kelurahan ? ', '.$g->desa_kelurahan : '' }}</p>
                     <div class="card-actions justify-end mt-2">
-                        @if (auth()->user()->hasRole('guru', 'kabid_ptk', 'kepala_sekolah'))
-                            <a href="{{ route('guru.edit', $g) }}" class="btn btn-sm btn-warning gap-1"><x-ikon nama="pensil" class="h-4 w-4" /> Ubah</a>
-                        @endif
-                        @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah'))
-                            <x-hapus :aksi="route('guru.destroy', $g)" tanya="Hapus data {{ $g->nama }}?" />
-                        @endif
+                        <div class="grup-aksi">
+                            @if (auth()->user()->hasRole('guru', 'kabid_ptk', 'kepala_sekolah'))
+                                <a href="{{ route('guru.edit', $g) }}" class="btn btn-sm btn-warning" title="Ubah" aria-label="Ubah"><x-ikon nama="pensil" class="h-4 w-4" /></a>
+                            @endif
+                            @if (auth()->user()->hasRole('kabid_ptk', 'kepala_sekolah'))
+                                <x-hapus :aksi="route('guru.destroy', $g)" tanya="Hapus data {{ $g->nama }}?" ikon-saja petunjuk="Hapus" />
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
