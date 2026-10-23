@@ -68,6 +68,15 @@
                 — {{ $guru->linear() ? 'linear dengan mapel yang diampu' : 'TIDAK LINEAR dengan mapel yang diampu' }}
             @endif
         </td></tr>
+        @php
+            $statusKepmen = \App\Services\Linieritas::statusUntuk($guru, $spk->sekolahTujuan->jenjang ?? $guru->jenjang, (string) $guru->mapel);
+        @endphp
+        <tr><th>Linieritas Penempatan (Kepmen 222/O/2025)</th><td>
+            @if ($guru->bidang_studi_serdik)
+                Bidang studi serdik: {{ $guru->bidang_studi_serdik }}{{ $guru->kode_bidang_studi ? ' (kode '.$guru->kode_bidang_studi.')' : '' }} —
+            @endif
+            {{ $statusKepmen['label'] ?? 'Tidak dinilai (guru belum bersertifikat pendidik)' }}
+        </td></tr>
         <tr><th>Status Pernikahan</th><td>{{ $guru->labelStatusPernikahan() }}{{ $guru->berkeluarga() ? ' (prioritas keluarga)' : '' }}</td></tr>
         <tr><th>Mapel / Jenjang</th><td>{{ $guru->mapel }} / {{ $guru->jenjang }}</td></tr>
         <tr><th>Sekolah Asal</th><td>{{ $guru->sekolah->nama ?? $guru->sekolah_saat_ini ?? '—' }}</td></tr>

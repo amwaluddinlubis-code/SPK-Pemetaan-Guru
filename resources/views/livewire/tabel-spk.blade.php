@@ -148,6 +148,7 @@
                                         <span class="badge {{ $s->guru->linear() ? 'badge-success' : 'badge-error' }} badge-xs">
                                             Serdik{{ $s->guru->linear() ? '' : ' tidak linear' }}
                                         </span>
+                                        <x-lencana-linieritas :guru="$s->guru" :jenjang="$s->sekolahTujuan->jenjang" :mapel="$s->guru->mapel" />
                                     @endif
                                 </li>
                                 @if (! empty($dampakAsal[$s->id]))

@@ -14,6 +14,7 @@ use App\Models\Guru;
 use App\Models\Sekolah;
 use App\Services\AnalisisKebutuhanGuru;
 use App\Services\KonteksPemda;
+use App\Services\Linieritas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -37,6 +38,7 @@ class GuruController extends Controller
             'status_kepegawaian' => ['nullable', 'in:pns,pppk,honorer'],
             'sudah_sertifikasi' => ['nullable', 'boolean'],
             'mapel_sertifikasi' => ['nullable', 'string', 'max:50'],
+            'bidang_studi_serdik' => ['nullable', 'string', 'max:150'],
             'sekolah_id' => ['nullable', 'exists:sekolah,id'],
             'domisili_lat' => ['required', 'numeric', 'between:-90,90'],
             'domisili_lng' => ['required', 'numeric', 'between:-180,180'],
@@ -100,6 +102,7 @@ class GuruController extends Controller
             'daftarKecamatan' => $this->daftarKecamatan(),
             'petaKodeKecamatan' => $this->petaKodeKecamatan(),
             'daftarMapel' => AnalisisKebutuhanGuru::daftarKanonis(),
+            'daftarBidangStudi' => Linieritas::daftarBidangStudi(),
         ]);
     }
 
@@ -115,6 +118,11 @@ class GuruController extends Controller
         if (! empty($data['mapel_sertifikasi'])) {
             $data['mapel_sertifikasi'] = AnalisisKebutuhanGuru::kanonis($data['mapel_sertifikasi']);
         }
+        // Kode bidang studi serdik diturunkan otomatis dari nama bidangnya
+        // (Kepmen 222/O/2025) — tidak diisi manual.
+        $data['kode_bidang_studi'] = ! empty($data['bidang_studi_serdik'])
+            ? Linieritas::kodeUntuk($data['bidang_studi_serdik'], $data['jenjang'] ?? null)
+            : null;
 
         // Kepala sekolah: guru baru otomatis masuk sekolahnya
         if (auth()->user()->role === 'kepala_sekolah') {
@@ -142,6 +150,7 @@ class GuruController extends Controller
             'daftarKecamatan' => $this->daftarKecamatan(),
             'petaKodeKecamatan' => $this->petaKodeKecamatan(),
             'daftarMapel' => AnalisisKebutuhanGuru::daftarKanonis(),
+            'daftarBidangStudi' => Linieritas::daftarBidangStudi(),
         ]);
     }
 
@@ -172,6 +181,11 @@ class GuruController extends Controller
         }
         if (! empty($data['mapel_sertifikasi'])) {
             $data['mapel_sertifikasi'] = AnalisisKebutuhanGuru::kanonis($data['mapel_sertifikasi']);
+        }
+        if (array_key_exists('bidang_studi_serdik', $data)) {
+            $data['kode_bidang_studi'] = ! empty($data['bidang_studi_serdik'])
+                ? Linieritas::kodeUntuk($data['bidang_studi_serdik'], $data['jenjang'] ?? $guru->jenjang)
+                : null;
         }
 
         // Kepala sekolah tidak bisa memindahkan guru ke sekolah lain

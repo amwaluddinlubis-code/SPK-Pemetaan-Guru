@@ -30,6 +30,8 @@ class Guru extends Model
         'sekolah_saat_ini',
         'sekolah_saat_ini_lat',
         'sekolah_saat_ini_lng',
+        'bidang_studi_serdik',
+        'kode_bidang_studi',
     ];
 
     /**

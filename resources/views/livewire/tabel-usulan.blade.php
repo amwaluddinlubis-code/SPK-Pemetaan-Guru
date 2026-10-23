@@ -53,6 +53,9 @@
                             <td>
                                 <strong>{{ $u->guru->nama }}</strong><br>
                                 <span class="text-sm opacity-60">{{ $u->guru->nipTersamar() }} • {{ $u->guru->mapel }}</span>
+                                @if ($u->guru->sudah_sertifikasi)
+                                    <div class="mt-1"><x-lencana-linieritas :guru="$u->guru" :jenjang="$u->sekolah->jenjang" :mapel="$u->guru->mapel" /></div>
+                                @endif
                             </td>
                             <td class="text-sm">{{ $u->sekolah->nama }}</td>
                             <td><span class="badge {{ $u->badgeStatus() }}">{{ $u->labelStatus() }}</span></td>

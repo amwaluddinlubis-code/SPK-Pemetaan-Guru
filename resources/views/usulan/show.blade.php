@@ -23,6 +23,9 @@
                     <div class="flex gap-2"><dt class="w-36 opacity-60">Domisili</dt><dd>{{ $usulan->guru->domisili_alamat }}</dd></div>
                     <div class="flex gap-2"><dt class="w-36 opacity-60">Sekolah saat ini</dt><dd>{{ $usulan->guru->sekolah_saat_ini }}</dd></div>
                     <div class="flex gap-2"><dt class="w-36 opacity-60">Sekolah tujuan</dt><dd><strong>{{ $usulan->sekolah->nama }}</strong> ({{ $usulan->sekolah->kecamatan ?? '-' }})</dd></div>
+                    @if ($usulan->guru->sudah_sertifikasi)
+                        <div class="flex gap-2"><dt class="w-36 opacity-60">Linieritas tujuan</dt><dd><x-lencana-linieritas :guru="$usulan->guru" :jenjang="$usulan->sekolah->jenjang" :mapel="$usulan->guru->mapel" /></dd></div>
+                    @endif
                     <div class="flex gap-2"><dt class="w-36 opacity-60">Diajukan oleh</dt><dd>{{ $usulan->pengaju->name ?? '—' }} • {{ $usulan->created_at->format('d M Y H:i') }}</dd></div>
                     @if ($usulan->pemroses)
                         <div class="flex gap-2"><dt class="w-36 opacity-60">Diproses oleh</dt><dd>{{ $usulan->pemroses->name }} • {{ $usulan->updated_at->format('d M Y H:i') }}</dd></div>

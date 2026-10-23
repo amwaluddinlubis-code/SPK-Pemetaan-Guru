@@ -168,6 +168,25 @@
                                 :selected="$mapelSertAktif"
                                 placeholder="— Pilih Mapel Sertifikat —" class="w-full" />
                         </fieldset>
+                        <fieldset class="fieldset w-full">
+                            <label class="fieldset-legend font-semibold" for="f-bidang_studi_serdik">Bidang Studi Sertifikat Pendidik</label>
+                            @php
+                                $bidangAktif = old('bidang_studi_serdik', $guru->bidang_studi_serdik);
+                                $opsiBidang = collect($daftarBidangStudi)
+                                    ->map(fn ($b) => ['value' => $b['nama'], 'label' => $b['nama'].' ('.$b['kode'].')']);
+                                if ($bidangAktif && ! $opsiBidang->contains('value', $bidangAktif)) {
+                                    $opsiBidang = $opsiBidang->push(['value' => $bidangAktif, 'label' => $bidangAktif]);
+                                }
+                            @endphp
+                            <x-searchable-select name="bidang_studi_serdik"
+                                :options="$opsiBidang->all()"
+                                :selected="$bidangAktif"
+                                placeholder="— Pilih Bidang Studi Serdik —" class="w-full" />
+                            <p class="text-xs opacity-60 mt-1">
+                                Sesuai nama &amp; kode pada sertifikat pendidik (Kepmen 222/O/2025) —
+                                dasar penilaian linieritas penempatan. Kode terisi otomatis saat disimpan.
+                            </p>
+                        </fieldset>
                         {{-- Sekolah tempat bertugas (administratif: kabid saja) --}}
                         @if (auth()->user()->hasRole('kabid_ptk'))
                             <fieldset class="fieldset w-full">
