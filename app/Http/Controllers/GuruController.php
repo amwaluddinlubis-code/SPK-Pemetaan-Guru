@@ -40,8 +40,9 @@ class GuruController extends Controller
             'domisili_lat' => ['required', 'numeric', 'between:-90,90'],
             'domisili_lng' => ['required', 'numeric', 'between:-180,180'],
             'sekolah_saat_ini' => ['required', 'string', 'max:100'],
-            'sekolah_saat_ini_lat' => ['nullable', 'numeric', 'between:-90,90'],
-            'sekolah_saat_ini_lng' => ['nullable', 'numeric', 'between:-180,180'],
+            // Koordinat sekolah tidak lagi diisi manual lewat form: jarak
+            // dihitung dari relasi sekolah_id; kolom sekolah_saat_ini_lat/lng
+            // hanya cache yang diperbarui otomatis saat mutasi disetujui.
         ];
     }
 

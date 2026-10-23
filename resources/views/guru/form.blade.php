@@ -12,8 +12,7 @@
         'mapel_sertifikasi' => 'kepegawaian', 'sekolah_id' => 'kepegawaian',
         'kecamatan' => 'domisili', 'desa_kelurahan' => 'domisili',
         'domisili_alamat' => 'domisili', 'domisili_lat' => 'domisili', 'domisili_lng' => 'domisili',
-        'sekolah_saat_ini' => 'domisili', 'sekolah_saat_ini_lat' => 'domisili',
-        'sekolah_saat_ini_lng' => 'domisili',
+        'sekolah_saat_ini' => 'domisili',
     ];
     $tabAktif = 'pribadi';
     $hitungError = ['pribadi' => 0, 'kepegawaian' => 0, 'domisili' => 0];
@@ -249,33 +248,22 @@
                     <div class="grid gap-4 sm:grid-cols-2">
                         <fieldset class="fieldset w-full sm:col-span-2">
                             <label class="fieldset-legend font-semibold" for="f-sekolah_saat_ini">Nama Sekolah</label>
-                            <input id="f-sekolah_saat_ini" type="text" name="sekolah_saat_ini"
-                                   value="{{ old('sekolah_saat_ini', $guru->sekolah_saat_ini) }}" required
-                                   class="input w-full" placeholder="SDN 5 Cijauh">
+                            @php
+                                $sekolahAktif = old('sekolah_saat_ini', $guru->sekolah_saat_ini);
+                                $namaSekolah = $daftarSekolah->pluck('nama')->unique()->sort()->values();
+                                $opsiSekolahIni = $namaSekolah->contains($sekolahAktif) || empty($sekolahAktif)
+                                    ? $namaSekolah
+                                    : $namaSekolah->concat([$sekolahAktif])->sort()->values();
+                            @endphp
+                            <x-searchable-select name="sekolah_saat_ini"
+                                :options="$opsiSekolahIni->map(fn ($n) => ['value' => $n, 'label' => $n])->all()"
+                                :selected="$sekolahAktif"
+                                placeholder="— Pilih Sekolah —" class="w-full" />
+                            <p class="text-xs opacity-60 mt-1">
+                                Cukup pilih nama sekolahnya — koordinat diambil dari data sekolah,
+                                dan jarak domisili dihitung dari sana.
+                            </p>
                         </fieldset>
-                        <fieldset class="fieldset w-full">
-                            <label class="fieldset-legend font-semibold" for="sekolah_saat_ini_lat">Latitude Sekolah</label>
-                            <input type="text" id="sekolah_saat_ini_lat" name="sekolah_saat_ini_lat"
-                                   value="{{ old('sekolah_saat_ini_lat', $guru->sekolah_saat_ini_lat) }}"
-                                   class="input w-full" placeholder="0.7900">
-                        </fieldset>
-                        <fieldset class="fieldset w-full">
-                            <label class="fieldset-legend font-semibold" for="sekolah_saat_ini_lng">Longitude Sekolah</label>
-                            <input type="text" id="sekolah_saat_ini_lng" name="sekolah_saat_ini_lng"
-                                   value="{{ old('sekolah_saat_ini_lng', $guru->sekolah_saat_ini_lng) }}"
-                                   class="input w-full" placeholder="99.4100">
-                        </fieldset>
-                    </div>
-
-                    {{-- Peta pemilih koordinat sekolah --}}
-                    <div class="mt-3">
-                        @include('komponen.peta-picker', [
-                            'idPeta' => 'peta-sekolah-saat-ini',
-                            'inputLat' => 'sekolah_saat_ini_lat',
-                            'inputLng' => 'sekolah_saat_ini_lng',
-                            'lat' => (float) (old('sekolah_saat_ini_lat', $guru->sekolah_saat_ini_lat) ?: 0.79),
-                            'lng' => (float) (old('sekolah_saat_ini_lng', $guru->sekolah_saat_ini_lng) ?: 99.41),
-                        ])
                     </div>
 
                     <div class="flex justify-between mt-4">
