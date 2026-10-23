@@ -46,6 +46,22 @@
                         <input type="text" name="alamat" value="{{ old('alamat', $sekolah->alamat) }}" required
                                class="input w-full" placeholder="Jl. Pendidikan No.1">
                     </fieldset>
+                    <div class="contents"
+                         x-data="{
+                            petaKodeKecamatan: @js($petaKodeKecamatan ?? []),
+                            opsiDesa: [],
+                            async muatDesa(nama) {
+                                const kode = this.petaKodeKecamatan[(nama || '').toUpperCase().trim()] ?? null;
+                                this.opsiDesa = [];
+                                if (!kode) return;
+                                try {
+                                    const r = await fetch(@js(route('wilayah.api.desa')) + '?kecamatan=' + encodeURIComponent(kode), { headers: { 'Accept': 'application/json' } });
+                                    if (r.ok) this.opsiDesa = await r.json();
+                                } catch (e) { /* daftar desa gagal dimuat: tetap bisa ketik bebas */ }
+                            },
+                         }"
+                         x-init="muatDesa(@js(old('kecamatan', $sekolah->kecamatan)))"
+                         x-on:searchable-select-change="if ($event.detail.name === 'kecamatan') muatDesa($event.detail.value)">
                     <fieldset class="fieldset w-full sm:col-span-2">
                         <legend class="fieldset-legend font-semibold">Kecamatan</legend>
                         @php
@@ -54,21 +70,17 @@
                                 ? $daftarKecamatan
                                 : $daftarKecamatan->concat([$kecAktif])->sort()->values();
                         @endphp
-                        <select name="kecamatan" class="select w-full">
-                            <option value="">— Pilih Kecamatan —</option>
-                            @foreach ($opsiKec as $kec)
-                                <option value="{{ $kec }}" {{ $kecAktif == $kec ? 'selected' : '' }}>
-                                    {{ $kec }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <x-searchable-select name="kecamatan"
+                            :options="$opsiKec->map(fn ($k) => ['value' => $k, 'label' => $k])->all()"
+                            :selected="$kecAktif"
+                            placeholder="— Pilih Kecamatan —" class="w-full" />
                     </fieldset>
                     <fieldset class="fieldset w-full">
                         <legend class="fieldset-legend font-semibold">Desa / Kelurahan</legend>
-                        <input type="text" name="desa_kelurahan"
-                               value="{{ old('desa_kelurahan', $sekolah->desa_kelurahan) }}"
-                               class="input w-full" placeholder="cth: Panyabungan Jae" maxlength="100">
+                        <x-desa-select name="desa_kelurahan"
+                               :selected="old('desa_kelurahan', $sekolah->desa_kelurahan)" />
                     </fieldset>
+                    </div>
                     <fieldset class="fieldset w-full">
                         <legend class="fieldset-legend font-semibold">Kategori Daerah</legend>
                         <select name="kategori_daerah" class="select w-full">

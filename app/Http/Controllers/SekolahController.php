@@ -12,6 +12,7 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\KebutuhanGuru;
 use App\Models\Sekolah;
+use App\Models\WilayahKecamatan;
 use App\Services\AnalisisKebutuhanGuru;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -188,6 +189,7 @@ class SekolahController extends Controller
             'sekolah' => new Sekolah,
             'aksi' => 'Tambah',
             'daftarKecamatan' => $this->daftarKecamatanForm(),
+            'petaKodeKecamatan' => $this->petaKodeKecamatan(),
         ]);
     }
 
@@ -551,6 +553,7 @@ class SekolahController extends Controller
             'sekolah' => $sekolah,
             'aksi' => 'Ubah',
             'daftarKecamatan' => $this->daftarKecamatanForm(),
+            'petaKodeKecamatan' => $this->petaKodeKecamatan(),
         ]);
     }
 
@@ -599,6 +602,18 @@ class SekolahController extends Controller
     {
         return Sekolah::whereNotNull('kecamatan')
             ->distinct()->orderBy('kecamatan')->pluck('kecamatan');
+    }
+
+    /**
+     * Peta NAMA KECAMATAN (huruf besar) => kode Kemendagri untuk kecamatan
+     * se-Kab. Mandailing Natal (1213) — jembatan nama kecamatan di form ke
+     * API wilayah yang berbasis kode (untuk memuat daftar desa).
+     */
+    private function petaKodeKecamatan()
+    {
+        return WilayahKecamatan::where('kabupaten_kode', '1213')
+            ->orderBy('nama')
+            ->pluck('kode', 'nama');
     }
 
     /**

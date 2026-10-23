@@ -12,6 +12,7 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\Guru;
 use App\Models\Sekolah;
+use App\Models\WilayahKecamatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -83,6 +84,18 @@ class GuruController extends Controller
             ->distinct()->orderBy('kecamatan')->pluck('kecamatan');
     }
 
+    /**
+     * Peta NAMA KECAMATAN (huruf besar) => kode Kemendagri untuk kecamatan
+     * se-Kab. Mandailing Natal (1213) — jembatan nama kecamatan di form ke
+     * API wilayah yang berbasis kode (untuk memuat daftar desa).
+     */
+    private function petaKodeKecamatan()
+    {
+        return WilayahKecamatan::where('kabupaten_kode', '1213')
+            ->orderBy('nama')
+            ->pluck('kode', 'nama');
+    }
+
     public function create()
     {
         return view('guru.form', [
@@ -90,6 +103,7 @@ class GuruController extends Controller
             'aksi' => 'Tambah',
             'daftarSekolah' => Sekolah::orderBy('nama')->get(),
             'daftarKecamatan' => $this->daftarKecamatan(),
+            'petaKodeKecamatan' => $this->petaKodeKecamatan(),
         ]);
     }
 
@@ -122,6 +136,7 @@ class GuruController extends Controller
             'aksi' => 'Ubah',
             'daftarSekolah' => Sekolah::orderBy('nama')->get(),
             'daftarKecamatan' => $this->daftarKecamatan(),
+            'petaKodeKecamatan' => $this->petaKodeKecamatan(),
         ]);
     }
 

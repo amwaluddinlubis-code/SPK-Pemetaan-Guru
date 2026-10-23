@@ -156,15 +156,10 @@
                         @if (auth()->user()->hasRole('kabid_ptk'))
                             <fieldset class="fieldset w-full">
                                 <legend class="fieldset-legend font-semibold">Sekolah Tempat Bertugas</legend>
-                                <select name="sekolah_id" class="select w-full">
-                                    <option value="">— Belum terdata di sistem —</option>
-                                    @foreach ($daftarSekolah as $s)
-                                        <option value="{{ $s->id }}"
-                                            {{ old('sekolah_id', $guru->sekolah_id) == $s->id ? 'selected' : '' }}>
-                                            {{ $s->nama }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <x-searchable-select name="sekolah_id"
+                                    :options="$daftarSekolah->map(fn ($s) => ['value' => $s->id, 'label' => $s->nama])->all()"
+                                    :selected="old('sekolah_id', $guru->sekolah_id)"
+                                    placeholder="— Belum terdata di sistem —" class="w-full" />
                             </fieldset>
                         @else
                             {{-- Kepala sekolah & guru: tidak bisa mengubah relasi sekolah --}}
@@ -179,7 +174,22 @@
 
                 {{-- TAB 3: Domisili & Penempatan --}}
                 <div x-show="tab === 'domisili'" x-transition role="tabpanel" x-cloak>
-                    <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="grid gap-4 sm:grid-cols-2"
+                         x-data="{
+                            petaKodeKecamatan: @js($petaKodeKecamatan ?? []),
+                            opsiDesa: [],
+                            async muatDesa(nama) {
+                                const kode = this.petaKodeKecamatan[(nama || '').toUpperCase().trim()] ?? null;
+                                this.opsiDesa = [];
+                                if (!kode) return;
+                                try {
+                                    const r = await fetch(@js(route('wilayah.api.desa')) + '?kecamatan=' + encodeURIComponent(kode), { headers: { 'Accept': 'application/json' } });
+                                    if (r.ok) this.opsiDesa = await r.json();
+                                } catch (e) { /* daftar desa gagal dimuat: tetap bisa ketik bebas */ }
+                            },
+                         }"
+                         x-init="muatDesa(@js(old('kecamatan', $guru->kecamatan)))"
+                         x-on:searchable-select-change="if ($event.detail.name === 'kecamatan') muatDesa($event.detail.value)">
                         <fieldset class="fieldset w-full">
                             <legend class="fieldset-legend font-semibold">Kecamatan Domisili</legend>
                             @php
@@ -188,20 +198,15 @@
                                     ? $daftarKecamatan
                                     : $daftarKecamatan->concat([$kecAktif])->sort()->values();
                             @endphp
-                            <select name="kecamatan" class="select w-full">
-                                <option value="">— Pilih Kecamatan —</option>
-                                @foreach ($opsiKec as $kec)
-                                    <option value="{{ $kec }}" {{ $kecAktif == $kec ? 'selected' : '' }}>
-                                        {{ $kec }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <x-searchable-select name="kecamatan"
+                                :options="$opsiKec->map(fn ($k) => ['value' => $k, 'label' => $k])->all()"
+                                :selected="$kecAktif"
+                                placeholder="— Pilih Kecamatan —" class="w-full" />
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <legend class="fieldset-legend font-semibold">Desa / Kelurahan Domisili</legend>
-                            <input type="text" name="desa_kelurahan"
-                                   value="{{ old('desa_kelurahan', $guru->desa_kelurahan) }}"
-                                   class="input w-full" placeholder="cth: Panyabungan Jae" maxlength="100">
+                            <x-desa-select name="desa_kelurahan"
+                                   :selected="old('desa_kelurahan', $guru->desa_kelurahan)" />
                         </fieldset>
                         <fieldset class="fieldset w-full sm:col-span-2">
                             <legend class="fieldset-legend font-semibold">Alamat Domisili</legend>

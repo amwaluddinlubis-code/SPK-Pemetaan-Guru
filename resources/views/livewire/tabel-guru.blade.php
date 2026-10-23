@@ -7,12 +7,9 @@
                        placeholder="Cari nama, NIP, mapel, domisili, sekolah…"
                        class="input flex-1 min-w-52">
                 @if (auth()->user()->hasRole('kabid_ptk', 'kadis'))
-                    <select wire:model.live="kecamatan" class="select max-w-xs">
-                        <option value="">— Semua Kecamatan —</option>
-                        @foreach ($daftarKecamatan as $kec)
-                            <option value="{{ $kec }}">{{ $kec }}</option>
-                        @endforeach
-                    </select>
+                    <x-searchable-select wire-model="kecamatan" :selected="$kecamatan"
+                        :options="collect($daftarKecamatan)->map(fn ($k) => ['value' => $k, 'label' => $k])->all()"
+                        placeholder="— Semua Kecamatan —" class="w-full max-w-xs" />
                 @endif
                 @if ($q !== '' || $kecamatan !== '')
                     <button wire:click="resetFilter" class="btn btn-ghost">Reset</button>

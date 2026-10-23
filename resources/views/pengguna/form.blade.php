@@ -68,32 +68,22 @@
                     {{-- Hanya relevan jika peran = kepala_sekolah --}}
                     <fieldset class="fieldset w-full" id="field-sekolah">
                         <legend class="fieldset-legend font-semibold">Terhubung ke Sekolah</legend>
-                        <select name="sekolah_id" class="select w-full">
-                            <option value="">— Tidak ada —</option>
-                            @foreach ($daftarSekolah as $s)
-                                <option value="{{ $s->id }}"
-                                    {{ old('sekolah_id', $user->sekolah_id) == $s->id ? 'selected' : '' }}>
-                                    {{ $s->nama }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <x-searchable-select name="sekolah_id"
+                            :options="$daftarSekolah->map(fn ($s) => ['value' => $s->id, 'label' => $s->nama])->all()"
+                            :selected="old('sekolah_id', $user->sekolah_id)"
+                            placeholder="— Tidak ada —" class="w-full" />
                     </fieldset>
 
                     {{-- Hanya relevan jika peran = ketua_pgri --}}
                     <fieldset class="fieldset w-full sm:col-span-2" id="field-kecamatan">
                         <legend class="fieldset-legend font-semibold">Kecamatan (untuk Ketua PGRI)</legend>
                         @php $kecAktif = old('kecamatan', $user->kecamatan); @endphp
-                        <select name="kecamatan" class="select w-full">
-                            <option value="">— Pilih Kecamatan —</option>
-                            @foreach ($daftarKecamatan as $kec)
-                                <option value="{{ $kec }}" {{ $kecAktif == $kec ? 'selected' : '' }}>
-                                    {{ $kec }}
-                                </option>
-                            @endforeach
-                            @if ($kecAktif && ! $daftarKecamatan->contains($kecAktif))
-                                <option value="{{ $kecAktif }}" selected>{{ $kecAktif }}</option>
-                            @endif
-                        </select>
+                        <x-searchable-select name="kecamatan"
+                            :options="($kecAktif && ! $daftarKecamatan->contains($kecAktif)
+                                ? $daftarKecamatan->concat([$kecAktif])->sort()->values()
+                                : $daftarKecamatan)->map(fn ($k) => ['value' => $k, 'label' => $k])->all()"
+                            :selected="$kecAktif"
+                            placeholder="— Pilih Kecamatan —" class="w-full" />
                     </fieldset>
                 </div>
 

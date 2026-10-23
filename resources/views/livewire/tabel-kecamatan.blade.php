@@ -6,19 +6,13 @@
                 <input type="text" wire:model.live.debounce.500ms="q"
                        placeholder="Cari nama atau kode kecamatan…"
                        class="input input-bordered flex-1 min-w-52">
-                <select wire:model.live="provinsi" class="select select-bordered max-w-xs">
-                    <option value="">— Semua Provinsi —</option>
-                    @foreach ($daftarProvinsi as $prov)
-                        <option value="{{ $prov->kode }}">{{ $prov->nama }}</option>
-                    @endforeach
-                </select>
-                <select wire:model.live="kabupaten" class="select select-bordered max-w-xs"
-                        @if ($provinsi === '') disabled @endif>
-                    <option value="">— Semua Kab/Kota —</option>
-                    @foreach ($daftarKabupaten as $kab)
-                        <option value="{{ $kab->kode }}">{{ $kab->nama }}</option>
-                    @endforeach
-                </select>
+                <x-searchable-select wire-model="provinsi" :selected="$provinsi"
+                    :options="$daftarProvinsi->map(fn ($p) => ['value' => $p->kode, 'label' => $p->nama])->all()"
+                    placeholder="— Semua Provinsi —" class="w-full max-w-xs" />
+                <x-searchable-select wire-model="kabupaten" :selected="$kabupaten"
+                    :options="$daftarKabupaten->map(fn ($k) => ['value' => $k->kode, 'label' => $k->nama])->all()"
+                    placeholder="— Semua Kab/Kota —" class="w-full max-w-xs"
+                    :disabled="$provinsi === ''" />
                 @if ($q !== '' || $provinsi !== '' || $kabupaten !== '')
                     <button wire:click="resetFilter" class="btn btn-ghost">Reset</button>
                 @endif
