@@ -81,7 +81,9 @@ class PetaRekomendasi extends Component
      */
     private function daftarGuruPeta(): array
     {
-        $query = $this->scopeGuru(Guru::query());
+        // Guru yang domisilinya belum terisi (hasil impor) tidak punya
+        // titik peta — jangan tampilkan di koordinat 0,0.
+        $query = $this->scopeGuru(Guru::query())->whereNotNull('domisili_lat');
 
         return $query->get()->map(fn ($g) => [
             'id' => $g->id,
@@ -169,14 +171,17 @@ class PetaRekomendasi extends Component
         $this->hasil = array_slice($kandidat, 0, 5);
 
         // Kirim event ke JavaScript: gambar garis domisili guru → 3 sekolah teratas
-        $this->dispatch('rute-diperbarui',
-            guru: [
-                'lat' => (float) $guru->domisili_lat,
-                'lng' => (float) $guru->domisili_lng,
-            ],
-            rute: array_map(fn ($k) => [
-                'lat' => $k['lat'], 'lng' => $k['lng'],
-            ], array_slice($this->hasil, 0, 3)));
+        // (hanya bila domisili guru sudah terisi koordinatnya).
+        if ($guru->domisili_lat !== null) {
+            $this->dispatch('rute-diperbarui',
+                guru: [
+                    'lat' => (float) $guru->domisili_lat,
+                    'lng' => (float) $guru->domisili_lng,
+                ],
+                rute: array_map(fn ($k) => [
+                    'lat' => $k['lat'], 'lng' => $k['lng'],
+                ], array_slice($this->hasil, 0, 3)));
+        }
     }
 
     public function render()

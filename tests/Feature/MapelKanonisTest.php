@@ -38,7 +38,7 @@ class MapelKanonisTest extends TestCase
     {
         $daftar = AnalisisKebutuhanGuru::daftarKanonis();
 
-        foreach (['Guru Kelas', 'Agama', 'Pancasila', 'Bahasa Indonesia', 'Matematika',
+        foreach (['Guru Kelas', 'Agama Islam', 'Agama Kristen', 'Pancasila', 'Bahasa Indonesia', 'Matematika',
             'IPA', 'IPS', 'Bahasa Inggris', 'PJOK', 'Informatika', 'Seni/Prakarya'] as $label) {
             $this->assertContains($label, $daftar);
         }
@@ -76,7 +76,7 @@ class MapelKanonisTest extends TestCase
 
         $guru = Guru::where('nip', '198501012010011001')->firstOrFail();
         $this->assertSame('IPA', $guru->mapel);
-        $this->assertSame('Agama', $guru->mapel_sertifikasi);
+        $this->assertSame('Agama Islam', $guru->mapel_sertifikasi);
     }
 
     public function test_update_menormalisasi_varian_ejaan_mapel(): void

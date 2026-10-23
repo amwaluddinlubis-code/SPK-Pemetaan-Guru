@@ -51,7 +51,7 @@ class TerapkanAnalisisMassalTest extends TestCase
     public function test_massal_menerapkan_rumus_ke_semua_sekolah_berrombel(): void
     {
         $kabid = $this->buatUser('kabid_ptk');
-        // SD 6 rombel: Guru Kelas 6, PJOK ceil(6×3/24)=1, Agama 1.
+        // SD 6 rombel: Guru Kelas 6, PJOK ceil(6×3/24)=1, Agama Islam 1.
         $sd = $this->buatSekolah('20100101', ['jenjang' => 'SD', 'rombel' => 6]);
         // SMP 10 rombel: total ceil per mapel = 16 (B. Indonesia 3, MTK 2, dst).
         $smp = $this->buatSekolah('20100102', ['jenjang' => 'SMP', 'rombel' => 10]);
@@ -69,7 +69,7 @@ class TerapkanAnalisisMassalTest extends TestCase
         $kebSd = $this->kebutuhanSekolah($sd);
         $this->assertSame(6, $kebSd['Guru Kelas'] ?? null);
         $this->assertSame(1, $kebSd['PJOK'] ?? null);
-        $this->assertSame(1, $kebSd['Agama'] ?? null);
+        $this->assertSame(1, $kebSd['Agama Islam'] ?? null);
         $this->assertArrayNotHasKey('Usang', $kebSd);
 
         $kebSmp = $this->kebutuhanSekolah($smp);

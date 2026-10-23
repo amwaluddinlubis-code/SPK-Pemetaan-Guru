@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\PaksaGantiPassword;
 use App\Http\Middleware\PastikanAksesMenu;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
@@ -25,8 +26,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Pengaturan Akses: tolak rute modul yang tidak diizinkan untuk
         // peran pengguna (lihat App\Services\RegistriMenu & AksesMenu).
+        // PaksaGantiPassword: akun berpassword bawaan (guru: NIP) wajib
+        // mengganti password sebelum memakai aplikasi.
         $middleware->web(append: [
             PastikanAksesMenu::class,
+            PaksaGantiPassword::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

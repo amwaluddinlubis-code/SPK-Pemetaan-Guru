@@ -14,7 +14,11 @@ class Guru extends Model
     // Kolom-kolom yang boleh diisi massal (create/update)
     protected $fillable = [
         'nip',
+        'nuptk',
+        'pendidikan_terakhir',
         'nama',
+        'tempat_lahir',
+        'tanggal_lahir',
         'mapel',
         'jenjang',
         'domisili_alamat',
@@ -58,6 +62,9 @@ class Guru extends Model
     public const STATUS_KEPEGAWAIAN = [
         'pns' => 'PNS',
         'pppk' => 'PPPK',
+        // Status resmi pada berkas pengangkatan PPPK 2024 (keputusan
+        // AMWAL: status diisi sesuai berkas sumber apa adanya).
+        'pppk_paruh_waktu' => 'PPPK Paruh Waktu',
         'honorer' => 'Honorer',
     ];
 
@@ -96,6 +103,7 @@ class Guru extends Model
 
     // Pastikan koordinat selalu dibaca sebagai angka desimal
     protected $casts = [
+        'tanggal_lahir' => 'date',
         'domisili_lat' => 'float',
         'domisili_lng' => 'float',
         'sekolah_saat_ini_lat' => 'float',

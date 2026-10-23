@@ -75,3 +75,40 @@
     tugas guru di sekolah baru, sementara bidang studi sertifikasinya
     tidak berubah. Linieritas tetap kelayakan + peringatan, bukan
     penolakan otomatis; keputusan akhir tetap pejabat berwenang.
+    **Fase 3 (informasi pendukung)**: tabel SPK & telaahan menampilkan
+    perkiraan beban mengajar di sekolah tujuan (rombel × JP mapel tujuan
+    ÷ guru mapel itu termasuk yang ditempatkan) dengan peringatan bila
+    < 24 JP, serta info Tunjangan Khusus 1× gaji pokok bila sekolah
+    tujuan berkategori daerah khusus. Kualitas Data memeriksa tugas
+    tidak linier, bidang studi serdik kosong, dan pendukung Tambahan
+    Penghasilan yang kurang (NUPTK / pendidikan < S-1 bagi yang belum
+    bersertifikat). **Pemisahan label agama**: mapel kanonis memuat
+    Agama Islam & Agama Kristen sendiri-sendiri (bukan lagi "Agama");
+    analisis massal menghitung Agama Islam dengan rumus baku, kebutuhan
+    Agama Kristen diisi manual per sekolah karena data rombel per agama
+    tidak tersedia; baris kebutuhan "Agama" lama diubah namanya menjadi
+    "Agama Islam" oleh migrasi data. **Rekomendasi lintas jenjang**
+    adalah pengaturan dinas (`App\Services\PengaturanSpk`, diatur di
+    Pengaturan Pemda): Opsi B (bawaan) mengizinkan rekomendasi lintas
+    jenjang dengan lencana tingkat 2 dinilai dari jenjang guru; Opsi A
+    melarang mesin membuat rekomendasi lintas jenjang sama sekali.
+20. **Akun guru berbasis NIP & impor massal**: username akun guru =
+    NIP guru dan tidak dapat diubah oleh guru; password bawaan = NIP
+    juga dan wajib diganti saat login pertama (akun ditandai
+    `harus_ganti_password`, aplikasi terkunci ke halaman profil sampai
+    diganti). Akun dibuatkan otomatis (`App\Services\AkunGuru`) saat
+    guru ditambah operator, saat NIP-nya dilengkapi/diubah, saat
+    pendaftaran mandiri disetujui, dan saat impor massal. Guru yang
+    belum punya NIP belum bisa memiliki akun; ia boleh **mendaftar
+    mandiri** di halaman publik `/daftar-guru` dan akunnya hanya dibuat
+    setelah operator dinas (kabid_ptk) menyetujui di menu Pendaftaran
+    Guru. Status kepegawaian mencakup **PPPK Paruh Waktu**. Impor guru
+    massal berkas persiapan P3K memakai perintah
+    `guru:impor-p3k <berkas> [--ganti-semua]`: menambahkan sekolah baru
+    dari sheet "Sekolah Baru" (NPSN/alamat/koordinat menyusul dari
+    Dapodik), mengimpor sheet "Siap Impor", dan — dengan
+    `--ganti-semua` — menghapus seluruh data guru lama beserta hasil
+    SPK, usulan, dan akun gurunya lebih dulu. Domisili guru hasil impor
+    kosong (diisi bertahap; mesin SPK & analisis jarak menyaringnya)
+    dan pendidikan terakhir tersimpan berformat "Jenjang - Bidang"
+    (mis. "S1 - Informatika").

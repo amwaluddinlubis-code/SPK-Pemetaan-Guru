@@ -77,9 +77,55 @@ class PemeriksaKualitasData
                     'Kecamatan kosong — scope ketua PGRI tidak akurat.',
                     route('guru.edit', $guru->id));
             }
+
+            // Sertifikasi & linieritas tugas (Kepmen 222/O/2025 — fase 3)
+            if ($guru->sudah_sertifikasi) {
+                if (empty($guru->bidang_studi_serdik)) {
+                    $temuan[] = $this->buat('Guru', $guru->id, $guru->nama, 'bidang_serdik_kosong', 'sedang',
+                        'Guru bersertifikat tetapi bidang studi sertifikat pendidik belum diisi — linieritas penempatan tidak dapat dinilai.',
+                        route('guru.edit', $guru->id));
+                } else {
+                    $status = Linieritas::statusUntuk($guru, $guru->jenjang, (string) $guru->mapel);
+                    if (($status['status'] ?? null) === 'tidak_linier') {
+                        $temuan[] = $this->buat('Guru', $guru->id, $guru->nama, 'tugas_tidak_linier', 'tinggi',
+                            "Bidang tugas {$guru->mapel} tidak linier dengan bidang studi sertifikat pendidik ({$guru->bidang_studi_serdik}) — tunjangan profesi berisiko (Permendikdasmen 10/2026).",
+                            route('guru.edit', $guru->id));
+                    }
+                }
+            } else {
+                // Pendukung Tambahan Penghasilan (Permendikdasmen 10/2026):
+                // memiliki NUPTK dan berpendidikan paling rendah S-1/D-IV.
+                $kurang = [];
+                if (empty($guru->nuptk)) {
+                    $kurang[] = 'NUPTK belum diisi';
+                }
+                if (empty($guru->pendidikan_terakhir)) {
+                    $kurang[] = 'pendidikan terakhir belum diisi';
+                } elseif (! static::pendidikanMemenuhiSyarat($guru->pendidikan_terakhir)) {
+                    $kurang[] = 'pendidikan terakhir '.$guru->pendidikan_terakhir.' di bawah syarat minimal S-1/D-IV';
+                }
+                if ($kurang !== []) {
+                    $temuan[] = $this->buat('Guru', $guru->id, $guru->nama, 'pendukung_tp_kurang', 'sedang',
+                        'Guru belum bersertifikat; data pendukung Tambahan Penghasilan belum lengkap: '.implode('; ', $kurang).'.',
+                        route('guru.edit', $guru->id));
+                }
+            }
         }
 
         return $temuan;
+    }
+
+    /**
+     * Pendidikan memenuhi syarat minimal S-1/D-IV? Nilai tersimpan
+     * berformat bebas "Jenjang - Bidang" (mis. "S1 - Informatika") atau
+     * jenjang saja ("S-1") — yang dinilai token jenjangnya.
+     */
+    private static function pendidikanMemenuhiSyarat(string $pendidikan): bool
+    {
+        $jenjang = strtoupper(trim(str($pendidikan)->before(' - ')->toString()));
+        $jenjang = str_replace(['-', ' '], '', $jenjang);
+
+        return in_array($jenjang, ['S1', 'S2', 'S3', 'DIV'], true);
     }
 
     private function periksaSekolah(): array

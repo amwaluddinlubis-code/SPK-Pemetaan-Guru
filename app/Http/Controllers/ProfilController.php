@@ -25,6 +25,8 @@ class ProfilController extends Controller
 
         $request->user()->update([
             'password' => Hash::make($request->password),
+            // Password bawaan sudah diganti — kewajiban selesai.
+            'harus_ganti_password' => false,
         ]);
 
         return back()->with('sukses', 'Password berhasil diganti.');

@@ -1,4 +1,5 @@
 <?php
+
 // Controller untuk login & logout admin.
 // Route: GET /login, POST /login, POST /logout
 
@@ -16,31 +17,42 @@ class AuthController extends Controller
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
+
         return view('auth.login');
     }
 
     // Proses login
     public function login(Request $request)
     {
-        // Validasi input
-        $kredensial = $request->validate([
-            'email'    => ['required', 'email'],
+        // Satu kolom "login": pejabat memakai email; guru memakai NIP
+        // sebagai username (keputusan AMWAL, 23 Okt 2026).
+        $data = $request->validate([
+            'login' => ['required', 'string'],
             'password' => ['required'],
         ], [
-            'email.required'    => 'Email wajib diisi.',
-            'email.email'       => 'Format email tidak valid.',
+            'login.required' => 'Email / NIP wajib diisi.',
             'password.required' => 'Password wajib diisi.',
         ]);
+
+        $kredensial = str_contains($data['login'], '@')
+            ? ['email' => $data['login'], 'password' => $data['password']]
+            : ['username' => $data['login'], 'password' => $data['password']];
 
         // Coba login; jika gagal kembali dengan pesan error
         if (! Auth::attempt($kredensial, $request->boolean('remember'))) {
             return back()
-                ->withInput($request->only('email'))
-                ->withErrors(['email' => 'Email atau password salah.']);
+                ->withInput($request->only('login'))
+                ->withErrors(['login' => 'Email/NIP atau password salah.']);
         }
 
         // Cegah serangan session fixation
         $request->session()->regenerate();
+
+        // Password bawaan (NIP) wajib diganti dulu (middleware juga menjaga).
+        if ($request->user()->harus_ganti_password) {
+            return redirect()->route('profil.show')
+                ->with('warning', 'Demi keamanan, ganti dulu password bawaan Anda (password awal) dengan password baru.');
+        }
 
         return redirect()->intended(route('dashboard'));
     }

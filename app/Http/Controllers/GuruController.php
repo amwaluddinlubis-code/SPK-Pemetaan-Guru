@@ -12,6 +12,7 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\Guru;
 use App\Models\Sekolah;
+use App\Services\AkunGuru;
 use App\Services\AnalisisKebutuhanGuru;
 use App\Services\KonteksPemda;
 use App\Services\Linieritas;
@@ -27,18 +28,27 @@ class GuruController extends Controller
     private function aturanValidasi(): array
     {
         return [
-            'nip' => ['required', 'string', 'max:30'],
+            // NIP boleh kosong: guru hasil impor belum semuanya punya NIP
+            // (menyusul diisi operator). Keunikan tetap dijaga aturan
+            // unique terpisah di store/update + indeks unik database
+            // (NULL boleh berulang).
+            'nip' => ['nullable', 'string', 'max:30'],
             'nama' => ['required', 'string', 'max:100'],
+            'tempat_lahir' => ['nullable', 'string', 'max:100'],
+            'tanggal_lahir' => ['nullable', 'date'],
             'mapel' => ['required', 'string', 'max:50'],
-            'jenjang' => ['required', 'in:SD,SMP,SMA'],
+            'jenjang' => ['required', 'in:TK,SD,SMP,SMA'],
             'domisili_alamat' => ['required', 'string', 'max:255'],
             'kecamatan' => ['nullable', 'string', 'max:100'],
             'desa_kelurahan' => ['nullable', 'string', 'max:100'],
             'status_pernikahan' => ['nullable', 'in:belum_kawin,kawin,cerai_hidup,cerai_mati'],
-            'status_kepegawaian' => ['nullable', 'in:pns,pppk,honorer'],
+            'status_kepegawaian' => ['nullable', 'in:pns,pppk,pppk_paruh_waktu,honorer'],
             'sudah_sertifikasi' => ['nullable', 'boolean'],
             'mapel_sertifikasi' => ['nullable', 'string', 'max:50'],
             'bidang_studi_serdik' => ['nullable', 'string', 'max:150'],
+            'nuptk' => ['nullable', 'string', 'max:30'],
+            // Format bebas "Jenjang - Bidang" (contoh AMWAL: "S1 - Informatika").
+            'pendidikan_terakhir' => ['nullable', 'string', 'max:60'],
             'sekolah_id' => ['nullable', 'exists:sekolah,id'],
             'domisili_lat' => ['required', 'numeric', 'between:-90,90'],
             'domisili_lng' => ['required', 'numeric', 'between:-180,180'],
@@ -129,7 +139,13 @@ class GuruController extends Controller
             $data['sekolah_id'] = auth()->user()->sekolah_id;
         }
 
+        $data['nip'] = trim((string) ($data['nip'] ?? '')) ?: null;
+
         $guru = Guru::create($data);
+
+        // Akun login guru dibuatkan otomatis: username & password bawaan
+        // = NIP (guru wajib mengganti password saat login pertama).
+        AkunGuru::buatkan($guru);
 
         ActivityLog::catatAman('guru.tambah', $guru, 'sukses', [
             'kolom' => array_keys($data),
@@ -193,7 +209,15 @@ class GuruController extends Controller
             $data['sekolah_id'] = auth()->user()->sekolah_id;
         }
 
+        if (array_key_exists('nip', $data)) {
+            $data['nip'] = trim((string) $data['nip']) ?: null;
+        }
+
         $guru->update($data);
+
+        // Selaraskan akun login dengan NIP terbaru (akun dibuatkan bila
+        // NIP baru terisi; username & password bawaan mengikuti NIP).
+        AkunGuru::sinkronkan($guru);
 
         ActivityLog::catatAman('guru.ubah', $guru, 'sukses', [
             'kolom' => array_keys($data),

@@ -127,6 +127,21 @@
                                     <li>🔀 Mengisi formasi <strong>{{ $s->mapelTujuan() }}</strong> lewat linier kelompok
                                         (mapel guru: {{ $s->guru->mapel }}{{ $s->guru->bidang_studi_serdik ? '; serdik '.$s->guru->bidang_studi_serdik : '' }})</li>
                                 @endif
+                                @if (isset($perkiraanBeban[$s->id]))
+                                    @php $pb = $perkiraanBeban[$s->id]; @endphp
+                                    <li>
+                                        @if ($pb['cukup'])
+                                            ✅ Perkiraan beban di tujuan ±{{ number_format($pb['jp'], 1, ',', '.') }} JP/minggu (mencukupi)
+                                        @else
+                                            ⚠️ Perkiraan beban di tujuan hanya ±{{ number_format($pb['jp'], 1, ',', '.') }} JP/minggu
+                                            (&lt; 24) — beban kerja penuh terancam, tunjangan profesi berisiko
+                                        @endif
+                                    </li>
+                                @endif
+                                @if ($s->tujuanDaerahKhusus())
+                                    <li>ℹ️ Tujuan daerah khusus ({{ str_replace('_', ' ', $s->sekolahTujuan->kategori_daerah) }}) —
+                                        penempatan ini berhak <strong>Tunjangan Khusus</strong> 1× gaji pokok/bulan</li>
+                                @endif
                                 <li>
                                     @if ($sisa > 0)
                                         ✅ Sisa formasi: <strong>{{ $sisa }}</strong>
@@ -152,7 +167,7 @@
                                         <span class="badge {{ $s->guru->linear() ? 'badge-success' : 'badge-error' }} badge-xs">
                                             Serdik{{ $s->guru->linear() ? '' : ' tidak linear' }}
                                         </span>
-                                        <x-lencana-linieritas :guru="$s->guru" :jenjang="$s->sekolahTujuan->jenjang" :mapel="$s->mapelTujuan()" />
+                                        <x-lencana-linieritas :guru="$s->guru" :jenjang="$s->jenjangLinieritas()" :mapel="$s->mapelTujuan()" />
                                     @endif
                                 </li>
                                 @if (! empty($dampakAsal[$s->id]))

@@ -21,6 +21,7 @@ use App\Models\Sekolah;
 use App\Services\AnalisisKebutuhanGuru;
 use App\Services\Linieritas;
 use App\Services\MesinSawTopsis;
+use App\Services\PengaturanSpk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -288,6 +289,10 @@ class SpkController extends Controller
                 [$guru->domisili_lat, $guru->domisili_lng, $guru->domisili_lat]
             )
             ->join('kebutuhan_guru', 'kebutuhan_guru.sekolah_id', '=', 'sekolah.id')
+            // Pengaturan dinas: mode bawaan melarang rekomendasi lintas
+            // jenjang (guru hanya ke sekolah sejenjangnya).
+            ->when(! PengaturanSpk::bolehLintasJenjang(),
+                fn ($q) => $q->where('sekolah.jenjang', $guru->jenjang))
             ->whereIn('kebutuhan_guru.mapel', $daftarMapel)
             ->where('kebutuhan_guru.jumlah', '>', 0)
             ->where('sekolah.id', '!=', $guru->sekolah_id)

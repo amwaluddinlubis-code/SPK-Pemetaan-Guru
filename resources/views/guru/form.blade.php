@@ -84,13 +84,31 @@
                     <div class="grid gap-4 sm:grid-cols-2">
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-nip">NIP</label>
-                            <input id="f-nip" type="text" name="nip" value="{{ old('nip', $guru->nip) }}" required
+                            <input id="f-nip" type="text" name="nip" value="{{ old('nip', $guru->nip) }}"
                                    class="input w-full" placeholder="198501012010011001">
+                            <p class="text-xs opacity-70 mt-1">Boleh dikosongkan bila guru belum punya NIP (menyusul). NIP menjadi username &amp; password awal akun guru — tidak dapat diubah oleh guru.</p>
+                        </fieldset>
+                        <fieldset class="fieldset w-full">
+                            <label class="fieldset-legend font-semibold" for="f-nuptk">NUPTK</label>
+                            <input id="f-nuptk" type="text" name="nuptk" value="{{ old('nuptk', $guru->nuptk) }}"
+                                   class="input w-full" placeholder="Nomor Unik Pendidik dan Tenaga Kependidikan">
+                            <p class="text-xs opacity-70 mt-1">Syarat pendukung Tambahan Penghasilan bagi guru yang belum bersertifikat.</p>
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-nama">Nama Lengkap</label>
                             <input id="f-nama" type="text" name="nama" value="{{ old('nama', $guru->nama) }}" required
                                    class="input w-full" placeholder="Siti Aminah">
+                        </fieldset>
+                        <fieldset class="fieldset w-full">
+                            <label class="fieldset-legend font-semibold" for="f-tempat_lahir">Tempat Lahir</label>
+                            <input id="f-tempat_lahir" type="text" name="tempat_lahir" value="{{ old('tempat_lahir', $guru->tempat_lahir) }}"
+                                   class="input w-full" placeholder="Mandailing Natal">
+                        </fieldset>
+                        <fieldset class="fieldset w-full">
+                            <label class="fieldset-legend font-semibold" for="f-tanggal_lahir">Tanggal Lahir</label>
+                            <input id="f-tanggal_lahir" type="date" name="tanggal_lahir"
+                                   value="{{ old('tanggal_lahir', $guru->tanggal_lahir ? \Illuminate\Support\Carbon::parse($guru->tanggal_lahir)->format('Y-m-d') : '') }}"
+                                   class="input w-full">
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-status_pernikahan">Status Pernikahan</label>
@@ -146,6 +164,18 @@
                                     </option>
                                 @endforeach
                             </select>
+                        </fieldset>
+                        <fieldset class="fieldset w-full">
+                            <label class="fieldset-legend font-semibold" for="f-pendidikan_terakhir">Pendidikan Terakhir</label>
+                            <input id="f-pendidikan_terakhir" type="text" name="pendidikan_terakhir"
+                                   value="{{ old('pendidikan_terakhir', $guru->pendidikan_terakhir) }}"
+                                   class="input w-full" list="daftar-pendidikan" placeholder="S1 - Informatika">
+                            <datalist id="daftar-pendidikan">
+                                @foreach (['S1 - PGSD', 'S1 - PAUD', 'S1 - Informatika', 'S1 - Bahasa Inggris', 'S1 - Bahasa Indonesia', 'S1 - Matematika', 'S1 - IPA', 'S1 - IPS', 'S1 - Pendidikan Agama Islam', 'S1 - PJOK', 'S2 - Pendidikan', 'D-IV', 'D-III', 'SMA/SMK sederajat'] as $pd)
+                                    <option value="{{ $pd }}"></option>
+                                @endforeach
+                            </datalist>
+                            <p class="text-xs opacity-70 mt-1">Format: Jenjang - Bidang (cth: S1 - Bahasa Inggris). Tambahan Penghasilan mensyaratkan paling rendah S-1/D-IV.</p>
                         </fieldset>
                         <fieldset class="fieldset w-full">
                             <label class="fieldset-legend font-semibold" for="f-sudah_sertifikasi">Sertifikasi Pendidik</label>

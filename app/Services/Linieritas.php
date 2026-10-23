@@ -590,7 +590,9 @@ class Linieritas
     {
         $mapel = AnalisisKebutuhanGuru::kanonis($mapelTujuan);
 
-        if ($mapel === 'Agama') {
+        // Semua label agama (Agama, Agama Islam, Agama Kristen, dst.)
+        // berada di luar cakupan Kepmen 222 — lihat pagar linieritas.
+        if (str_starts_with($mapel, 'Agama')) {
             return ['status' => 'luar_cakupan',
                 'label' => 'Di luar cakupan Kepmen 222',
                 'kelas' => 'badge-info'];

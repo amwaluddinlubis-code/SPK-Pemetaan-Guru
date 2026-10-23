@@ -6,6 +6,7 @@
 
 namespace App\Models;
 
+use App\Services\PengaturanSpk;
 use Illuminate\Database\Eloquent\Model;
 
 class HasilSpk extends Model
@@ -115,5 +116,33 @@ class HasilSpk extends Model
     public function tingkatLinieritas(): int
     {
         return (int) ($this->tingkat_linieritas ?? 1);
+    }
+
+    /**
+     * Jenjang acuan penilaian lencana linieritas untuk rekomendasi ini.
+     * Bawaan: jenjang sekolah tujuan. Khusus rekomendasi tingkat 2 pada
+     * mode dinas "Izinkan lintas jenjang" (Opsi B), acuannya jenjang
+     * guru — sama dengan basis penurunan mapel linier oleh mesin —
+     * agar lencana tidak bertabrakan dengan keterangan tingkat 2.
+     */
+    public function jenjangLinieritas(): ?string
+    {
+        if ($this->tingkatLinieritas() === 2
+            && PengaturanSpk::bolehLintasJenjang()) {
+            return $this->guru?->jenjang;
+        }
+
+        return $this->sekolahTujuan?->jenjang;
+    }
+
+    // Sekolah tujuan berkategori daerah khusus (berhak Tunjangan Khusus
+    // 1× gaji pokok per Permendikdasmen 10/2026 Pasal 8–10).
+    public function tujuanDaerahKhusus(): bool
+    {
+        return in_array(
+            strtolower(trim((string) ($this->sekolahTujuan?->kategori_daerah ?? ''))),
+            ['terpencil', 'sangat_terpencil'],
+            true
+        );
     }
 }

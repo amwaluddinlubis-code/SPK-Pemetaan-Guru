@@ -13,6 +13,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\KualitasDataController;
+use App\Http\Controllers\PendaftaranGuruController;
 use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\SimulasiController;
@@ -25,6 +26,7 @@ use App\Livewire\AksesibilitasLivewire;
 use App\Livewire\Dashboard;
 use App\Livewire\DashboardPemda;
 use App\Livewire\KualitasDataLivewire;
+use App\Livewire\PendaftaranGuru;
 use App\Livewire\PengaturanAkses;
 use App\Livewire\PengaturanPemdaLivewire;
 use App\Livewire\Proyeksi;
@@ -62,6 +64,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', [PasswordResetController::class, 'simpanBaru'])
         ->middleware('throttle:10,1')
         ->name('password.update');
+
+    // Pendaftaran akun mandiri bagi guru yang belum punya akun/NIP —
+    // masuk antrean persetujuan operator dinas (kabid_ptk).
+    Route::get('/daftar-guru', [PendaftaranGuruController::class, 'form'])
+        ->name('daftar-guru');
+    Route::post('/daftar-guru', [PendaftaranGuruController::class, 'simpan'])
+        ->middleware('throttle:5,1')
+        ->name('daftar-guru.simpan');
 });
 
 // --- Halaman dalam aplikasi (wajib login) ---
@@ -166,6 +176,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/sekolah/{sekolah}/analisis-kebutuhan/terapkan', [SekolahController::class, 'terapkanAnalisis'])
         ->name('sekolah.analisis.terapkan')
         ->middleware('role:kepala_sekolah,kabid_ptk');
+
+    // --- Pendaftaran Guru: antrean persetujuan operator (kabid_ptk) ---
+    Route::get('/pendaftaran', PendaftaranGuru::class)->name('pendaftaran.index');
 
     // --- Kelola Pengguna: kabid_ptk (administrator) ---
     Route::get('/pengguna', TabelPengguna::class)->name('pengguna.index')

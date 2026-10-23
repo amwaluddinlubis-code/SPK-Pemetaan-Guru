@@ -3,13 +3,14 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -20,7 +21,9 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'username',
         'password',
+        'harus_ganti_password',
         'role',
         'guru_id',
         'sekolah_id',
@@ -29,12 +32,12 @@ class User extends Authenticatable
 
     // Daftar role yang valid + label tampilannya (Indonesia)
     public const ROLES = [
-        'guru'           => 'Guru',
+        'guru' => 'Guru',
         'kepala_sekolah' => 'Kepala Sekolah',
-        'ketua_pgri'     => 'Ketua PGRI Kecamatan',
-        'kabid_ptk'      => 'Kabid PTK Kabupaten',
-        'kadis'          => 'Kadis Pendidikan',
-        'pemda'          => 'Pemerintah Daerah',
+        'ketua_pgri' => 'Ketua PGRI Kecamatan',
+        'kabid_ptk' => 'Kabid PTK Kabupaten',
+        'kadis' => 'Kadis Pendidikan',
+        'pemda' => 'Pemerintah Daerah',
     ];
 
     /**
@@ -90,6 +93,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'harus_ganti_password' => 'boolean',
         ];
     }
 }

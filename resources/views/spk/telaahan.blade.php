@@ -69,7 +69,7 @@
             @endif
         </td></tr>
         @php
-            $statusKepmen = \App\Services\Linieritas::statusUntuk($guru, $spk->sekolahTujuan->jenjang ?? $guru->jenjang, $spk->mapelTujuan());
+            $statusKepmen = \App\Services\Linieritas::statusUntuk($guru, $spk->jenjangLinieritas() ?? $guru->jenjang, $spk->mapelTujuan());
         @endphp
         <tr><th>Linieritas Penempatan (Kepmen 222/O/2025)</th><td>
             @if ($guru->bidang_studi_serdik)
@@ -86,6 +86,16 @@
     <h4>III. Analisis</h4>
     <ol>
         <li><strong>Kebutuhan formasi:</strong> sekolah tujuan membutuhkan guru {{ $spk->mapelTujuan() }} (rekomendasi sistem)@if ($spk->tingkatLinieritas() === 2) — diisi lewat <strong>linier kelompok</strong> dari bidang studi sertifikasi guru (mapel guru saat ini: {{ $guru->mapel }})@endif.</li>
+        @php $pbTelaah = \App\Services\PerkiraanBebanKerja::untukRekomendasi($spk); @endphp
+        @if ($pbTelaah)
+            <li><strong>Perkiraan beban mengajar:</strong> ±{{ number_format($pbTelaah['jp'], 1, ',', '.') }} JP/minggu di sekolah tujuan
+                (total {{ $pbTelaah['total_jp'] }} JP mapel dibagi {{ $pbTelaah['pembagi'] }} guru) —
+                {{ $pbTelaah['cukup'] ? 'mencukupi syarat beban kerja penuh (≥ 24 JP).' : 'DI BAWAH 24 JP: beban kerja penuh terancam dan tunjangan profesi guru berisiko tidak terpenuhi.' }}</li>
+        @endif
+        @if ($spk->tujuanDaerahKhusus())
+            <li><strong>Tunjangan Khusus:</strong> sekolah tujuan berkategori daerah khusus ({{ str_replace('_', ' ', $spk->sekolahTujuan->kategori_daerah) }});
+                penempatan ini berhak atas Tunjangan Khusus sebesar 1× gaji pokok per bulan (Permendikdasmen 10/2026 Pasal 8–10).</li>
+        @endif
         <li><strong>Skor peringkat hibrida (Greedy + SAW–TOPSIS):</strong>
             @if ($spk->sudahDinilai())
                 <strong>{{ number_format($spk->skorPersen(), 1, ',', '.') }}/100</strong>

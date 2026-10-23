@@ -11,6 +11,7 @@ use App\Livewire\Concerns\DenganPerHalaman;
 use App\Models\Guru;
 use App\Models\HasilSpk;
 use App\Models\KebutuhanGuru;
+use App\Services\PerkiraanBebanKerja;
 use App\Services\RoutingJalan;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
@@ -88,7 +89,26 @@ class TabelSpk extends Component
             'sisaKuota' => KebutuhanGuru::sisaDenganAlokasi(),
             'dampakAsal' => $this->petaDampakAsal($koleksi),
             'jarakJalan' => $this->petaJarakJalan($koleksi),
+            'perkiraanBeban' => $this->petaPerkiraanBeban($koleksi),
         ]);
+    }
+
+    /**
+     * Perkiraan beban JP per rekomendasi di halaman ini (fase 3):
+     * [hasil_spk_id => hasil PerkiraanBebanKerja] — hanya untuk baris
+     * yang perkiraannya dapat dihitung.
+     */
+    private function petaPerkiraanBeban($spks): array
+    {
+        $peta = [];
+        foreach ($spks as $spk) {
+            $perkiraan = PerkiraanBebanKerja::untukRekomendasi($spk);
+            if ($perkiraan !== null) {
+                $peta[$spk->id] = $perkiraan;
+            }
+        }
+
+        return $peta;
     }
 
     /**

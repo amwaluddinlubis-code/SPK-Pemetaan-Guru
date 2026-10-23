@@ -31,7 +31,8 @@ class AnalisisKebutuhanGuru
      * @var array<string, int>
      */
     public const JP_SMP = [
-        'Agama' => 2,
+        'Agama Islam' => 2,
+        'Agama Kristen' => 2,
         'Pancasila' => 2,
         'Bahasa Indonesia' => 5,
         'Matematika' => 4,
@@ -52,8 +53,19 @@ class AnalisisKebutuhanGuru
      */
     public const JP_SD_KHUSUS = [
         'PJOK' => 3,
-        'Agama' => 3,
+        'Agama Islam' => 3,
+        'Agama Kristen' => 3,
     ];
+
+    /**
+     * Label agama yang TIDAK dihitung otomatis oleh analisis massal.
+     * Kebutuhan guru agama dihitung dari total rombel sekolah; data
+     * rombel per agama siswa tidak tersedia, jadi analisis massal hanya
+     * menghitung Agama Islam (label gabungan "Agama" sebelumnya, rumus
+     * dan total tidak berubah — keputusan pemisahan label 23 Okt 2026).
+     * Kebutuhan Agama Kristen diisi manual per sekolah bila diperlukan.
+     */
+    public const AGAMA_TIDAK_DIHITUNG_MASSAL = ['Agama Kristen'];
 
     /**
      * Label kanonis untuk guru kelas SD.
@@ -68,14 +80,15 @@ class AnalisisKebutuhanGuru
      * @var array<string, string>
      */
     public const ALIAS_MAPEL = [
-        'pai' => 'Agama',
-        'pendidikan agama' => 'Agama',
-        'pendidikan agama islam' => 'Agama',
-        'pendidikan agama kristen' => 'Agama',
-        'pendidikan agama katolik' => 'Agama',
-        'pendidikan agama hindu' => 'Agama',
-        'pendidikan agama buddha' => 'Agama',
-        'pendidikan agama khonghucu' => 'Agama',
+        'pai' => 'Agama Islam',
+        'agama islam' => 'Agama Islam',
+        'pendidikan agama islam' => 'Agama Islam',
+        'agama kristen' => 'Agama Kristen',
+        'pendidikan agama kristen' => 'Agama Kristen',
+        'pendidikan agama katolik' => 'Agama Katolik',
+        'pendidikan agama hindu' => 'Agama Hindu',
+        'pendidikan agama buddha' => 'Agama Buddha',
+        'pendidikan agama khonghucu' => 'Agama Khonghucu',
         'pkn' => 'Pancasila',
         'ppkn' => 'Pancasila',
         'pendidikan pancasila' => 'Pancasila',
@@ -149,6 +162,9 @@ class AnalisisKebutuhanGuru
 
         if ($jenjang === 'SMP') {
             foreach (self::JP_SMP as $label => $jp) {
+                if (in_array($label, self::AGAMA_TIDAK_DIHITUNG_MASSAL, true)) {
+                    continue;
+                }
                 $baris[] = self::baris($label, $jp, $rombel, $eksisting, $bebanMengajar);
             }
 
@@ -164,6 +180,9 @@ class AnalisisKebutuhanGuru
             'selisih' => (int) ($eksisting[self::LABEL_GURU_KELAS] ?? 0) - $rombel,
         ];
         foreach (self::JP_SD_KHUSUS as $label => $jp) {
+            if (in_array($label, self::AGAMA_TIDAK_DIHITUNG_MASSAL, true)) {
+                continue;
+            }
             $baris[] = self::baris($label, $jp, $rombel, $eksisting, $bebanMengajar);
         }
 

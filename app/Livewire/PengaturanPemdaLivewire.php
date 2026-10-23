@@ -14,6 +14,7 @@ use App\Models\Sekolah;
 use App\Models\WilayahKabupaten;
 use App\Models\WilayahProvinsi;
 use App\Services\KonteksPemda;
+use App\Services\PengaturanSpk;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -26,11 +27,33 @@ class PengaturanPemdaLivewire extends Component
 
     public string $kodeKabupaten = '';
 
+    /** Mode rekomendasi lintas jenjang (PengaturanSpk): 'larang'|'boleh'. */
+    public string $lintasJenjang = 'larang';
+
     public function mount(): void
     {
         $this->level = KonteksPemda::level() ?: 'kabupaten';
         $this->kodeProvinsi = KonteksPemda::kodeProvinsi() ?: '';
         $this->kodeKabupaten = KonteksPemda::kodeKabupaten() ?: '';
+        $this->lintasJenjang = PengaturanSpk::modeLintasJenjang();
+    }
+
+    /** Simpan pilihan perilaku rekomendasi lintas jenjang. */
+    public function simpanLintasJenjang()
+    {
+        $this->validate([
+            'lintasJenjang' => ['required', 'in:larang,boleh'],
+        ]);
+
+        PengaturanSpk::simpanModeLintasJenjang($this->lintasJenjang);
+        ActivityLog::catatAman('pengaturan.lintas_jenjang', null, 'sukses', [
+            'mode' => $this->lintasJenjang,
+        ]);
+
+        session()->flash('sukses', 'Pengaturan rekomendasi lintas jenjang disimpan: '
+            .PengaturanSpk::MODE_LINTAS_JENJANG[$this->lintasJenjang].'.');
+
+        return $this->redirectRoute('pengaturan.pemda');
     }
 
     /** Ganti provinsi → pilihan kabupaten tidak berlaku lagi. */

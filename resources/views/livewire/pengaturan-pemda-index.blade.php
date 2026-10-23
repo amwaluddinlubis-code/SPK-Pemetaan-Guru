@@ -80,4 +80,37 @@
             </form>
         </div>
     </div>
+
+    {{-- ===== Pengaturan SPK: rekomendasi lintas jenjang ===== --}}
+    <div class="card bg-base-100 shadow mt-6">
+        <div class="card-body">
+            <h2 class="card-title text-lg">Pengaturan SPK — Rekomendasi Lintas Jenjang</h2>
+            <p class="text-sm opacity-70">
+                Lintas jenjang berarti guru direkomendasikan ke sekolah jenjang lain
+                (mis. guru SMP ke sekolah SD). Dinas dapat memilih perilakunya:
+            </p>
+            <form wire:submit="simpanLintasJenjang">
+                <div class="space-y-3 mt-2">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="radio" wire:model="lintasJenjang" value="larang" class="radio radio-primary mt-1">
+                        <span>
+                            <strong>Larang lintas jenjang (Opsi A)</strong>
+                            <span class="block text-sm opacity-70">Mesin SPK hanya merekomendasikan guru ke sekolah sejenjangnya. Penempatan lintas jenjang menjadi keputusan khusus dinas di luar rekomendasi otomatis.</span>
+                        </span>
+                    </label>
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="radio" wire:model="lintasJenjang" value="boleh" class="radio radio-primary mt-1">
+                        <span>
+                            <strong>Izinkan lintas jenjang (Opsi B)</strong> — bawaan.
+                            <span class="block text-sm opacity-70">Rekomendasi lintas jenjang boleh dibuat; khusus rekomendasi tingkat 2 (linier kelompok), lencana linieritas dinilai dari jenjang guru — konsisten dengan cara mesin menurunkan mapel liniernya.</span>
+                        </span>
+                    </label>
+                </div>
+                @error('lintasJenjang')<p class="text-error text-xs mt-1">{{ $message }}</p>@enderror
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Simpan Pengaturan SPK</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

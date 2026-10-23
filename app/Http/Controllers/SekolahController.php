@@ -133,7 +133,8 @@ class SekolahController extends Controller
 
     /**
      * Hitung guru eksisting per label kanonis.
-     * SD: guru yang mapelnya bukan PJOK/Agama dihitung sebagai guru kelas.
+     * SD: guru yang mapelnya bukan PJOK/Agama dihitung sebagai guru kelas
+     * (label agama kini terpisah: Agama Islam, Agama Kristen, dst.).
      *
      * @return array<string, int>
      */
@@ -145,7 +146,7 @@ class SekolahController extends Controller
             if ($label === '') {
                 continue;
             }
-            if ($jenjang === 'SD' && ! in_array($label, ['PJOK', 'Agama'], true)) {
+            if ($jenjang === 'SD' && ! in_array($label, ['PJOK', 'Agama', 'Agama Islam', 'Agama Kristen', 'Agama Katolik', 'Agama Hindu', 'Agama Buddha', 'Agama Khonghucu'], true)) {
                 $label = AnalisisKebutuhanGuru::LABEL_GURU_KELAS;
             }
             $eksisting[$label] = ($eksisting[$label] ?? 0) + 1;

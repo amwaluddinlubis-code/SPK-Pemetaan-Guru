@@ -95,6 +95,11 @@ class RegistriMenu
             'pola' => 'pengguna.*', 'ikon' => 'pengguna',
             'bawaan' => ['kabid_ptk'],
         ],
+        'pendaftaran-guru' => [
+            'label' => 'Pendaftaran Guru', 'grup' => 'Sistem', 'rute' => 'pendaftaran.index',
+            'pola' => 'pendaftaran.*', 'ikon' => 'guru',
+            'bawaan' => ['kabid_ptk'],
+        ],
         'aktivitas' => [
             'label' => 'Jejak Audit', 'grup' => 'Sistem', 'rute' => 'aktivitas.index',
             'pola' => 'aktivitas.*', 'ikon' => 'audit',

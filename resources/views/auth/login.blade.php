@@ -70,10 +70,11 @@
                         @csrf
 
                         <fieldset class="fieldset w-full mb-4">
-                            <label class="fieldset-legend font-semibold mb-1" for="f-email">📧 Email</label>
-                            <input id="f-email" type="email" name="email" value="{{ old('email') }}"
-                                   required autofocus placeholder="nama@contoh.id"
+                            <label class="fieldset-legend font-semibold mb-1" for="f-login">📧 Email / NIP</label>
+                            <input id="f-login" type="text" name="login" value="{{ old('login') }}"
+                                   required autofocus placeholder="Email pejabat, atau NIP bagi guru"
                                    class="input w-full focus:input-primary">
+                            <p class="text-xs opacity-60 mt-1">Guru masuk dengan NIP sebagai username &amp; password awal.</p>
                         </fieldset>
 
                         <fieldset class="fieldset w-full mb-2">
@@ -100,6 +101,9 @@
                         </button>
                         <div class="text-center mt-3">
                             <a href="{{ route('password.request') }}" class="link link-primary text-sm">Lupa password?</a>
+                        </div>
+                        <div class="text-center mt-2">
+                            <a href="{{ route('daftar-guru') }}" class="link link-primary text-sm">Belum punya akun? Daftar sebagai guru →</a>
                         </div>
                     </form>
                 </div>
