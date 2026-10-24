@@ -186,6 +186,7 @@ class SekolahController extends Controller
             'aksi' => 'Tambah',
             'daftarKecamatan' => $this->daftarKecamatanForm(),
             'petaKodeKecamatan' => $this->petaKodeKecamatan(),
+            'mapelPerJenjang' => AnalisisKebutuhanGuru::daftarMapelPerJenjang(),
         ]);
     }
 
@@ -550,6 +551,7 @@ class SekolahController extends Controller
             'aksi' => 'Ubah',
             'daftarKecamatan' => $this->daftarKecamatanForm(),
             'petaKodeKecamatan' => $this->petaKodeKecamatan(),
+            'mapelPerJenjang' => AnalisisKebutuhanGuru::daftarMapelPerJenjang(),
         ]);
     }
 

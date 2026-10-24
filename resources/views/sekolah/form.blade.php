@@ -16,7 +16,7 @@
 
                 <h2 class="text-base font-bold">Identitas Sekolah</h2>
                 <p class="text-sm opacity-70 mb-3">Data pokok sekolah sesuai Dapodik. NPSN menjadi kunci pencocokan saat impor &amp; sinkronisasi.</p>
-                <div class="grid gap-4 sm:grid-cols-2">
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     <fieldset class="fieldset w-full">
                         <label class="fieldset-legend font-semibold" for="f-npsn">NPSN</label>
                         <input id="f-npsn" type="text" name="npsn" value="{{ old('npsn', $sekolah->npsn) }}" required
@@ -51,8 +51,8 @@
 
                 <h2 class="text-base font-bold mt-6">Lokasi &amp; Koordinat</h2>
                 <p class="text-sm opacity-70 mb-3">Alamat dan titik koordinat sekolah — dasar perhitungan jarak domisili guru. Tentukan titik lewat peta di bawah, lalu verifikasi agar sekolah dapat menjadi tujuan rekomendasi.</p>
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <fieldset class="fieldset w-full sm:col-span-2">
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <fieldset class="fieldset w-full sm:col-span-2 lg:col-span-3">
                         <label class="fieldset-legend font-semibold" for="f-alamat">Alamat</label>
                         <input id="f-alamat" type="text" name="alamat" value="{{ old('alamat', $sekolah->alamat) }}" required
                                class="input w-full" placeholder="Jl. Pendidikan No.1">
@@ -75,7 +75,7 @@
                          x-init="muatDesa(@js(old('kecamatan', $sekolah->kecamatan)))"
                          x-on:searchable-select-change="if ($event.detail.name === 'kecamatan') { muatDesa($event.detail.value); petaTerbangKeWilayah('peta-sekolah', { kecamatan: petaKodeKecamatan[($event.detail.value || '').toUpperCase().trim()] ?? '' }, 12); }"
                          x-on:desa-terpilih="petaTerbangKeDesa('peta-sekolah', $event.detail)">
-                    <fieldset class="fieldset w-full sm:col-span-2">
+                    <fieldset class="fieldset w-full">
                         <label class="fieldset-legend font-semibold" for="f-kecamatan">Kecamatan</label>
                         @php
                             $kecAktif = old('kecamatan', $sekolah->kecamatan);
@@ -135,7 +135,7 @@
                 </div>
 
                 <h2 class="text-base font-bold mt-6">Kebutuhan Guru per Mata Pelajaran</h2>
-                <p class="text-sm opacity-70 mb-3">Formasi yang dibutuhkan sekolah — menjadi tujuan rekomendasi SPK &amp; Peta Rekomendasi. Kosongkan bila sudah memakai analisis massal berbasis rombel.</p>
+                <p class="text-sm opacity-70 mb-3">Formasi yang dibutuhkan sekolah — menjadi tujuan rekomendasi SPK &amp; Peta Rekomendasi. Pilihan mata pelajaran mengikuti jenjang sekolah di atas; ketik untuk mencari. Kosongkan bila sudah memakai analisis massal berbasis rombel.</p>
                 @if ($errors->has('kebutuhan.*'))
                     <p class="text-error text-xs mb-2">{{ $errors->first('kebutuhan.*') }}</p>
                 @endif
@@ -153,13 +153,34 @@
                      ini (atau kunci kebutuhan) ada — bila seksi ini jatuh
                      di luar form, kebutuhan lama dipertahankan (P0). --}}
                 <input type="hidden" name="kebutuhan_terkirim" value="1">
-                <div x-data='{ "baris": @json(array_values($awal)) }'>
+                {{-- Pilihan mapel mengikuti jenjang sekolah (diambil dari
+                     field Jenjang di atas): ketik untuk menyaring daftar
+                     kanonis per jenjang; teks bebas tetap diterima agar
+                     nilai lama di luar daftar tidak hilang. --}}
+                <div x-data='{ "baris": @json(array_values($awal)), "mapelPerJenjang": @json($mapelPerJenjang ?? []), "jenjangAktif": @json(old('jenjang', $sekolah->jenjang) ?? ""), "barisTerbuka": -1, get opsiMapel() { const sd = this.mapelPerJenjang.SD ?? []; const smp = this.mapelPerJenjang.SMP ?? []; if (this.jenjangAktif === "SD") return sd; if (this.jenjangAktif === "SMP") return smp; return [...new Set([...sd, ...smp])]; }, saring(teks) { const q = (teks ?? "").trim().toLowerCase(); const semua = q === "" ? this.opsiMapel : this.opsiMapel.filter((m) => m.toLowerCase().includes(q)); return semua.slice(0, 100); } }'
+                     x-init="const selJenjang = document.getElementById('f-jenjang'); if (selJenjang) { jenjangAktif = selJenjang.value; selJenjang.addEventListener('change', () => { jenjangAktif = selJenjang.value; }); }">
                     <template x-for="(b, i) in baris" :key="i">
                         <div class="flex gap-2 mb-2">
-                            <input type="text" :name="'kebutuhan[' + i + '][mapel]'" x-model="b.mapel"
-                                   aria-label="Mata pelajaran kebutuhan"
-                                   placeholder="Mata pelajaran (mis. Matematika)"
-                                   class="input flex-1">
+                            <div class="relative flex-1">
+                                <input type="text" :name="'kebutuhan[' + i + '][mapel]'" x-model="b.mapel"
+                                       aria-label="Mata pelajaran kebutuhan" role="combobox"
+                                       x-bind:aria-expanded="barisTerbuka === i"
+                                       @focus="barisTerbuka = i" @input="barisTerbuka = i"
+                                       @keydown.escape="barisTerbuka = -1"
+                                       placeholder="Ketik atau pilih mata pelajaran (sesuai jenjang)"
+                                       class="input w-full" autocomplete="off">
+                                <ul x-show="barisTerbuka === i" style="display: none;"
+                                    @click.outside="if (barisTerbuka === i) barisTerbuka = -1"
+                                    class="absolute z-40 mt-1 max-h-56 w-full overflow-auto rounded-box border border-base-300 bg-base-100 py-1 shadow-lg">
+                                    <template x-for="m in saring(b.mapel)" :key="m">
+                                        <li>
+                                            <button type="button" class="block w-full px-3 py-2 text-left hover:bg-base-200"
+                                                    @click="b.mapel = m; barisTerbuka = -1" x-text="m"></button>
+                                        </li>
+                                    </template>
+                                    <li x-show="saring(b.mapel).length === 0" class="px-3 py-2 text-sm opacity-60">Tidak ada di daftar jenjang ini — teks yang diketik tetap dipakai.</li>
+                                </ul>
+                            </div>
                             <input type="number" :name="'kebutuhan[' + i + '][jumlah]'" x-model="b.jumlah"
                                    aria-label="Jumlah kebutuhan"
                                    min="1" placeholder="Jumlah" class="input w-28">

@@ -141,6 +141,30 @@ class AnalisisKebutuhanGuru
     }
 
     /**
+     * Daftar mapel kanonis per jenjang untuk pilihan isian kebutuhan
+     * guru di form sekolah (searchable select mengikuti jenjang):
+     *   SD  → Guru Kelas + mapel khusus SD (PJOK & agama);
+     *   SMP → semua mapel JP_SMP.
+     * Agama selain Islam/Kristen ikut ditawarkan (diisi manual per
+     * sekolah; analisis massal hanya menghitung Agama Islam).
+     *
+     * @return array{SD: array<int, string>, SMP: array<int, string>}
+     */
+    public static function daftarMapelPerJenjang(): array
+    {
+        $agamaLain = ['Agama Katolik', 'Agama Hindu', 'Agama Buddha', 'Agama Khonghucu'];
+
+        return [
+            'SD' => array_values(array_unique([
+                self::LABEL_GURU_KELAS, ...array_keys(self::JP_SD_KHUSUS), ...$agamaLain,
+            ])),
+            'SMP' => array_values(array_unique([
+                ...array_keys(self::JP_SMP), ...$agamaLain,
+            ])),
+        ];
+    }
+
+    /**
      * Hitung kebutuhan guru sebuah sekolah.
      *
      * @param  string  $jenjang  'SD' atau 'SMP' (case-insensitive)

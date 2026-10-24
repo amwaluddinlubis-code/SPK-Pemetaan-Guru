@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\KebutuhanGuru;
 use App\Models\Sekolah;
 use App\Models\User;
+use App\Services\AnalisisKebutuhanGuru;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -126,6 +127,32 @@ class FormSekolahPerbaikanTest extends TestCase
         ]))->assertRedirect(route('sekolah.index'));
 
         $this->assertSame(0, KebutuhanGuru::where('sekolah_id', $this->sekolah->id)->count());
+    }
+
+    public function test_form_sekolah_grid_tiga_kolom_dan_pilihan_mapel_per_jenjang(): void
+    {
+        // Permintaan pemilik (24 Okt 2026): form sekolah 3 grid dengan
+        // field sejajar, dan pilihan mapel kebutuhan berupa pencarian
+        // yang mengikuti jenjang (daftar kanonis tertanam di halaman).
+        $res = $this->actingAs($this->kabid)->get(route('sekolah.edit', $this->sekolah));
+        $res->assertOk();
+        $html = $res->getContent();
+        $this->assertStringContainsString('lg:grid-cols-3', $html);
+        $this->assertStringContainsString('opsiMapel', $html);
+        $this->assertStringContainsString('Guru Kelas', $html);   // daftar SD
+        $this->assertStringContainsString('Informatika', $html);  // daftar SMP
+    }
+
+    public function test_daftar_mapel_per_jenjang_sesuai_kanonis(): void
+    {
+        $daftar = AnalisisKebutuhanGuru::daftarMapelPerJenjang();
+        $this->assertContains('Guru Kelas', $daftar['SD']);
+        $this->assertContains('PJOK', $daftar['SD']);
+        $this->assertContains('Agama Islam', $daftar['SD']);
+        $this->assertNotContains('Informatika', $daftar['SD']);
+        $this->assertContains('Informatika', $daftar['SMP']);
+        $this->assertContains('Matematika', $daftar['SMP']);
+        $this->assertNotContains('Guru Kelas', $daftar['SMP']);
     }
 
     public function test_verifikasi_koordinat_tetap_berfungsi_setelah_pemisahan_form(): void
