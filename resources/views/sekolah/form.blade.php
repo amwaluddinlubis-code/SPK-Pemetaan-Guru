@@ -134,50 +134,6 @@
                     ])
                 </div>
 
-                @if ($sekolah->exists)
-                    {{-- Status verifikasi koordinat + formulir verifikasi.
-                         Otorisasi ditegakkan controller; tampilan hanya
-                         menyesuaikan peran yang berwenang. --}}
-                    @php
-                        $bolehVerifikasi = auth()->user()->hasRole('kabid_ptk', 'kadis')
-                            || (auth()->user()->hasRole('kepala_sekolah') && (int) auth()->user()->sekolah_id === (int) $sekolah->id);
-                    @endphp
-                    <div class="alert {{ $sekolah->koordinatTerverifikasi() ? 'alert-success' : 'alert-warning' }} mt-3">
-                        <div class="w-full">
-                            <p class="font-semibold flex items-center gap-1.5"><x-ikon nama="lokasi" class="h-4 w-4 shrink-0" /> {{ $sekolah->labelStatusKoordinat() }}</p>
-                            @if ($sekolah->koordinatTerverifikasi())
-                                <p class="text-sm">Diverifikasi {{ $sekolah->koordinat_terverifikasi_pada?->format('d/m/Y H:i') }}
-                                    oleh {{ $sekolah->verifikatorKoordinat?->name ?? 'petugas' }}
-                                    (sumber: {{ \App\Models\Sekolah::SUMBER_KOORDINAT[$sekolah->koordinat_sumber] ?? $sekolah->koordinat_sumber }}).
-                                    @if ($sekolah->koordinat_verifikasi_catatan) Catatan: {{ $sekolah->koordinat_verifikasi_catatan }} @endif
-                                </p>
-                                <p class="text-sm">Mengubah titik koordinat akan membatalkan status terverifikasi ini.</p>
-                            @else
-                                <p class="text-sm">Sekolah dengan koordinat belum terverifikasi tidak dapat menjadi tujuan rekomendasi SPK maupun Peta Rekomendasi.</p>
-                                @if ($bolehVerifikasi && $sekolah->lat !== null && $sekolah->lng !== null)
-                                    <form method="POST" action="{{ route('sekolah.verifikasi-koordinat', $sekolah) }}" class="mt-2 flex flex-wrap gap-2 items-end">
-                                        @csrf
-                                        <fieldset class="fieldset">
-                                            <label class="fieldset-legend" for="koordinat_sumber">Sumber verifikasi</label>
-                                            <select id="koordinat_sumber" name="koordinat_sumber" class="select" required>
-                                                @foreach (\App\Models\Sekolah::SUMBER_KOORDINAT as $kode => $label)
-                                                    @continue($kode === 'konfirmasi_massal')
-                                                    <option value="{{ $kode }}">{{ $label }}</option>
-                                                @endforeach
-                                            </select>
-                                        </fieldset>
-                                        <fieldset class="fieldset flex-1 min-w-52">
-                                            <label class="fieldset-legend" for="koordinat_catatan">Catatan (opsional)</label>
-                                            <input type="text" id="koordinat_catatan" name="koordinat_catatan" class="input w-full" maxlength="255" placeholder="mis. Dicek bersama operator sekolah">
-                                        </fieldset>
-                                        <button type="submit" class="btn btn-success"><x-ikon nama="centang" class="h-4 w-4" /> Tandai Terverifikasi</button>
-                                    </form>
-                                @endif
-                            @endif
-                        </div>
-                    </div>
-                @endif
-
                 <h2 class="text-base font-bold mt-6">Kebutuhan Guru per Mata Pelajaran</h2>
                 <p class="text-sm opacity-70 mb-3">Formasi yang dibutuhkan sekolah — menjadi tujuan rekomendasi SPK &amp; Peta Rekomendasi. Kosongkan bila sudah memakai analisis massal berbasis rombel.</p>
                 @if ($errors->has('kebutuhan.*'))
@@ -192,6 +148,11 @@
                     ])->toArray());
                     if (empty($awal)) $awal = [['mapel' => '', 'jumlah' => 1]];
                 @endphp
+                {{-- Penanda seksi kebutuhan terkirim bersama form utama:
+                     controller hanya menyinkronkan kebutuhan bila penanda
+                     ini (atau kunci kebutuhan) ada — bila seksi ini jatuh
+                     di luar form, kebutuhan lama dipertahankan (P0). --}}
+                <input type="hidden" name="kebutuhan_terkirim" value="1">
                 <div x-data='{ "baris": @json(array_values($awal)) }'>
                     <template x-for="(b, i) in baris" :key="i">
                         <div class="flex gap-2 mb-2">
@@ -215,6 +176,53 @@
                     <a href="{{ route('sekolah.index') }}" class="btn btn-ghost">Batal</a>
                 </div>
             </form>
+
+            {{-- Status verifikasi koordinat + formulir verifikasi.
+                 SENGAJA DI LUAR form utama: HTML melarang form bersarang.
+                 Menyelipkan form ini ke dalam form utama pernah membuat
+                 tombol Simpan mati dan kebutuhan guru terhapus diam-diam
+                 (bug P0, 24 Okt 2026). Otorisasi ditegakkan controller;
+                 tampilan hanya menyesuaikan peran yang berwenang. --}}
+            @if ($sekolah->exists)
+                @php
+                    $bolehVerifikasi = auth()->user()->hasRole('kabid_ptk', 'kadis')
+                        || (auth()->user()->hasRole('kepala_sekolah') && (int) auth()->user()->sekolah_id === (int) $sekolah->id);
+                @endphp
+                <div class="alert {{ $sekolah->koordinatTerverifikasi() ? 'alert-success' : 'alert-warning' }} mt-6">
+                    <div class="w-full">
+                        <p class="font-semibold flex items-center gap-1.5"><x-ikon nama="lokasi" class="h-4 w-4 shrink-0" /> {{ $sekolah->labelStatusKoordinat() }}</p>
+                        @if ($sekolah->koordinatTerverifikasi())
+                            <p class="text-sm">Diverifikasi {{ $sekolah->koordinat_terverifikasi_pada?->format('d/m/Y H:i') }}
+                                oleh {{ $sekolah->verifikatorKoordinat?->name ?? 'petugas' }}
+                                (sumber: {{ \App\Models\Sekolah::SUMBER_KOORDINAT[$sekolah->koordinat_sumber] ?? $sekolah->koordinat_sumber }}).
+                                @if ($sekolah->koordinat_verifikasi_catatan) Catatan: {{ $sekolah->koordinat_verifikasi_catatan }} @endif
+                            </p>
+                            <p class="text-sm">Mengubah titik koordinat akan membatalkan status terverifikasi ini.</p>
+                        @else
+                            <p class="text-sm">Sekolah dengan koordinat belum terverifikasi tidak dapat menjadi tujuan rekomendasi SPK maupun Peta Rekomendasi.</p>
+                            @if ($bolehVerifikasi && $sekolah->lat !== null && $sekolah->lng !== null)
+                                <form method="POST" action="{{ route('sekolah.verifikasi-koordinat', $sekolah) }}" class="mt-2 flex flex-wrap gap-2 items-end">
+                                    @csrf
+                                    <fieldset class="fieldset">
+                                        <label class="fieldset-legend" for="koordinat_sumber">Sumber verifikasi</label>
+                                        <select id="koordinat_sumber" name="koordinat_sumber" class="select" required>
+                                            @foreach (\App\Models\Sekolah::SUMBER_KOORDINAT as $kode => $label)
+                                                @continue($kode === 'konfirmasi_massal')
+                                                <option value="{{ $kode }}">{{ $label }}</option>
+                                            @endforeach
+                                        </select>
+                                    </fieldset>
+                                    <fieldset class="fieldset flex-1 min-w-52">
+                                        <label class="fieldset-legend" for="koordinat_catatan">Catatan (opsional)</label>
+                                        <input type="text" id="koordinat_catatan" name="koordinat_catatan" class="input w-full" maxlength="255" placeholder="mis. Dicek bersama operator sekolah">
+                                    </fieldset>
+                                    <button type="submit" class="btn btn-success"><x-ikon nama="centang" class="h-4 w-4" /> Tandai Terverifikasi</button>
+                                </form>
+                            @endif
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 @endsection

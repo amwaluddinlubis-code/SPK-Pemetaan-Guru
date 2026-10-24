@@ -558,7 +558,7 @@ class SekolahController extends Controller
         $this->otorisasiUbah($sekolah);
         $data = $this->validasi($request, $sekolah->id);
 
-        DB::transaction(function () use ($sekolah, $data) {
+        DB::transaction(function () use ($sekolah, $data, $request) {
             $sekolah->update([
                 'npsn' => $data['npsn'], 'nama' => $data['nama'],
                 'jenjang' => $data['jenjang'] ?? null, 'rombel' => $data['rombel'] ?? null,
@@ -571,9 +571,16 @@ class SekolahController extends Controller
             // status terverifikasi (titik terverifikasi tersimpan
             // terpisah dan tidak lagi sama) — lihat
             // Sekolah::koordinatTerverifikasi().
-            // Hapus kebutuhan lama, simpan yang baru (cara paling sederhana & aman)
-            $sekolah->kebutuhan()->delete();
-            $this->simpanKebutuhan($sekolah, $data['kebutuhan'] ?? []);
+            // Pengaman P0 (form bersarang, 24 Okt 2026): kebutuhan hanya
+            // disinkronkan bila seksi kebutuhan benar-benar terkirim
+            // bersama form utama (penanda hidden input atau kunci
+            // kebutuhan). Bila keduanya tidak ada — mis. seksi jatuh di
+            // luar form — kebutuhan lama DIPERTAHANKAN, tidak pernah
+            // dihapus diam-diam.
+            if ($request->has('kebutuhan_terkirim') || array_key_exists('kebutuhan', $data)) {
+                $sekolah->kebutuhan()->delete();
+                $this->simpanKebutuhan($sekolah, $data['kebutuhan'] ?? []);
+            }
 
             ActivityLog::catatAman('sekolah.ubah', $sekolah, 'sukses');
         });
