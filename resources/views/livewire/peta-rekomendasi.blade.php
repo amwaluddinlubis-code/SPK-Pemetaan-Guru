@@ -51,13 +51,11 @@
                     @else
                     <fieldset class="fieldset w-full">
                         <label class="fieldset-legend font-semibold" for="f-guruId">Pilih guru</label>
-                        <select id="f-guruId" wire:model="guruId" class="select w-full"
-                                @if($terkunci) disabled @endif>
-                            <option value="">— Pilih guru —</option>
-                            @foreach ($daftarGuru as $g)
-                                <option value="{{ $g->id }}">{{ $g->nama }} — {{ $g->mapel }} ({{ $g->jenjang }})</option>
-                            @endforeach
-                        </select>
+                        <x-searchable-select wire-model="guruId"
+                            :options="$daftarGuru->map(fn ($g) => ['value' => $g->id, 'label' => $g->nama.' - '.($g->nip ?: 'Tanpa NIP')])->all()"
+                            :selected="$guruId"
+                            placeholder="— Pilih guru —"
+                            :disabled="$terkunci" class="w-full" />
                         @if($terkunci)
                             <span class="text-xs opacity-60 mt-1">Terkunci: Anda hanya bisa melihat rekomendasi untuk diri sendiri.</span>
                         @endif

@@ -6,6 +6,7 @@
 namespace App\Livewire;
 
 use App\Livewire\Concerns\DenganPerHalaman;
+use App\Models\Guru;
 use App\Models\Sekolah;
 use App\Services\KonteksPemda;
 use Livewire\Attributes\Title;
@@ -34,6 +35,50 @@ class TabelSekolah extends Component
     public string $arah = 'asc';
 
     private const KOLOM_SORTIR = ['nama', 'npsn', 'kecamatan'];
+
+    // Modal daftar guru yang ditugaskan di satu sekolah (tombol aksi baris).
+    public ?int $guruSekolahId = null;
+
+    public string $guruSekolahNama = '';
+
+    /** @var array<int, array{nama: string, nip: ?string, mapel: ?string, status: string}> */
+    public array $guruSekolahDaftar = [];
+
+    /**
+     * Buka modal guru yang ditugaskan di sekolah ini. Scope peran sama
+     * seperti daftar utama: kepala sekolah hanya sekolahnya, ketua
+     * PGRI hanya kecamatannya — sekolah di luar scope dianggap tidak
+     * ada (404), bukan sekadar tombol disembunyikan.
+     */
+    public function tampilGuru(int $sekolahId): void
+    {
+        $user = auth()->user();
+        $query = Sekolah::query();
+        if ($user->role === 'kepala_sekolah') {
+            $query->where('id', $user->sekolah_id);
+        } elseif ($user->role === 'ketua_pgri') {
+            $query->where('kecamatan', $user->kecamatan);
+        }
+        $sekolah = $query->findOrFail($sekolahId);
+
+        $this->guruSekolahId = $sekolah->id;
+        $this->guruSekolahNama = $sekolah->nama;
+        $this->guruSekolahDaftar = Guru::where('sekolah_id', $sekolah->id)
+            ->orderBy('nama')
+            ->get()
+            ->map(fn (Guru $g) => [
+                'nama' => $g->nama,
+                'nip' => $g->nip,
+                'mapel' => $g->mapel,
+                'status' => $g->labelStatusKepegawaian(),
+            ])
+            ->all();
+    }
+
+    public function tutupGuru(): void
+    {
+        $this->reset(['guruSekolahId', 'guruSekolahNama', 'guruSekolahDaftar']);
+    }
 
     public function updatedQ(): void
     {

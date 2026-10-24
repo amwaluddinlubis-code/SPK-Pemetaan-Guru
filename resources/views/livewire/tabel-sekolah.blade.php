@@ -118,6 +118,7 @@
                             </td>
                             <td class="text-right whitespace-nowrap">
                                 <div class="grup-aksi">
+                                    <button type="button" wire:click="tampilGuru({{ $s->id }})" class="btn btn-sm btn-primary tooltip tooltip-left" data-tip="Guru yang ditugaskan" aria-label="Guru yang ditugaskan"><x-ikon nama="guru" class="h-4 w-4" /></button>
                                     <a href="{{ route('sekolah.analisis', $s) }}" class="btn btn-sm btn-info tooltip tooltip-left" data-tip="Analisis kebutuhan guru" aria-label="Analisis kebutuhan guru"><x-ikon nama="kualitas" class="h-4 w-4" /></a>
                                     @if (auth()->user()->hasRole('kepala_sekolah', 'kabid_ptk'))
                                         <a href="{{ route('sekolah.edit', $s) }}" class="btn btn-sm btn-warning tooltip tooltip-left" data-tip="Ubah" aria-label="Ubah"><x-ikon nama="pensil" class="h-4 w-4" /></a>
@@ -147,6 +148,41 @@
             <x-per-halaman />
         </div>
     </div>
+
+    {{-- Modal guru yang ditugaskan di sekolah terpilih --}}
+    @if ($guruSekolahId)
+        <dialog class="modal modal-open">
+            <div class="modal-box max-w-2xl">
+                <h3 class="text-lg font-bold">Guru yang Ditugaskan</h3>
+                <p class="text-sm opacity-70">{{ $guruSekolahNama }} — {{ count($guruSekolahDaftar) }} guru</p>
+                @if (count($guruSekolahDaftar) > 0)
+                    <div class="mt-3 max-h-96 overflow-y-auto">
+                        <table class="table table-sm w-full">
+                            <thead>
+                                <tr><th>Nama</th><th>NIP</th><th>Mapel</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($guruSekolahDaftar as $g)
+                                    <tr>
+                                        <td class="font-medium">{{ $g['nama'] }}</td>
+                                        <td class="text-sm">{{ $g['nip'] ?: '—' }}</td>
+                                        <td class="text-sm">{{ $g['mapel'] ?: '—' }}</td>
+                                        <td><x-lencana-status nada="gelap" :teks="$g['status']" /></td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="py-4 text-sm opacity-60">Belum ada guru yang ditugaskan di sekolah ini.</p>
+                @endif
+                <div class="modal-action">
+                    <button type="button" wire:click="tutupGuru" class="btn">Tutup</button>
+                </div>
+            </div>
+            <button type="button" class="modal-backdrop" wire:click="tutupGuru" aria-label="Tutup">Tutup</button>
+        </dialog>
+    @endif
 </div>
 
 </div>

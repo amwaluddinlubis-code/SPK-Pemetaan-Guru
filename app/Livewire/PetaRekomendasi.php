@@ -191,7 +191,7 @@ class PetaRekomendasi extends Component
         $queryGuru = $this->scopeGuru(Guru::orderBy('nama'));
 
         return view('livewire.peta-rekomendasi', [
-            'daftarGuru' => $queryGuru->get(['id', 'nama', 'mapel', 'jenjang']),
+            'daftarGuru' => $queryGuru->get(['id', 'nama', 'nip']),
         ]);
     }
 
